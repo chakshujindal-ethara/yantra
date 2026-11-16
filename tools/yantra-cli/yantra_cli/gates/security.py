@@ -110,9 +110,11 @@ class SecurityGate:
         """A project of its own (no client organisation) with one stored clip, and worker1 holding its unit."""
         tag = uuid.uuid4().hex[:6]
         project = ops.post(
-            "/v1/projects", {"name": f"Security gate {tag}", "currency": "INR", "payload_schema": SCHEMA}
+            "/v1/projects", {"name": f"System check · security {tag}", "currency": "INR", "payload_schema": SCHEMA}
         )
-        batch = ops.post(f"/v1/projects/{project['id']}/batches", {"title": "gate", "unit_pay": "1", "unit_price": "2"})
+        batch = ops.post(
+            f"/v1/projects/{project['id']}/batches", {"title": "System check", "unit_pay": "1", "unit_price": "2"}
+        )
         ups = ops.post(
             f"/v1/batches/{batch['id']}/payload-uploads",
             {"files": [{"name": f"gate-{tag}.wav", "content_type": "audio/wav", "size_bytes": len(CLIP)}]},

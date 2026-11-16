@@ -59,10 +59,52 @@ class StageBar extends StatelessWidget {
       ],
     );
     if (legend) return bar;
-    // in a table the legend is off: the numbers ride on a tooltip and a semantics label instead
+    // in a table the legend is off: the headline number sits beside the bar, the full breakdown rides on a
+    // tooltip and a semantics label
     return Tooltip(
       message: breakdown,
-      child: Semantics(label: '$accepted accepted of $total', container: true, child: bar),
+      child: Semantics(
+        label: '$accepted accepted of $total',
+        container: true,
+        child: ExcludeSemantics(
+          child: CountedBar(bar: bar, accepted: accepted, total: total),
+        ),
+      ),
+    );
+  }
+}
+
+/// A table cell's bar with its headline number beside it ("2 of 12 accepted", or "No units yet"). A narrow cell
+/// keeps the bar alone: the caller's tooltip still has the numbers.
+class CountedBar extends StatelessWidget {
+  const CountedBar({super.key, required this.bar, required this.accepted, required this.total});
+  final Widget bar;
+  final int accepted;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = PortalTokens.of(context);
+    return LayoutBuilder(
+      builder: (context, box) => box.maxWidth < 160
+          ? bar
+          : Row(
+              children: [
+                Expanded(flex: 3, child: bar),
+                const SizedBox(width: 12),
+                Flexible(
+                  flex: 2,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      total == 0 ? 'No units yet' : '$accepted of $total accepted',
+                      style: AppTheme.figure(context, fontSize: 12.5, color: t.textMuted),
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

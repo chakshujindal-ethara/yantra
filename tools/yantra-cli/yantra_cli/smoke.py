@@ -138,7 +138,7 @@ class Smoke:
         project = ops1.post(
             "/v1/projects",
             {
-                "name": f"Smoke {gate}",
+                "name": f"System check · end to end ({gate})",
                 "currency": "INR",
                 "payload_schema": SCHEMA,
                 "cert_gate": gate,
@@ -147,7 +147,13 @@ class Smoke:
         )
         batch = ops1.post(
             f"/v1/projects/{project['id']}/batches",
-            {"title": "smoke batch", "unit_pay": "28", "unit_price": "60", "review_pay": "6", "claim_ttl_minutes": 60},
+            {
+                "title": "System check batch",
+                "unit_pay": "28",
+                "unit_price": "60",
+                "review_pay": "6",
+                "claim_ttl_minutes": 60,
+            },
         )
         lines = [{"external_ref": f"s{i}", "payload": {"text": f"line {i}", "language": "hi"}} for i in range(3)]
         dry = ops1.post(f"/v1/batches/{batch['id']}/units/import", {"lines": lines}, dry_run="true")

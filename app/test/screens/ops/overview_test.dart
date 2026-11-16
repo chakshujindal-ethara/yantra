@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yantra_app/core/theme/app_theme.dart';
 import 'package:yantra_app/core/widgets/cards.dart';
 import 'package:yantra_app/core/widgets/stage_bar.dart';
 import 'package:yantra_app/widgets/load_view.dart';
@@ -131,6 +132,24 @@ void main() {
     final tooltip = tester.widget<Tooltip>(find.descendant(of: find.byType(StageBar), matching: find.byType(Tooltip)));
     expect(tooltip.message, '40 available · 5 in progress · 5 in review · 50 accepted');
     handle.dispose();
+  });
+
+  testWidgets('the units bar in a table shows how many are accepted beside it, and says when there are none', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: const Scaffold(
+          body: Column(
+            children: [
+              StageBar(legend: false, available: 7, inProgress: 1, inReview: 1, accepted: 2, needsEdits: 1),
+              StageBar(legend: false, available: 0, inProgress: 0, inReview: 0, accepted: 0),
+            ],
+          ),
+        ),
+      ),
+    );
+    expect(find.text('2 of 12 accepted'), findsOneWidget);
+    expect(find.text('No units yet'), findsOneWidget);
   });
 
   testWidgets('the projects table lists the latest projects and opens one', (tester) async {

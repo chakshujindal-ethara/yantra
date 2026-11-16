@@ -30,7 +30,7 @@ class DeliveryGate:
         authors = [Actor.new("worker"), Actor.new("worker")]
         reviewers = [Actor.new("worker,reviewer"), Actor.new("worker,reviewer")]
         tag = ops.id[:6]
-        batch_id = published_batch(self.api, ops, f"delivery-{tag}", UNITS)
+        batch_id = published_batch(self.api, ops, f"System check · delivery {tag}", UNITS)
         for w in authors + reviewers:
             self.api.put(ops, f"/v1/workers/{w.id}", {"status": "eligible", "cert_gates": []})
         owner: dict[str, Actor] = {}

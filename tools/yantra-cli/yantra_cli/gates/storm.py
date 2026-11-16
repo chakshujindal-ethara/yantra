@@ -56,7 +56,7 @@ class ClaimStorm:
     def run(self) -> GateResult:
         ops = Actor.new("ops")
         tag = Actor.new("x").id[:6]
-        batch_id = published_batch(self.api, ops, f"storm-{tag}", self.units)
+        batch_id = published_batch(self.api, ops, f"Load test · claim storm {tag}", self.units)
         crowd = [Actor.new("worker") for _ in range(self.workers)]
         for w in crowd:
             self.api.put(ops, f"/v1/workers/{w.id}", {"status": "eligible", "cert_gates": []})

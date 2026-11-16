@@ -26,10 +26,15 @@ class StorageSmoke:
         tag = uuid.uuid4().hex[:6]
         project = self.ops.post(
             "/v1/projects",
-            {"name": f"Storage smoke {tag}", "currency": "INR", "payload_schema": SCHEMA, "margin_floor": "0"},
+            {
+                "name": f"System check · file storage {tag}",
+                "currency": "INR",
+                "payload_schema": SCHEMA,
+                "margin_floor": "0",
+            },
         )
         batch = self.ops.post(
-            f"/v1/projects/{project['id']}/batches", {"title": "media", "unit_pay": "1", "unit_price": "2"}
+            f"/v1/projects/{project['id']}/batches", {"title": "System check media", "unit_pay": "1", "unit_price": "2"}
         )
         try:
             ups = self.ops.post(

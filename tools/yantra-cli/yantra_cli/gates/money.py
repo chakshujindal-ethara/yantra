@@ -50,7 +50,9 @@ class MoneyParity:
     def run(self) -> GateResult:
         ops, fin1, fin2 = Actor.new("ops"), Actor.new("finance"), Actor.new("finance")
         tag = Actor.new("x").id[:6]
-        batch_id = published_batch(self.api, ops, f"parity-{tag}", self.units, str(UNIT_PAY), str(UNIT_PRICE))
+        batch_id = published_batch(
+            self.api, ops, f"Load test · money parity {tag}", self.units, str(UNIT_PAY), str(UNIT_PRICE)
+        )
         crowd = [Actor.new("worker,reviewer") for _ in range(self.workers)]
         for w in crowd:
             self.api.put(ops, f"/v1/workers/{w.id}", {"status": "eligible", "cert_gates": []})
