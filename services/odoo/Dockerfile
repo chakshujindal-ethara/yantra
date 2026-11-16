@@ -1,7 +1,7 @@
 # Odoo 19 CE with the Yantra bridge addons and Ethara's Assessment v2, vendored at a pinned commit (vendor/VENDOR.toml).
 # Database settings come from the environment (HOST, PORT, USER, PASSWORD), which the official image's entrypoint turns
 # into --db_* flags. Pinned by digest (the tag is the nightly it was taken from); Dependabot's docker ecosystem bumps it.
-FROM odoo:19.0-20261102@sha256:5e755c725b3c43cf0be16d579904e1418300db3a2c44952f928eaddbcb0cc16d
+FROM odoo:20.0-20261112@sha256:8bcae4c1f895683ee851e19dd3e7d999e81e770defe9015bc9dad8bbf10f2b0d
 USER root
 # Assessment v2's Python packages (PyJWT, httpx, boto3, redis), pinned with hashes. The base image ships older
 # Debian copies of some of their dependencies (urllib3, idna, certifi); pip installs its own beside them.
