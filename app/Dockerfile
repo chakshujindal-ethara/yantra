@@ -2,7 +2,7 @@
 # published image carries it (ghcr.io/cirruslabs/flutter stops at 3.44.0), so the SDK is cloned at its release tag
 # onto a pinned Debian and the tag's commit is checked against the one flutter.dev publishes for that release.
 # GATEWAY_URL / KEYCLOAK_URL are baked in at build time (see README "Local run").
-FROM debian:bookworm-20261020-slim@sha256:7ff6ba31527b9e336162fa061746c366c4b2032f4d2cff2078bea43f78efe3f8 AS build
+FROM debian:bookworm-20261104-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc AS build
 ARG FLUTTER_VERSION=3.44.8
 ARG FLUTTER_COMMIT=058e0af2c2b57e369d905a03ac9748b0ebf543c6
 RUN apt-get update \
