@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Shared code for every Yantra service: settings, database, outbox, idempotency, errors, rate limits."
 requires-python = ">=3.12,<3.13"
 dependencies = [
-  "sqlalchemy==2.0.36",
+  "sqlalchemy==2.1.8",
   "psycopg[binary]==3.2.3",
   "pydantic==2.9.2",
   "pydantic-settings==2.6.1",
