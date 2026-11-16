@@ -9,7 +9,7 @@ dependencies = [
   "pydantic==2.9.2",
   "pydantic-settings==2.6.1",
   "fastapi==0.115.5",
-  "nats-py==2.9.0",
+  "nats-py==2.16.0",
   "cryptography==50.0.2",
   "uvicorn==0.32.0",
   "alembic==1.14.0",
