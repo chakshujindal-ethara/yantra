@@ -1,0 +1,218 @@
+# FE-4. A launch link signs in with its ticket instead of restoring, wipes it from the address bar, and opens the sitting it granted.
+diff --git a/ethara-assessment-fe/lib/main.dart b/ethara-assessment-fe/lib/main.dart
+index ef30de0..b4c974a 100644
+--- a/ethara-assessment-fe/lib/main.dart
++++ b/ethara-assessment-fe/lib/main.dart
+@@ -3,6 +3,7 @@ import 'dart:async';
+ import 'package:flutter/material.dart';
+ 
+ import 'app_shell.dart';
++import 'assessment/data/api_client.dart' show LaunchGrant;
+ import 'assessment/route_url.dart';
+ import 'assessment/theme.dart';
+ import 'assessment/widgets/buttons.dart';
+@@ -17,6 +18,7 @@ import 'services/reset_url_stub.dart'
+ import 'services/url_bar_stub.dart'
+     if (dart.library.js_interop) 'services/url_bar_web.dart';
+ import 'session.dart';
++import 'yantra_launch.dart';
+ 
+ const String kThemePrefKey = 'etp.theme';
+ 
+@@ -37,28 +39,38 @@ void main() {
+ /// results. It holds no business rules - every gate, score and threshold is the
+ /// module's, reached over `/api/v1/...`.
+ class EtharaAssessmentApp extends StatefulWidget {
+-  const EtharaAssessmentApp({super.key});
++  const EtharaAssessmentApp({super.key, this.pageUrl, this.session});
++
++  /// The address the app was opened at: `Uri.base` unless a test says
++  /// otherwise (on the VM `Uri.base` is a file path).
++  final Uri? pageUrl;
++
++  /// The session to drive; a fresh one unless a test supplies its own.
++  final Session? session;
+ 
+   @override
+   State<EtharaAssessmentApp> createState() => _EtharaAssessmentAppState();
+ }
+ 
+ class _EtharaAssessmentAppState extends State<EtharaAssessmentApp> {
+-  final Session _session = Session();
++  late final Session _session = widget.session ?? Session();
++
++  late final Uri _page = widget.pageUrl ?? Uri.base;
+ 
+   /// Read ONCE at startup, not on every build.
+   ///
+   /// `Uri.base` changes as the app navigates, so re-reading it later would let
+   /// a candidate who finished their exam and clicked away be yanked back into
+   /// the runner on the next rebuild.
+-  final String? _examToken = examTokenFrom(Uri.base);
++  // Not final: a Yantra launch learns the token from the redeem, not the URL.
++  late String? _examToken = examTokenFrom(_page);
+ 
+   /// The password-reset token, read the same way and for the same reason.
+   ///
+   /// MUTABLE, unlike the exam token: finishing a reset has to clear it, or a
+   /// refresh lands back on a form whose token has just been burned and reports
+   /// an expired link to somebody who has only this second used it.
+-  String? _resetToken = resetTokenFrom(Uri.base);
++  late String? _resetToken = resetTokenFrom(_page);
+ 
+   /// Dark by default: this is an operator console that people keep open all
+   /// day, and the token set was designed dark-first.
+@@ -85,7 +97,15 @@ class _EtharaAssessmentAppState extends State<EtharaAssessmentApp> {
+     // paint decides between the login form and the console. Without this a
+     // refresh looked like a sign-out: the token lived only in memory, so the
+     // VM restart lost it while the server session stayed open.
+-    unawaited(_session.restore());
++    // Opened from Yantra: the one-time ticket signs in instead. It leaves the
++    // address bar at once, so neither a reload nor history replays it.
++    final String? ticket = launchTicketFrom(_page);
++    if (ticket != null) {
++      writeBrowserUrl('/', push: false);
++      unawaited(_session.launch(ticket, onGrant: _openGrant));
++    } else {
++      unawaited(_session.restore());
++    }
+     // Keep the context-free token lookup in step with the app's mode. The
+     // chart painters and cell builders read `PortalTokens.current`, which has
+     // no BuildContext to resolve brightness from.
+@@ -98,10 +118,21 @@ class _EtharaAssessmentAppState extends State<EtharaAssessmentApp> {
+     if (mounted) setState(() {});
+   }
+ 
++  /// Point the app at what the ticket opened, before the console is built:
++  /// the sitting for a candidate (a reload is then the invitation link), the
++  /// page asked for by staff.
++  void _openGrant(LaunchGrant grant) {
++    writeBrowserUrl(
++      afterLaunchPath(examToken: grant.examToken, next: grant.next),
++      push: false,
++    );
++    _examToken = grant.examToken ?? _examToken;
++  }
++
+   @override
+   void dispose() {
+     _session.removeListener(_rebuild);
+-    _session.dispose();
++    if (widget.session == null) _session.dispose();
+     super.dispose();
+   }
+ 
+diff --git a/ethara-assessment-fe/test/yantra/launch_opens_the_sitting_test.dart b/ethara-assessment-fe/test/yantra/launch_opens_the_sitting_test.dart
+new file mode 100644
+index 0000000..dd9a4d7
+--- /dev/null
++++ b/ethara-assessment-fe/test/yantra/launch_opens_the_sitting_test.dart
+@@ -0,0 +1,108 @@
++// Opened from Yantra, the app signs in with the ticket and opens the sitting
++// straight away: no login form, and the exam token comes from the redeem, not
++// the address bar (which held only the ticket).
++import 'dart:convert';
++
++import 'package:flutter/material.dart';
++import 'package:flutter_test/flutter_test.dart';
++import 'package:http/http.dart' as http;
++import 'package:http/testing.dart';
++
++import 'package:ethara_assessment/app_shell.dart';
++import 'package:ethara_assessment/assessment/data/api_client.dart';
++import 'package:ethara_assessment/login_screen.dart';
++import 'package:ethara_assessment/main.dart';
++import 'package:ethara_assessment/session.dart';
++
++http.Response _json(int status, Object body) => http.Response(
++  jsonEncode(body),
++  status,
++  headers: <String, String>{'content-type': 'application/json'},
++);
++
++Session _session(List<String> paths, {int redeemStatus = 200}) => Session(
++  api: ApiClient(
++    baseUrl: 'http://app',
++    client: MockClient((http.Request r) async {
++      paths.add(r.url.path);
++      switch (r.url.path) {
++        case '/api/v1/yantra/launch/redeem':
++          return redeemStatus == 200
++              ? _json(200, <String, Object?>{
++                  'ok': true,
++                  'data': <String, Object?>{
++                    'access_token': 'bearer-1',
++                    'exam_token': 'exam-1',
++                    'return_url': 'http://localhost:8095/work',
++                  },
++                })
++              : _json(redeemStatus, <String, Object?>{
++                  'ok': false,
++                  'error': <String, Object?>{
++                    'code': 'ticket_used',
++                    'message': 'used',
++                  },
++                });
++        case '/api/v1/auth/me':
++          return _json(200, <String, Object?>{
++            'ok': true,
++            'data': <String, Object?>{
++              'user': <String, Object?>{
++                'name': 'Worker',
++                'uid': 8,
++                'role': 'candidate',
++              },
++            },
++          });
++      }
++      return _json(200, <String, Object?>{'ok': true, 'data': {}});
++    }),
++  ),
++);
++
++Future<void> _pump(WidgetTester t, String url, Session s) async {
++  t.view.physicalSize = const Size(1600, 1200);
++  t.view.devicePixelRatio = 1.0;
++  addTearDown(t.view.reset);
++  addTearDown(s.dispose);
++  await t.pumpWidget(EtharaAssessmentApp(pageUrl: Uri.parse(url), session: s));
++  await t.pump();
++  await t.pump();
++}
++
++void main() {
++  testWidgets('a launch link opens the sitting with no login form', (
++    WidgetTester t,
++  ) async {
++    final List<String> paths = <String>[];
++    await _pump(t, 'http://localhost:8096/yantra/launch#ticket=t-1', _session(paths));
++    expect(paths.take(2), <String>[
++      '/api/v1/yantra/launch/redeem',
++      '/api/v1/auth/me',
++    ]);
++    expect(find.byType(LoginScreen), findsNothing);
++    final AppShell shell = t.widget(find.byType(AppShell));
++    expect(shell.examToken, 'exam-1');
++  });
++
++  testWidgets('a spent link lands on the login form, saying why', (
++    WidgetTester t,
++  ) async {
++    final List<String> paths = <String>[];
++    await _pump(
++      t,
++      'http://localhost:8096/yantra/launch#ticket=t-1',
++      _session(paths, redeemStatus: 410),
++    );
++    expect(paths, <String>['/api/v1/yantra/launch/redeem']);
++    expect(find.byType(LoginScreen), findsOneWidget);
++    expect(find.textContaining('already been used'), findsWidgets);
++  });
++
++  testWidgets('without a ticket nothing is redeemed', (WidgetTester t) async {
++    final List<String> paths = <String>[];
++    await _pump(t, 'http://localhost:8096/exam/abc', _session(paths));
++    expect(paths, isNot(contains('/api/v1/yantra/launch/redeem')));
++    expect(find.byType(LoginScreen), findsOneWidget);
++  });
++}

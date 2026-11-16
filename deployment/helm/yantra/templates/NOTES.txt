@@ -1,0 +1,15 @@
+Yantra {{ .Chart.AppVersion }} ({{ .Values.env }}) as release {{ .Release.Name }} in {{ .Release.Namespace }}.
+
+API: https://{{ include "yantra.apiHost" . }}/v1   App: https://{{ include "yantra.appHost" . }}
+
+Check it:
+  kubectl -n {{ .Release.Namespace }} get pods -l app.kubernetes.io/instance={{ .Release.Name }}
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "yantra.fullname" . }}-gateway 8090:{{ .Values.python.gateway.port }}
+  curl -s localhost:8090/health
+
+Notes:
+  * Migrations ran as hook Jobs ({{ include "yantra.fullname" . }}-migrate-work, -migrate-money); a failed Job is kept
+    for its logs: kubectl -n {{ .Release.Namespace }} logs job/{{ include "yantra.fullname" . }}-migrate-work
+  * FORWARDED_ALLOW_IPS={{ .Values.config.FORWARDED_ALLOW_IPS | default "(unset: uvicorn trusts 127.0.0.1 only)" }}.
+    Set it to the ingress controller's pod CIDR or every caller shares the gateway's per-IP rate-limit bucket.
+  * The migrate hook Secret is a Helm hook: `helm uninstall` leaves it; delete it by hand when tearing down.

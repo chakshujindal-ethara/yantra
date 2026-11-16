@@ -1,0 +1,57 @@
+<mxfile host="app.diagrams.net" agent="yantra final-nov-2 build_diagrams.py" version="24.0.0">
+  <diagram id="01-context" name="System context: who uses Yantra and what it talks to">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="System context: who uses Yantra and what it talks to" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-60" width="900" height="30" as="geometry"/></mxCell>
+        <mxCell id="subtitle" value="Level 1. People on the left, Yantra in the middle, external systems on the right." style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#717182;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-34" width="1200" height="24" as="geometry"/></mxCell>
+        <mxCell id="worker" value="Candidate / Worker<br><span style="font-size:11px;color:#717182">applies, certifies, claims tasks, gets paid</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#030213;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="0" y="60" width="170" height="70" as="geometry"/></mxCell>
+        <mxCell id="reviewer" value="Reviewer / Auditor<br><span style="font-size:11px;color:#717182">judges submissions, flags unclear rubrics</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#030213;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="0" y="170" width="170" height="70" as="geometry"/></mxCell>
+        <mxCell id="ops" value="Ops / TPM / Finance<br><span style="font-size:11px;color:#717182">runs projects, pay windows, delivery</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#030213;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="0" y="280" width="170" height="70" as="geometry"/></mxCell>
+        <mxCell id="client" value="Client / Buyer<br><span style="font-size:11px;color:#717182">labs and environment vendors</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#030213;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="0" y="390" width="170" height="70" as="geometry"/></mxCell>
+        <mxCell id="lead" value="Leadership<br><span style="font-size:11px;color:#717182">the four numbers, kill tests</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#030213;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="0" y="500" width="170" height="70" as="geometry"/></mxCell>
+        <mxCell id="yantra" value="Yantra<br><span style="font-size:11px;color:#717182">trusted supply and verified production of AI training work: vet, bench, claim, review, pay, deliver, catalogue</span><br><span style="font-size:10px;color:#717182;font-family:Courier New">one repository, services around Odoo 19 CE</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="150" width="340" height="300" as="geometry"/></mxCell>
+        <mxCell id="kc" value="Keycloak<br><span style="font-size:11px;color:#717182">identity: OIDC for staff, JWT for workers</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="760" y="40" width="190" height="60" as="geometry"/></mxCell>
+        <mxCell id="rzp" value="RazorpayX<br><span style="font-size:11px;color:#717182">weekly payouts, penny drop</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#C2410C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;dashed=1;" vertex="1" parent="1"><mxGeometry x="760" y="130" width="190" height="60" as="geometry"/></mxCell>
+        <mxCell id="gst" value="NIC e-invoice (GSTN)<br><span style="font-size:11px;color:#717182">client invoices</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#C2410C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;dashed=1;" vertex="1" parent="1"><mxGeometry x="760" y="220" width="190" height="60" as="geometry"/></mxCell>
+        <mxCell id="ai" value="Vertex Gemini<br><span style="font-size:11px;color:#717182">advisory pre-review, grading</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#C2410C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;dashed=1;" vertex="1" parent="1"><mxGeometry x="760" y="310" width="190" height="60" as="geometry"/></mxCell>
+        <mxCell id="msg" value="Email, FCM, WhatsApp<br><span style="font-size:11px;color:#717182">notifications</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#C2410C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;dashed=1;" vertex="1" parent="1"><mxGeometry x="760" y="400" width="190" height="60" as="geometry"/></mxCell>
+        <mxCell id="hubs" value="Hugging Face, DataVendor, Harbor<br><span style="font-size:11px;color:#717182">Stage 3 channels and artifact registry</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9CA3AF;fontColor=#717182;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;dashed=1;" vertex="1" parent="1"><mxGeometry x="760" y="490" width="190" height="60" as="geometry"/></mxCell>
+        <mxCell id="e0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="worker" target="yantra"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="240" y="95.0"/><mxPoint x="240" y="170"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="reviewer" target="yantra"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="240" y="205.0"/><mxPoint x="240" y="205.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="ops" target="yantra"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="240" y="315.0"/><mxPoint x="240" y="315.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="client" target="yantra"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="240" y="425.0"/><mxPoint x="240" y="425.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="lead" target="yantra"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="240" y="535.0"/><mxPoint x="240" y="430"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e5" value="login" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="yantra" target="kc"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="660" y="170"/><mxPoint x="660" y="70.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e6" value="payout files, webhooks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="yantra" target="rzp"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="660" y="170"/><mxPoint x="660" y="160.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e7" value="e-invoice IRN" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="yantra" target="gst"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="660" y="250.0"/><mxPoint x="660" y="250.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e8" value="prompts, verdicts" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="yantra" target="ai"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="660" y="340.0"/><mxPoint x="660" y="340.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e9" value="messages" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="yantra" target="msg"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="660" y="430.0"/><mxPoint x="660" y="430.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e10" value="signed artifacts" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="yantra" target="hubs"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="660" y="430"/><mxPoint x="660" y="520.0"/></Array>
+        </mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

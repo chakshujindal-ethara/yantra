@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_client_project_list" model="ir.ui.view">
+        <field name="name">yantra.client.project.list</field>
+        <field name="model">yantra.client.project</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="gateway_id"/>
+                <field name="batch_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_client_project_form" model="ir.ui.view">
+        <field name="name">yantra.client.project.form</field>
+        <field name="model">yantra.client.project</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" placeholder="Project name"/></h1></div>
+                    <group>
+                        <field name="partner_id"/>
+                        <field name="gateway_id"/>
+                    </group>
+                    <notebook>
+                        <page string="Batches" name="batches">
+                            <field name="batch_ids">
+                                <list>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="title"/>
+                                    <field name="gateway_id"/>
+                                    <field name="accepted_units"/>
+                                    <field name="total_price"/>
+                                    <field name="invoice_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_client_project" model="ir.actions.act_window">
+        <field name="name">Client projects</field>
+        <field name="res_model">yantra.client.project</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_batch_list" model="ir.ui.view">
+        <field name="name">yantra.batch.list</field>
+        <field name="model">yantra.batch</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="title"/>
+                <field name="project_id"/>
+                <field name="partner_id"/>
+                <field name="gateway_id" optional="hide"/>
+                <field name="accepted_units"/>
+                <field name="unit_price"/>
+                <field name="total_price"/>
+                <field name="invoice_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_batch_form" model="ir.ui.view">
+        <field name="name">yantra.batch.form</field>
+        <field name="model">yantra.batch</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_invoice_batch" type="object" string="Invoice batch" class="btn-primary" invisible="invoice_id"/>
+                    <button name="action_invoice_batch" type="object" string="Open invoice" invisible="not invoice_id"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="title" placeholder="Batch title"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="partner_id"/>
+                            <field name="gateway_id" readonly="invoice_id"/>
+                        </group>
+                        <group string="Manifest">
+                            <field name="currency_id"/>
+                            <field name="accepted_units"/>
+                            <field name="unit_price"/>
+                            <field name="total_price"/>
+                            <field name="manifest_at"/>
+                            <field name="invoice_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_batch" model="ir.actions.act_window">
+        <field name="name">Batches</field>
+        <field name="res_model">yantra.batch</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

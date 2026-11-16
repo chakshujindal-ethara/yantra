@@ -1,0 +1,31 @@
+[project]
+name = "yantra-common"
+version = "0.1.0"
+description = "Shared code for every Yantra service: settings, database, outbox, idempotency, errors, rate limits."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "sqlalchemy==2.0.36",
+  "psycopg[binary]==3.2.3",
+  "pydantic==2.9.2",
+  "pydantic-settings==2.6.1",
+  "fastapi==0.115.5",
+  "nats-py==2.9.0",
+  "cryptography==50.0.2",
+  "uvicorn==0.32.0",
+  "alembic==1.14.0",
+  "prometheus-client==0.21.1",
+  "opentelemetry-api==1.28.2",
+  "opentelemetry-sdk==1.28.2",
+  "opentelemetry-exporter-otlp-proto-http==1.28.2",
+  "opentelemetry-instrumentation-fastapi==0.49b2",
+  "opentelemetry-instrumentation-sqlalchemy==0.49b2",
+  "opentelemetry-instrumentation-httpx==0.49b2",
+  "sentry-sdk==2.19.0",
+]
+
+[build-system]
+requires = ["hatchling==1.26.3"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["yantra_common"]

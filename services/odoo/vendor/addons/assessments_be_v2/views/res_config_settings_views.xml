@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+      THE ONE VIEW THIS HEADLESS ADDON CARRIES.
+
+      The manifest says the back-office views were deliberately not forked: the
+      Flutter client replaced them, and every operational surface lives at
+      /api/v1. Configuration is the exception, and it has to be, because the
+      credentials cannot come from the API.
+
+      `/api/v1/settings` is a READ route that deliberately withholds secrets
+      ("A mobile client has no business holding provider credentials"), and
+      `/api/v1/settings/update` reports each one back as a boolean. The Flutter
+      settings screen says as much in its own words - "Credentials stay in Odoo
+      and are never sent to this app". So the Vertex API key, the static OAuth
+      bearer and the S3 secret have exactly one home, and it is this form.
+
+      What the Flutter screen can set, this form can set, plus the credentials
+      and the two locations the Flutter screen deliberately cannot reach -
+      including the service-account key, whose only other way in is
+      `tools/vertex_setup.py` through an Odoo shell.
+
+      Labels: each field's own `string` carries a " (v2)" suffix, because
+      etp_assessment and etp_assessment_pro extend res.config.settings with the
+      same ideas and a bare "Vertex Project ID" is ambiguous in every filter
+      that offers it (see tests/test_field_labels_are_unambiguous.py). The
+      `string` on each <setting> below overrides that for display, so the form
+      reads cleanly while the underlying field stays unambiguous.
+    -->
+    <record id="assessments_be_v2_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">assessments_be_v2.res.config.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <!--
+                  "Assessments v2", not "Assessments". Three addons put a tab in
+                  this sidebar - etp_assessment, etp_assessment_pro and this one
+                  - and all three carry a "Vertex AI" block. A tab an admin
+                  cannot identify is one they configure by accident. The label
+                  matches the root menu in views/menus.xml for the same reason
+                  that one was named.
+
+                  `logo` because this module ships no static/description/icon.png
+                  and the sidebar would otherwise render a broken image.
+                -->
+                <app data-string="Assessments v2"
+                     string="Assessments v2"
+                     name="assessments_be_v2"
+                     logo="/base/static/description/settings.png"
+                     groups="assessments_be_v2.group_assessment_manager">
+
+                    <block title="Vertex AI"
+                           name="assessments_be_v2_vertex"
+                           help="Where the models run, and under whose identity. Generation, image rendering, box detection and subjective scoring ALL go through here - without a working credential the module installs and serves happily, and only generation and grading fail.">
+                        <setting id="abv2_vertex_project_id"
+                                 string="Vertex project ID"
+                                 help="GCP project ID hosting the Vertex AI / Gemini deployment. Left empty, it is filled in from the uploaded service account's own project on the first bearer mint.">
+                            <field name="assessments_be_vertex_project_id"
+                                   placeholder="my-gcp-project"/>
+                        </setting>
+                        <setting id="abv2_vertex_location"
+                                 string="Vertex location"
+                                 help="Region for ALL Gemini models, text and image alike. The Gemini 3 series is served on 'global' only - a regional value there 404s in a way that reads as a missing model rather than a wrong region.">
+                            <field name="assessments_be_vertex_location"
+                                   placeholder="global"/>
+                        </setting>
+                        <setting id="abv2_vertex_model"
+                                 string="Default model"
+                                 help="The model every empty override below resolves to. Keeping the overrides separate means this can be a cheap model without misrouting the work that needs a specific one.">
+                            <field name="assessments_be_vertex_model"
+                                   placeholder="gemini-3-pro-image"/>
+                        </setting>
+                        <setting id="abv2_generation_model"
+                                 string="Generation model"
+                                 help="Reads the SOP with its images and authors the questions. Must NOT be an image model - one sees a PDF as opaque binary and fails with 'document has no pages'. Leave empty to use the Default model.">
+                            <field name="assessments_be_generation_model"
+                                   placeholder="gemini-3.1-pro-preview"/>
+                        </setting>
+                        <setting id="abv2_scoring_model"
+                                 string="Scoring model"
+                                 help="The judge that grades written answers. MUST be a text model, never the image model. Leave empty to use the Generation model.">
+                            <field name="assessments_be_scoring_model"
+                                   placeholder="gemini-2.5-pro"/>
+                        </setting>
+                        <setting id="abv2_detection_model"
+                                 string="Detection model"
+                                 help="READS an image_label stimulus and returns the numbered-box JSON. Needs vision, not image generation: an '-image' model returns a picture where JSON was expected and is refused here. Leave empty to use the Generation model.">
+                            <field name="assessments_be_detection_model"
+                                   placeholder="gemini-3.1-flash-lite"/>
+                        </setting>
+                        <setting id="abv2_verify_model"
+                                 string="Flaw verification model"
+                                 help="Re-reads a rendered image to confirm the planted flaws are actually visible, which is what drives the A/B regenerate loop. Must READ an image, never the render model. Leave empty to use the Detection model.">
+                            <field name="assessments_be_verify_model"
+                                   placeholder="gemini-3.1-flash-lite"/>
+                        </setting>
+                        <setting id="abv2_thinking_level"
+                                 string="Thinking level (Gemini 3.x)"
+                                 help="How much internal reasoning Gemini 3.x models may do before answering. Thinking tokens bill at the OUTPUT rate, so this is a direct cost/quality dial. Leave at 'Model default' unless you have benched the alternative - forcing LOW is cheaper but makes grading and authoring measurably shallower. No effect on Gemini 2.5, on gemini-2.5-pro, or on Veo.">
+                            <field name="assessments_be_thinking_level"/>
+                        </setting>
+                        <setting id="abv2_utility_model"
+                                 string="Utility model (cheap lane)"
+                                 help="Cheap text model for the high-volume mechanical work: tag extraction, vocabulary consolidation and per-question skill labelling. Short structured jobs that do not need the authoring model's reasoning. Tag extraction also ships the SOP, so this must be able to read a PDF. Leave empty to use the Generation model, which is the behaviour before this setting existed.">
+                            <field name="assessments_be_utility_model"
+                                   placeholder="gemini-3.1-flash-lite"/>
+                        </setting>
+                        <setting id="abv2_image_model"
+                                 string="Image model"
+                                 help="Renders image_ab / image_prompt / image_label pictures. gemini-3-pro-image is Nano Banana Pro; gemini-3.1-flash-image is the cheaper Nano Banana 2. Leave empty to use the Default model.">
+                            <field name="assessments_be_image_model"
+                                   placeholder="gemini-3-pro-image"/>
+                        </setting>
+                        <setting id="abv2_fallback_model"
+                                 string="Fallback model"
+                                 help="Taken SILENTLY when the primary model refuses or times out on a generation, scoring or detection call. One Vertex model is a concentration risk: a single regional outage or quota cut halts grading AND generation, so a second model here turns an outage into a config flip. Leave empty to disable the fallback lane. Image and Veo calls are unaffected.">
+                            <field name="assessments_be_fallback_model"
+                                   placeholder="gemini-2.5-pro"/>
+                        </setting>
+                        <setting id="abv2_vertex_api_key"
+                                 string="API key"
+                                 help="AIza... (Gemini Developer API) or AQ... (Vertex Express). Stored encrypted at rest and never returned by any API route. Only one of API key, static bearer or service account is needed.">
+                            <field name="assessments_be_vertex_api_key"
+                                   password="True"
+                                   placeholder="AIza... or AQ..."/>
+                        </setting>
+                        <setting id="abv2_vertex_access_token"
+                                 string="Static OAuth bearer"
+                                 help="A static aiplatform OAuth bearer, for a deployment that mints its own. Stored encrypted at rest. Leave empty to have the module mint and refresh one from the service account below, which is the usual setup.">
+                            <field name="assessments_be_vertex_access_token"
+                                   password="True"/>
+                        </setting>
+                        <setting id="abv2_vertex_sa"
+                                 string="Service account JSON"
+                                 help="Upload the key from IAM &gt; Service Accounts &gt; Keys. The module signs a JWT with it, refreshes its own hourly bearer, and takes the GCP project from the file. Stored encrypted at rest; uploading a new one invalidates any cached bearer.">
+                            <field name="assessments_be_vertex_sa_upload"
+                                   widget="binary"
+                                   filename="assessments_be_vertex_sa_upload_filename"/>
+                            <field name="assessments_be_vertex_sa_upload_filename" invisible="1"/>
+                            <div invisible="not assessments_be_vertex_service_account_filename"
+                                 class="text-muted mt-1">
+                                Current: <field name="assessments_be_vertex_service_account_filename"
+                                                readonly="1" nolabel="1"
+                                                class="d-inline-block"/>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <block title="Video generation (Veo)"
+                           name="assessments_be_v2_video"
+                           help="Optional. Clips for video_prompt questions are only generated when a model is set here AND Vertex credentials resolve; otherwise those questions stay upload-only, which is a working state, not a broken one.">
+                        <setting id="abv2_video_model"
+                                 string="Video model"
+                                 help="veo-3.1-generate-001 has audio; veo-3.1-fast-generate-001 is cheaper. Leave empty to keep video_prompt questions upload-only.">
+                            <field name="assessments_be_video_model"
+                                   placeholder="veo-3.1-generate-001"/>
+                        </setting>
+                        <setting id="abv2_video_location"
+                                 string="Video location"
+                                 help="Veo is served from a REGIONAL endpoint and not from the Gemini 'global' - which is why it has its own setting rather than sharing the Vertex location above. Pointing Veo at 'global' returns a 404 that reads as a missing model.">
+                            <field name="assessments_be_video_location"
+                                   placeholder="us-central1"/>
+                        </setting>
+                        <setting id="abv2_video_duration"
+                                 string="Clip duration"
+                                 help="Default generated clip length when a brief omits one. Veo accepts only these exact lengths and rejects anything else with 'Unsupported output video duration' - so this is a choice, not a range.">
+                            <field name="assessments_be_video_default_duration_s"/>
+                        </setting>
+                    </block>
+
+                    <block title="Scoring"
+                           name="assessments_be_v2_scoring"
+                           help="How hard, how fast and how wide the subjective grader runs. A terminal error is NEVER retried automatically: an attempt frozen on pending until a person acts is the point, because it stops an infrastructure failure being recorded as a candidate failure.">
+                        <setting id="abv2_default_pass_threshold"
+                                 string="Default pass threshold (%)"
+                                 help="The pass threshold a new assessment starts with, between 1 and 100. Changing it never touches existing assessments.">
+                            <field name="assessments_be_default_pass_threshold"/>
+                        </setting>
+                        <setting id="abv2_llm_max_attempts"
+                                 string="Retry attempts"
+                                 help="Applies to pending, queued and failed. A terminal error is excluded on purpose. Between 1 and 5.">
+                            <field name="assessments_be_llm_max_attempts"/>
+                        </setting>
+                        <setting id="abv2_scoring_batch_size"
+                                 string="Batch size"
+                                 help="Answers graded in ONE Vertex call. Large candidates are split into sub-batches of this size so no single request overflows the token budget. Lower it if you see truncated scoring responses. Between 1 and 32.">
+                            <field name="assessments_be_scoring_batch_size"/>
+                        </setting>
+                        <setting id="abv2_scoring_tick_limit"
+                                 string="Tick limit"
+                                 help="Upper bound on the work one cron tick may claim, per shard. 20/shard/min is about 1,200/hr/shard. Raise it for a mass-hiring drive only after confirming your Vertex requests-per-minute quota can absorb it - the true ceiling is that quota, not this number.">
+                            <field name="assessments_be_scoring_tick_limit"/>
+                        </setting>
+                        <setting id="abv2_scoring_shards"
+                                 string="Shards"
+                                 help="Parallel scoring workers. Each shard is driven by its own cron record, so this cannot usefully exceed the number of shard crons that exist - a higher value is ignored at runtime because nothing claims the extra work.">
+                            <field name="assessments_be_scoring_shards"/>
+                        </setting>
+                        <setting id="abv2_scoring_parallel_calls"
+                                 string="Parallel calls"
+                                 help="Judge calls each shard keeps on the wire at once. Marks are still stored one candidate at a time. 1 grades serially. Raise Tick limit with it, to about five times this. Each call holds about 2 database connections, so a shard runs fewer when the pool is too small.">
+                            <field name="assessments_be_scoring_parallel_calls"/>
+                            <div class="text-muted">
+                                In use per shard: <field name="assessments_be_scoring_parallel_calls_effective" class="oe_inline" readonly="1"/>
+                            </div>
+                        </setting>
+                        <setting id="abv2_answers_flush_seconds"
+                                 string="Answer batch interval (seconds)"
+                                 help="How long the candidate's device waits before sending its unsent answers in one batch. Longer means fewer requests during a sitting, and up to that many seconds of typing at risk if the device dies. The device also sends on leaving a question, when the tab is hidden, and at Submit. Between 15 and 300; 0 means the default (60).">
+                            <field name="assessments_be_answers_flush_seconds"/>
+                        </setting>
+                        <setting id="abv2_paper_prefetch"
+                                 string="Send the whole paper at start"
+                                 help="Right after a candidate starts, their device fetches every question of their paper once, then moves between questions without asking the server again. Answers are still sent in batches. The paper is kept in the browser's memory only, never on disk. Off: one request per question move, as before.">
+                            <field name="assessments_be_paper_prefetch"/>
+                        </setting>
+                        <setting id="abv2_redis_url"
+                                 string="Question cache Redis URL"
+                                 help="Production uses the REDIS_URL environment variable; this field is for local and stage testing, e.g. redis://localhost:6379/0. Empty means the question cache is off and every question is built from the database, as before.">
+                            <field name="assessments_be_redis_url" password="True"/>
+                        </setting>
+                        <!-- Right after Shards and Parallel calls, on purpose:
+                             both multiply the Vertex call rate, so this is set
+                             with them or the queue simply moves from slow to
+                             quota-exhausted. -->
+                        <setting id="abv2_vertex_max_rpm"
+                                 string="Vertex calls per minute"
+                                 help="The most billable Vertex calls this deployment makes in any trailing 60 seconds, counted from the usage ledger so it holds across every worker and shard. 0 means no limit. Set it slightly below your project quota, so a burst is refused locally at no cost rather than 429-ing at Vertex - a refused call keeps the candidate queued rather than failing them. Set this whenever you raise Shards.">
+                            <field name="assessments_be_vertex_max_rpm"/>
+                        </setting>
+                        <setting id="abv2_cron_lock_mode"
+                                 string="Background job lock"
+                                 help="How the background jobs (grading, image and video, invitations, clean-ups) make sure only one copy of each runs at a time. Keep Advisory lock. Switch to Lease row when the database is reached through PgBouncer in transaction mode, where an advisory lock can be left stuck and stop a job. Applies from each job's next run. Switch in a quiet window: set Shards to 1 and wait until no job holds a lock in the current mode.">
+                            <field name="assessments_be_cron_lock_mode"/>
+                        </setting>
+                    </block>
+
+                    <block title="Integrity and spend"
+                           name="assessments_be_v2_governance"
+                           help="The limits that decide when a human is asked to look, when candidate data stops being kept, and when the module refuses to spend any more.">
+                        <setting id="abv2_score_outlier_sigma"
+                                 string="Score-outlier review sigma"
+                                 help="Flag a candidate for human review when their SUBJECTIVE score sits this many standard deviations ABOVE the cohort mean - the net for a prompt injection that dodged the answer gate and inflated a grader score. Objective answers are checked against a stored key, so they are not evidence of anything. 0 disables. Advisory only: never changes a score or a pass/fail.">
+                            <field name="assessments_be_score_outlier_sigma"/>
+                        </setting>
+                        <setting id="abv2_pii_retention_days"
+                                 string="Candidate PII retention (days)"
+                                 help="Anonymize candidate free-text answers, violation reasons and grader prose on submitted attempts older than this, via a daily cron. Numeric scores and pass/fail are ALWAYS kept. 0 keeps candidate data indefinitely, so nothing is purged until you opt in. For on-demand erasure use the candidate's own Erase Candidate Data action.">
+                            <field name="assessments_be_pii_retention_days"/>
+                        </setting>
+                        <setting id="abv2_daily_llm_cap"
+                                 string="Daily LLM cap (USD)"
+                                 help="Spend across every operation in a single day. Refuses further Vertex calls once same-day recorded spend reaches it, which is what stops adversarial answers draining a budget in one cycle. 0 means no cap, which is not the same as unset.">
+                            <field name="assessments_be_daily_llm_cap_usd"/>
+                        </setting>
+                        <setting id="abv2_per_evaluator_llm_cap"
+                                 string="Per-candidate LLM cap (USD)"
+                                 help="Bounds what grading one attempt may cost, so a single candidate cannot consume the whole budget. 0 disables the per-candidate cap.">
+                            <field name="assessments_be_per_evaluator_llm_cap_usd"/>
+                        </setting>
+                    </block>
+
+                    <block title="Media storage (S3)"
+                           name="assessments_be_v2_s3"
+                           help="Where rendered question images and clips are kept. Until a bucket, an access key and a secret are ALL set the module keeps generated media inline in the database - which works, but does not survive a large question bank.">
+                        <setting string="Bucket"
+                                 help="The private bucket rendered media is written to. Media is never served from here directly - the module presigns a URL per request.">
+                            <field name="assessments_be_s3_bucket"
+                                   placeholder="etp-assessment-media"/>
+                        </setting>
+                        <setting string="Region"
+                                 help="The bucket's AWS region.">
+                            <field name="assessments_be_s3_region"
+                                   placeholder="us-east-1"/>
+                        </setting>
+                        <setting string="Access key ID"
+                                 help="The IAM access key the module uploads and presigns with.">
+                            <field name="assessments_be_s3_access_key_id"
+                                   placeholder="AKIA..."/>
+                        </setting>
+                        <setting string="Secret access key"
+                                 help="Stored ENCRYPTED at rest, keyed off this database's own secret. It is never returned by any API route.">
+                            <field name="assessments_be_s3_secret_key"
+                                   password="True"/>
+                        </setting>
+                        <setting string="Key prefix"
+                                 help="Every object is written under this prefix, so one bucket can hold more than one environment.">
+                            <field name="assessments_be_s3_folder"
+                                   placeholder="etp_assessment"/>
+                        </setting>
+                        <setting string="CDN base URL"
+                                 help="Optional. Serve media through a CDN instead of presigning every request. Leave blank to keep the bucket private.">
+                            <field name="assessments_be_s3_cdn_url"
+                                   placeholder="https://cdn.example.com"/>
+                        </setting>
+                        <setting id="abv2_media_redirect_to_s3"
+                                 string="Redirect image requests to S3"
+                                 help="OFF by default, and turning it on WITHOUT a bucket CORS rule breaks the question bank. The admin client fetches images with an Authorization bearer, which makes them XHR rather than plain &lt;img&gt; subresources - and an XHR following a cross-origin redirect needs CORS headers from the REDIRECT TARGET. S3 answers a presigned GET with no Access-Control-Allow-Origin unless the bucket carries a CORS rule, so the browser fetches a perfectly good PNG and discards it: every APPROVED question renders its 'no image' state over a picture S3 is holding. Drafts are unaffected (still inline), so the failure appears only on approval. Turn this on once the bucket has a CORS rule naming the app's origin; it then saves a worker per image. Videos already redirect unconditionally and are not affected either way.">
+                            <field name="assessments_be_media_redirect_to_s3"/>
+                        </setting>
+                        <setting string="Upload retries"
+                                 help="How many times an upload is retried before the render is marked failed.">
+                            <field name="assessments_be_s3_max_retries"/>
+                        </setting>
+                    </block>
+
+                    <block title="Browser access"
+                           name="assessments_be_v2_cors"
+                           help="The Flutter client is served from its own origin, so every API and media request it makes is cross-origin. An origin that is not listed here is refused by the BROWSER, not by Odoo - the server log looks perfectly healthy while the app shows empty screens. The client paired with this server is trusted automatically, so this list is usually only needed for an EXTRA origin.">
+                        <setting string="Extra allowed origins"
+                                 help="Usually empty. The assessment client deployed alongside this server is derived from the web base URL and trusted without being listed here. Add an origin only for an additional front end. Comma-separated, no trailing slash.">
+                            <field name="assessments_be_cors_origins"
+                                   placeholder="https://another-frontend.example.com"/>
+                        </setting>
+                        <setting string="Trust localhost origins"
+                                 help="DEVELOPMENT ONLY. Lets a locally served build talk to this server. On a shared deployment this trusts any page a signed-in user happens to be running on their own machine.">
+                            <field name="assessments_be_cors_allow_localhost"/>
+                        </setting>
+                    </block>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <!--
+      `module` MUST name the <app> above, because that attribute IS the tab key
+      the settings page selects on (web/static/src/webclient/settings_form_view).
+
+      Any other key opens another addon's tab: `etp_assessment` (a third
+      installed addon) has a Vertex AI block of its own, so an admin would
+      configure a module that is not running the job - the ambiguity
+      tests/test_field_labels_are_unambiguous.py exists to prevent, arriving
+      through the action instead of the labels.
+    -->
+    <record id="action_assessments_be_config" model="ir.actions.act_window">
+        <field name="name">Assessments v2 Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'assessments_be_v2'}</field>
+    </record>
+</odoo>

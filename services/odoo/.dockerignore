@@ -1,0 +1,7 @@
+**/__pycache__
+**/*.pyc
+vendor/patches
+vendor/VENDOR.toml
+requirements-v2.in
+compose.test.yaml
+README.md

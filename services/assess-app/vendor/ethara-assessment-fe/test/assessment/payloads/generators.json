@@ -1,0 +1,971 @@
+{
+ "ok": true,
+ "data": [
+  {
+   "id": 47680,
+   "name": "Untitled generator",
+   "active": true,
+   "state": "draft",
+   "sop_title": "",
+   "sop_gen_state": "idle",
+   "sop_gen_error": "",
+   "tag_extract_state": "idle",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 0,
+   "approved_count": 0,
+   "resource_count": 0,
+   "similar_count": 0,
+   "tags": [],
+   "plain_tags": "",
+   "create_date": "2026-08-12T08:57:14Z"
+  },
+  {
+   "id": 42243,
+   "name": "UI CHECK - Structures Demo",
+   "active": true,
+   "state": "draft",
+   "sop_title": "",
+   "sop_gen_state": "idle",
+   "sop_gen_error": "",
+   "tag_extract_state": "idle",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 0,
+   "approved_count": 0,
+   "resource_count": 2,
+   "similar_count": 0,
+   "tags": [],
+   "plain_tags": "",
+   "create_date": "2026-08-03T13:00:44Z"
+  },
+  {
+   "id": 25208,
+   "name": "Video Artistic Style Generator",
+   "active": true,
+   "state": "done",
+   "sop_title": "Video Artistic Style Reference Project",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 5,
+   "approved_count": 0,
+   "resource_count": 2,
+   "similar_count": 2,
+   "tags": [
+    {
+     "id": 1837,
+     "name": "domain:video-style-transfer",
+     "prefix": "domain",
+     "display": "Video Style Transfer",
+     "label": "video-style-transfer",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1815,
+     "name": "modality:video",
+     "prefix": "modality",
+     "display": "Video",
+     "label": "video",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1834,
+     "name": "output-format:written-prompt",
+     "prefix": "output-format",
+     "display": "Written Prompt",
+     "label": "written-prompt",
+     "color": 0,
+     "usage_count": 4
+    },
+    {
+     "id": 1843,
+     "name": "skill:concrete-description-writing",
+     "prefix": "skill",
+     "display": "Write Concrete Descriptions",
+     "label": "concrete-description-writing",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1820,
+     "name": "skill:prompt-engineering",
+     "prefix": "skill",
+     "display": "Write Good Prompts",
+     "label": "prompt-engineering",
+     "color": 0,
+     "usage_count": 5
+    },
+    {
+     "id": 1814,
+     "name": "skill:style-analysis",
+     "prefix": "skill",
+     "display": "Analyze Style",
+     "label": "style-analysis",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1841,
+     "name": "skill:video-pair-selection",
+     "prefix": "skill",
+     "display": "Select Video Pairs",
+     "label": "video-pair-selection",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1840,
+     "name": "task:video-transformation-prompting",
+     "prefix": "task",
+     "display": "Write Video Transformation Prompts",
+     "label": "video-transformation-prompting",
+     "color": 0,
+     "usage_count": 2
+    }
+   ],
+   "plain_tags": "video-to-video, style-transfer, generative-ai, prompt-creation",
+   "create_date": "2026-07-27T11:24:22Z"
+  },
+  {
+   "id": 25207,
+   "name": "High Res Dense Generator",
+   "active": true,
+   "state": "done",
+   "sop_title": "260123-high-res-dense-bbox-with-labels",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 10,
+   "approved_count": 2,
+   "resource_count": 2,
+   "similar_count": 0,
+   "tags": [
+    {
+     "id": 1805,
+     "name": "domain:ui-annotation",
+     "prefix": "domain",
+     "display": "UI Annotation",
+     "label": "ui-annotation",
+     "color": 5,
+     "usage_count": 1
+    },
+    {
+     "id": 1809,
+     "name": "modality:application-screenshot",
+     "prefix": "modality",
+     "display": "App Screenshot",
+     "label": "application-screenshot",
+     "color": 11,
+     "usage_count": 1
+    },
+    {
+     "id": 1810,
+     "name": "output-format:text-description",
+     "prefix": "output-format",
+     "display": "Text Description",
+     "label": "text-description",
+     "color": 0,
+     "usage_count": 1
+    },
+    {
+     "id": 1807,
+     "name": "skill:action-based-description",
+     "prefix": "skill",
+     "display": "Describe Actions",
+     "label": "action-based-description",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1823,
+     "name": "skill:ui-element-recognition",
+     "prefix": "skill",
+     "display": "Recognize UI Elements",
+     "label": "ui-element-recognition",
+     "color": 0,
+     "usage_count": 1
+    },
+    {
+     "id": 1844,
+     "name": "task:ui-element-description",
+     "prefix": "task",
+     "display": "Describe UI Elements",
+     "label": "ui-element-description",
+     "color": 0,
+     "usage_count": 1
+    }
+   ],
+   "plain_tags": "dense-bounding-boxes, functionality-description, interactive-elements",
+   "create_date": "2026-07-27T11:18:08Z"
+  },
+  {
+   "id": 25206,
+   "name": "Q7R Demo 2",
+   "active": true,
+   "state": "done",
+   "sop_title": "260610 Annot Critic Q7r- Guidelines",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 3,
+   "approved_count": 0,
+   "resource_count": 1,
+   "similar_count": 2,
+   "tags": [
+    {
+     "id": 1828,
+     "name": "domain:image-annotation",
+     "prefix": "domain",
+     "display": "Image Annotation",
+     "label": "image-annotation",
+     "color": 1,
+     "usage_count": 3
+    },
+    {
+     "id": 1808,
+     "name": "modality:image",
+     "prefix": "modality",
+     "display": "Image",
+     "label": "image",
+     "color": 0,
+     "usage_count": 7
+    },
+    {
+     "id": 1846,
+     "name": "output-format:point-coordinates-and-text",
+     "prefix": "output-format",
+     "display": "Points and Descriptions",
+     "label": "point-coordinates-and-text",
+     "color": 0,
+     "usage_count": 1
+    },
+    {
+     "id": 1824,
+     "name": "skill:artifact-detection",
+     "prefix": "skill",
+     "display": "Spot Artifacts",
+     "label": "artifact-detection",
+     "color": 0,
+     "usage_count": 6
+    },
+    {
+     "id": 1843,
+     "name": "skill:concrete-description-writing",
+     "prefix": "skill",
+     "display": "Write Concrete Descriptions",
+     "label": "concrete-description-writing",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1842,
+     "name": "skill:precise-point-placement",
+     "prefix": "skill",
+     "display": "Precise Point Placement",
+     "label": "precise-point-placement",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1845,
+     "name": "task:prompt-and-annotate-defects",
+     "prefix": "task",
+     "display": "Prompt and Annotate AI Defects",
+     "label": "prompt-and-annotate-defects",
+     "color": 0,
+     "usage_count": 1
+    }
+   ],
+   "plain_tags": "ai-tells, defect-annotation, point-annotation, image-generation, prompting",
+   "create_date": "2026-07-27T10:55:48Z"
+  },
+  {
+   "id": 25205,
+   "name": "Text to Image Generators",
+   "active": true,
+   "state": "done",
+   "sop_title": "Text to Image Compare - SOP",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 12,
+   "approved_count": 11,
+   "resource_count": 3,
+   "similar_count": 3,
+   "tags": [
+    {
+     "id": 1817,
+     "name": "domain:image-evaluation",
+     "prefix": "domain",
+     "display": "Image Evaluation",
+     "label": "image-evaluation",
+     "color": 1,
+     "usage_count": 3
+    },
+    {
+     "id": 1808,
+     "name": "modality:image",
+     "prefix": "modality",
+     "display": "Image",
+     "label": "image",
+     "color": 0,
+     "usage_count": 7
+    },
+    {
+     "id": 1822,
+     "name": "output-format:ab-choice",
+     "prefix": "output-format",
+     "display": "A/B Choice",
+     "label": "ab-choice",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1824,
+     "name": "skill:artifact-detection",
+     "prefix": "skill",
+     "display": "Spot Artifacts",
+     "label": "artifact-detection",
+     "color": 0,
+     "usage_count": 6
+    },
+    {
+     "id": 1821,
+     "name": "skill:comparative-judgment",
+     "prefix": "skill",
+     "display": "Compare and Judge",
+     "label": "comparative-judgment",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1833,
+     "name": "skill:prompt-adherence-evaluation",
+     "prefix": "skill",
+     "display": "Evaluate Prompt Adherence",
+     "label": "prompt-adherence-evaluation",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1838,
+     "name": "skill:prompt-deconstruction",
+     "prefix": "skill",
+     "display": "Prompt Deconstruction",
+     "label": "prompt-deconstruction",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1839,
+     "name": "task:image-comparison",
+     "prefix": "task",
+     "display": "Compare Two AI Images (A/B)",
+     "label": "image-comparison",
+     "color": 0,
+     "usage_count": 2
+    }
+   ],
+   "plain_tags": "text-to-image, comparative-judgment, artifact-detection, instruction-following",
+   "create_date": "2026-07-27T09:20:38Z"
+  },
+  {
+   "id": 25204,
+   "name": "Q7R",
+   "active": true,
+   "state": "done",
+   "sop_title": "Q7r Guidelines - Image Annotation SOP v1.0",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 4,
+   "approved_count": 0,
+   "resource_count": 1,
+   "similar_count": 3,
+   "tags": [
+    {
+     "id": 1828,
+     "name": "domain:image-annotation",
+     "prefix": "domain",
+     "display": "Image Annotation",
+     "label": "image-annotation",
+     "color": 1,
+     "usage_count": 3
+    },
+    {
+     "id": 1808,
+     "name": "modality:image",
+     "prefix": "modality",
+     "display": "Image",
+     "label": "image",
+     "color": 0,
+     "usage_count": 7
+    },
+    {
+     "id": 1819,
+     "name": "output-format:point-coordinates",
+     "prefix": "output-format",
+     "display": "Point Coordinates",
+     "label": "point-coordinates",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1824,
+     "name": "skill:artifact-detection",
+     "prefix": "skill",
+     "display": "Spot Artifacts",
+     "label": "artifact-detection",
+     "color": 0,
+     "usage_count": 6
+    },
+    {
+     "id": 1843,
+     "name": "skill:concrete-description-writing",
+     "prefix": "skill",
+     "display": "Write Concrete Descriptions",
+     "label": "concrete-description-writing",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1842,
+     "name": "skill:precise-point-placement",
+     "prefix": "skill",
+     "display": "Precise Point Placement",
+     "label": "precise-point-placement",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1818,
+     "name": "task:point-annotation",
+     "prefix": "task",
+     "display": "Annotate Specific Points",
+     "label": "point-annotation",
+     "color": 0,
+     "usage_count": 2
+    }
+   ],
+   "plain_tags": "defect-annotation, ai-tells, image-quality",
+   "create_date": "2026-07-27T08:53:50Z"
+  },
+  {
+   "id": 25214,
+   "name": "Image evals 23/7",
+   "active": true,
+   "state": "done",
+   "sop_title": "Text to Image Compare - SOP",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 3,
+   "approved_count": 1,
+   "resource_count": 0,
+   "similar_count": 3,
+   "tags": [
+    {
+     "id": 1817,
+     "name": "domain:image-evaluation",
+     "prefix": "domain",
+     "display": "Image Evaluation",
+     "label": "image-evaluation",
+     "color": 1,
+     "usage_count": 3
+    },
+    {
+     "id": 1808,
+     "name": "modality:image",
+     "prefix": "modality",
+     "display": "Image",
+     "label": "image",
+     "color": 0,
+     "usage_count": 7
+    },
+    {
+     "id": 1822,
+     "name": "output-format:ab-choice",
+     "prefix": "output-format",
+     "display": "A/B Choice",
+     "label": "ab-choice",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1824,
+     "name": "skill:artifact-detection",
+     "prefix": "skill",
+     "display": "Spot Artifacts",
+     "label": "artifact-detection",
+     "color": 0,
+     "usage_count": 6
+    },
+    {
+     "id": 1821,
+     "name": "skill:comparative-judgment",
+     "prefix": "skill",
+     "display": "Compare and Judge",
+     "label": "comparative-judgment",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1838,
+     "name": "skill:prompt-deconstruction",
+     "prefix": "skill",
+     "display": "Prompt Deconstruction",
+     "label": "prompt-deconstruction",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1839,
+     "name": "task:image-comparison",
+     "prefix": "task",
+     "display": "Compare Two AI Images (A/B)",
+     "label": "image-comparison",
+     "color": 0,
+     "usage_count": 2
+    }
+   ],
+   "plain_tags": "text-to-image, instruction-following, visual-quality, ai-artifacts, logical-correctness",
+   "create_date": "2026-07-24T04:45:22Z"
+  },
+  {
+   "id": 25213,
+   "name": "Video artistic style ref 23/7",
+   "active": true,
+   "state": "done",
+   "sop_title": "Write Video Transformation Prompts",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 0,
+   "approved_count": 0,
+   "resource_count": 0,
+   "similar_count": 2,
+   "tags": [
+    {
+     "id": 1837,
+     "name": "domain:video-style-transfer",
+     "prefix": "domain",
+     "display": "Video Style Transfer",
+     "label": "video-style-transfer",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1815,
+     "name": "modality:video",
+     "prefix": "modality",
+     "display": "Video",
+     "label": "video",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1834,
+     "name": "output-format:written-prompt",
+     "prefix": "output-format",
+     "display": "Written Prompt",
+     "label": "written-prompt",
+     "color": 0,
+     "usage_count": 4
+    },
+    {
+     "id": 1820,
+     "name": "skill:prompt-engineering",
+     "prefix": "skill",
+     "display": "Write Good Prompts",
+     "label": "prompt-engineering",
+     "color": 0,
+     "usage_count": 5
+    },
+    {
+     "id": 1814,
+     "name": "skill:style-analysis",
+     "prefix": "skill",
+     "display": "Analyze Style",
+     "label": "style-analysis",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1841,
+     "name": "skill:video-pair-selection",
+     "prefix": "skill",
+     "display": "Select Video Pairs",
+     "label": "video-pair-selection",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1840,
+     "name": "task:video-transformation-prompting",
+     "prefix": "task",
+     "display": "Write Video Transformation Prompts",
+     "label": "video-transformation-prompting",
+     "color": 0,
+     "usage_count": 2
+    }
+   ],
+   "plain_tags": "Write Video Transformation Prompts, Video Style Transfer, Write Good Prompts, Analyze Style, Select Video Pairs, Video, Written Prompt",
+   "create_date": "2026-07-23T14:22:52Z"
+  },
+  {
+   "id": 25212,
+   "name": "Furniture removal",
+   "active": true,
+   "state": "done",
+   "sop_title": "Furniture Removal and Re-Addition Evaluation Project",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 0,
+   "approved_count": 0,
+   "resource_count": 0,
+   "similar_count": 0,
+   "tags": [
+    {
+     "id": 1836,
+     "name": "domain:interior-design",
+     "prefix": "domain",
+     "display": "Interior Design",
+     "label": "interior-design",
+     "color": 0,
+     "usage_count": 1
+    },
+    {
+     "id": 1808,
+     "name": "modality:image",
+     "prefix": "modality",
+     "display": "Image",
+     "label": "image",
+     "color": 0,
+     "usage_count": 7
+    },
+    {
+     "id": 1834,
+     "name": "output-format:written-prompt",
+     "prefix": "output-format",
+     "display": "Written Prompt",
+     "label": "written-prompt",
+     "color": 0,
+     "usage_count": 4
+    },
+    {
+     "id": 1807,
+     "name": "skill:action-based-description",
+     "prefix": "skill",
+     "display": "Describe Actions",
+     "label": "action-based-description",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1820,
+     "name": "skill:prompt-engineering",
+     "prefix": "skill",
+     "display": "Write Good Prompts",
+     "label": "prompt-engineering",
+     "color": 0,
+     "usage_count": 5
+    },
+    {
+     "id": 1813,
+     "name": "task:prompt-generation",
+     "prefix": "task",
+     "display": "Write Prompts",
+     "label": "prompt-generation",
+     "color": 0,
+     "usage_count": 2
+    }
+   ],
+   "plain_tags": "furniture-re-addition, image-transformation, prompt-writing, interior-design",
+   "create_date": "2026-07-23T12:54:26Z"
+  },
+  {
+   "id": 25211,
+   "name": "I2I demo 2",
+   "active": true,
+   "state": "done",
+   "sop_title": "Evaluating Instruction Accuracy, Image Alignment, and AI Quality",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 1,
+   "approved_count": 0,
+   "resource_count": 0,
+   "similar_count": 3,
+   "tags": [
+    {
+     "id": 1817,
+     "name": "domain:image-evaluation",
+     "prefix": "domain",
+     "display": "Image Evaluation",
+     "label": "image-evaluation",
+     "color": 1,
+     "usage_count": 3
+    },
+    {
+     "id": 1808,
+     "name": "modality:image",
+     "prefix": "modality",
+     "display": "Image",
+     "label": "image",
+     "color": 0,
+     "usage_count": 7
+    },
+    {
+     "id": 1826,
+     "name": "output-format:yes-no-answers",
+     "prefix": "output-format",
+     "display": "Yes/No Answers",
+     "label": "yes-no-answers",
+     "color": 0,
+     "usage_count": 1
+    },
+    {
+     "id": 1824,
+     "name": "skill:artifact-detection",
+     "prefix": "skill",
+     "display": "Spot Artifacts",
+     "label": "artifact-detection",
+     "color": 0,
+     "usage_count": 6
+    },
+    {
+     "id": 1827,
+     "name": "skill:pixel-alignment",
+     "prefix": "skill",
+     "display": "Align Pixels",
+     "label": "pixel-alignment",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1833,
+     "name": "skill:prompt-adherence-evaluation",
+     "prefix": "skill",
+     "display": "Evaluate Prompt Adherence",
+     "label": "prompt-adherence-evaluation",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1825,
+     "name": "task:image-edit-evaluation",
+     "prefix": "task",
+     "display": "Evaluate Image Edits",
+     "label": "image-edit-evaluation",
+     "color": 0,
+     "usage_count": 1
+    }
+   ],
+   "plain_tags": "image-editing, instruction-following, pixel-alignment, ai-artifacts, quality-assurance",
+   "create_date": "2026-07-23T12:04:32Z"
+  },
+  {
+   "id": 25210,
+   "name": "Artistic Style DEMO",
+   "active": true,
+   "state": "done",
+   "sop_title": "Write Prompts",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 0,
+   "approved_count": 0,
+   "resource_count": 0,
+   "similar_count": 1,
+   "tags": [
+    {
+     "id": 1811,
+     "name": "domain:video-evaluation",
+     "prefix": "domain",
+     "display": "Video Evaluation",
+     "label": "video-evaluation",
+     "color": 1,
+     "usage_count": 1
+    },
+    {
+     "id": 1815,
+     "name": "modality:video",
+     "prefix": "modality",
+     "display": "Video",
+     "label": "video",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1834,
+     "name": "output-format:written-prompt",
+     "prefix": "output-format",
+     "display": "Written Prompt",
+     "label": "written-prompt",
+     "color": 0,
+     "usage_count": 4
+    },
+    {
+     "id": 1821,
+     "name": "skill:comparative-judgment",
+     "prefix": "skill",
+     "display": "Compare and Judge",
+     "label": "comparative-judgment",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1820,
+     "name": "skill:prompt-engineering",
+     "prefix": "skill",
+     "display": "Write Good Prompts",
+     "label": "prompt-engineering",
+     "color": 0,
+     "usage_count": 5
+    },
+    {
+     "id": 1814,
+     "name": "skill:style-analysis",
+     "prefix": "skill",
+     "display": "Analyze Style",
+     "label": "style-analysis",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1813,
+     "name": "task:prompt-generation",
+     "prefix": "task",
+     "display": "Write Prompts",
+     "label": "prompt-generation",
+     "color": 0,
+     "usage_count": 2
+    }
+   ],
+   "plain_tags": "Write Prompts, Video Evaluation, Analyze Style, Write Good Prompts, Compare and Judge, Video, Written Prompt",
+   "create_date": "2026-07-23T11:42:11Z"
+  },
+  {
+   "id": 25209,
+   "name": "Q7R DEMO",
+   "active": true,
+   "state": "done",
+   "sop_title": "Annotate Specific Points",
+   "sop_gen_state": "done",
+   "sop_gen_error": "",
+   "tag_extract_state": "done",
+   "tag_extract_error": "",
+   "tag_extract_last_run": null,
+   "question_count": 0,
+   "approved_count": 0,
+   "resource_count": 0,
+   "similar_count": 4,
+   "tags": [
+    {
+     "id": 1828,
+     "name": "domain:image-annotation",
+     "prefix": "domain",
+     "display": "Image Annotation",
+     "label": "image-annotation",
+     "color": 1,
+     "usage_count": 3
+    },
+    {
+     "id": 1808,
+     "name": "modality:image",
+     "prefix": "modality",
+     "display": "Image",
+     "label": "image",
+     "color": 0,
+     "usage_count": 7
+    },
+    {
+     "id": 1819,
+     "name": "output-format:point-coordinates",
+     "prefix": "output-format",
+     "display": "Point Coordinates",
+     "label": "point-coordinates",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1824,
+     "name": "skill:artifact-detection",
+     "prefix": "skill",
+     "display": "Spot Artifacts",
+     "label": "artifact-detection",
+     "color": 0,
+     "usage_count": 6
+    },
+    {
+     "id": 1827,
+     "name": "skill:pixel-alignment",
+     "prefix": "skill",
+     "display": "Align Pixels",
+     "label": "pixel-alignment",
+     "color": 0,
+     "usage_count": 2
+    },
+    {
+     "id": 1833,
+     "name": "skill:prompt-adherence-evaluation",
+     "prefix": "skill",
+     "display": "Evaluate Prompt Adherence",
+     "label": "prompt-adherence-evaluation",
+     "color": 0,
+     "usage_count": 3
+    },
+    {
+     "id": 1820,
+     "name": "skill:prompt-engineering",
+     "prefix": "skill",
+     "display": "Write Good Prompts",
+     "label": "prompt-engineering",
+     "color": 0,
+     "usage_count": 5
+    },
+    {
+     "id": 1818,
+     "name": "task:point-annotation",
+     "prefix": "task",
+     "display": "Annotate Specific Points",
+     "label": "point-annotation",
+     "color": 0,
+     "usage_count": 2
+    }
+   ],
+   "plain_tags": "Annotate Specific Points, Image Annotation, Spot Artifacts, Align Pixels, Write Good Prompts, Evaluate Prompt Adherence, Image, Point Coordinates",
+   "create_date": "2026-07-23T11:41:21Z"
+  }
+ ],
+ "meta": {
+  "total": 13,
+  "limit": 40,
+  "offset": 0,
+  "has_more": false
+ }
+}

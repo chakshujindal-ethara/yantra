@@ -1,0 +1,207 @@
+{
+ "ok": true,
+ "data": {
+  "id": 24508,
+  "name": "Task: Evaluate Instruction Following vs Visual Quality Trade-off",
+  "question_type": "image_ab",
+  "difficulty": "hard",
+  "prompt": "A bustling 1920s street scene. A vintage red tram is moving from left to right. Three women in flapper dresses are walking a single white poodle on a leash. The sky is overcast.",
+  "description": "",
+  "time_minutes": 0,
+  "sequence": 10,
+  "active": true,
+  "state": "approved",
+  "generator": {
+   "id": 25214,
+   "name": "Image evals 23/7"
+  },
+  "source_ref": "gen:Image evals 23/7",
+  "used_in": 0,
+  "retired": false,
+  "has_subjective": false,
+  "rubric_reviewed": false,
+  "has_valid_key": true,
+  "has_answer_key": true,
+  "missing_media_warning": "",
+  "warnings": {
+   "revealing_option": false,
+   "source_reference": false
+  },
+  "image_count": 2,
+  "video_count": 0,
+  "dimension_count": 4,
+  "servable": true,
+  "usage": {
+   "assessments": [],
+   "assessment_count": 0,
+   "answer_count": 0,
+   "referenced": false
+  },
+  "dimensions": [
+   {
+    "id": 18503,
+    "name": "Instruction Following (IF)",
+    "sequence": 10,
+    "options": [
+     {
+      "id": 74234,
+      "name": "Response A",
+      "sequence": 10,
+      "is_correct": false
+     },
+     {
+      "id": 74235,
+      "name": "Response B",
+      "sequence": 20,
+      "is_correct": true
+     },
+     {
+      "id": 74236,
+      "name": "Both Good",
+      "sequence": 30,
+      "is_correct": false
+     },
+     {
+      "id": 74237,
+      "name": "Both Bad",
+      "sequence": 40,
+      "is_correct": false
+     }
+    ]
+   },
+   {
+    "id": 18504,
+    "name": "Visual Quality (VQ)",
+    "sequence": 10,
+    "options": [
+     {
+      "id": 74238,
+      "name": "Response A",
+      "sequence": 10,
+      "is_correct": true
+     },
+     {
+      "id": 74239,
+      "name": "Response B",
+      "sequence": 20,
+      "is_correct": false
+     },
+     {
+      "id": 74240,
+      "name": "Both Good",
+      "sequence": 30,
+      "is_correct": false
+     },
+     {
+      "id": 74241,
+      "name": "Both Bad",
+      "sequence": 40,
+      "is_correct": false
+     }
+    ]
+   },
+   {
+    "id": 18505,
+    "name": "Less AI Generated (LAI)",
+    "sequence": 10,
+    "options": [
+     {
+      "id": 74242,
+      "name": "Response A",
+      "sequence": 10,
+      "is_correct": true
+     },
+     {
+      "id": 74243,
+      "name": "Response B",
+      "sequence": 20,
+      "is_correct": false
+     },
+     {
+      "id": 74244,
+      "name": "Both Good",
+      "sequence": 30,
+      "is_correct": false
+     },
+     {
+      "id": 74245,
+      "name": "Both Bad",
+      "sequence": 40,
+      "is_correct": false
+     }
+    ]
+   },
+   {
+    "id": 18506,
+    "name": "Overall Choice (OC)",
+    "sequence": 10,
+    "options": [
+     {
+      "id": 74246,
+      "name": "Response A",
+      "sequence": 10,
+      "is_correct": false
+     },
+     {
+      "id": 74247,
+      "name": "Response B",
+      "sequence": 20,
+      "is_correct": true
+     }
+    ]
+   }
+  ],
+  "official_reasoning": "Both images carry deliberately planted flaws (A: Tram is moving right to left instead of left to right; There are two poodles instead of one | B: Tram has a plastic-like texture; Minor blur on background buildings). Each dimension follows the worse flaw and is 'Both Bad' where both sides are equally bad; Overall Choice is decided to Response B by the correctness-before-polish tiebreak (the side needing fewer corrections to be right).",
+  "subjective_rubric": {},
+  "grading": {},
+  "solution": {
+   "instruction_following": "Response B",
+   "visual_quality": "Response A",
+   "less_ai_generated": "Response A",
+   "overall_preference": "Response B"
+  },
+  "solution_rationale": "Ground truth established by construction. Response A was injected with minor VQ and LAI flaws (blur and plastic texture) but perfectly adheres to the prompt. Response B was rendered with perfect quality but injected with critical IF failures (wrong direction, wrong object count). The SOP strictly dictates that instruction correctness outweighs visual polish in the Overall Preference.",
+  "covers_elements": [
+   "if-object-count",
+   "if-attributes",
+   "lai-artifacts",
+   "vq-distortions",
+   "oc-tie-breaker"
+  ],
+  "detection_mode": "object",
+  "label_boxes": [],
+  "images": [
+   {
+    "id": 7613,
+    "slot": "a",
+    "label": "Response A",
+    "admin_url": "/etp_assessment/admin_qimage/7613?v=1785327898",
+    "annotated_admin_url": "",
+    "has_detections": false,
+    "detections": [],
+    "behavioural_key": [],
+    "label_application": "",
+    "coverage_expected": "",
+    "source_url": "",
+    "capture_viewport": "",
+    "sequence": 10
+   },
+   {
+    "id": 7614,
+    "slot": "b",
+    "label": "Response B",
+    "admin_url": "/etp_assessment/admin_qimage/7614?v=1785327898",
+    "annotated_admin_url": "",
+    "has_detections": false,
+    "detections": [],
+    "behavioural_key": [],
+    "label_application": "",
+    "coverage_expected": "",
+    "source_url": "",
+    "capture_viewport": "",
+    "sequence": 20
+   }
+  ],
+  "videos": []
+ }
+}

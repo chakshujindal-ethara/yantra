@@ -1,0 +1,743 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        The item editor's markup. See form_item_editor.js for WHY this widget
+        exists and why every rule it enforces comes from the server.
+
+        THE STATES ARE ALL HERE ON PURPOSE, because each one was reachable in
+        production and each one is silent if it is not drawn: the catalogue call
+        failing (a form that must still open), the validation call failing (which
+        must never read as "no problems"), a form with no sections, a section with
+        no items, an item whose kind this module no longer knows, a grid with no
+        rows or no columns, a scale whose bounds cannot make a range, an
+        annotation item with no points, and a failed upload.
+
+        EVERY CONTROL IS A REAL CONTROL - button, input, select, textarea - with a
+        label or an aria-label, because this is the only authoring surface an
+        operator has in Odoo and a div with a click handler cannot be reached by
+        the keyboard at all.
+    -->
+    <t t-name="assessments_be_v2.FormItemEditor">
+        <div class="o_etp_form_editor" t-ref="editorRoot">
+
+            <!-- ── toolbar: what will be published, and the explicit save ─ -->
+            <div class="o_etp_fe_bar" role="group" aria-label="Form structure">
+                <span t-if="!props.skipPublishCheck" class="o_etp_fe_count">
+                    <t t-if="state.checking and !state.check">
+                        <span class="fa fa-circle-o-notch fa-spin me-1"
+                              role="img" aria-label="Checking"/>Checking…
+                    </t>
+                    <t t-else="">
+                        <strong t-esc="questionCount"/>
+                        question<t t-if="questionCount != 1">s</t> would be published
+                    </t>
+                </span>
+                <span t-if="problemCount" class="badge text-bg-danger"
+                      t-attf-title="{{ problemCount }} problem(s) block publishing this form">
+                    <t t-esc="problemCount"/> problem<t t-if="problemCount != 1">s</t>
+                </span>
+                <span t-elif="state.check and questionCount"
+                      class="badge text-bg-success">Ready to publish</span>
+
+                <span t-if="state.checking and state.check"
+                      class="fa fa-circle-o-notch fa-spin text-muted"
+                      role="img" aria-label="Checking"/>
+
+                <div class="o_etp_fe_bar_actions">
+                    <button type="button" class="btn btn-sm btn-link"
+                            t-on-click="() => this.setAllCollapsed(true)">
+                        Collapse all
+                    </button>
+                    <button type="button" class="btn btn-sm btn-link"
+                            t-on-click="() => this.setAllCollapsed(false)">
+                        Expand all
+                    </button>
+                    <span t-if="dirty" class="badge text-bg-warning"
+                          title="Nothing is written until you save">
+                        Unsaved changes
+                    </span>
+                    <span t-elif="state.savedAt" class="text-muted small">
+                        Saved at <t t-esc="state.savedAt"/>
+                    </span>
+                    <button t-if="editable" type="button"
+                            class="btn btn-sm btn-primary"
+                            t-att-disabled="state.saving"
+                            t-on-click="onSave">
+                        <i class="fa fa-save me-1" aria-hidden="true"/>Save
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── the two calls that can fail, said out loud ──────────── -->
+            <div t-if="state.catalogueError" class="alert alert-warning py-2"
+                 role="alert">
+                The question-type list could not be loaded, so types cannot be
+                changed or added here (<t t-esc="state.catalogueError"/>). Text
+                and help can still be edited.
+                <button type="button" class="btn btn-sm btn-link"
+                        t-on-click="loadCatalogue">Retry</button>
+            </div>
+            <div t-if="state.checkError" class="alert alert-warning py-2"
+                 role="alert">
+                This form could not be checked (<t t-esc="state.checkError"/>),
+                so nothing below is telling you whether it can be published.
+                <button type="button" class="btn btn-sm btn-link"
+                        t-on-click="validate">Check again</button>
+            </div>
+            <div t-if="alreadySent" class="alert alert-info py-2" role="alert">
+                This form has already been published. Editing it here changes the
+                form only - the questions and the draft assessment that were
+                created when it was published are not touched. Publish it again to
+                create a new pool from these edits.
+            </div>
+
+            <!-- ── problems that belong to the form, not to one item ───── -->
+            <div t-if="formProblems.length" class="alert alert-danger py-2"
+                 role="alert">
+                <div class="fw-bold">This form cannot be published yet:</div>
+                <ul class="mb-0 ps-4">
+                    <li t-foreach="formProblems" t-as="problem"
+                        t-key="problem_index" t-esc="problem"/>
+                </ul>
+            </div>
+            <div t-if="formWarnings.length" class="alert alert-warning py-2"
+                 role="alert">
+                <div class="fw-bold">It can be published, but:</div>
+                <ul class="mb-0 ps-4">
+                    <li t-foreach="formWarnings" t-as="warning"
+                        t-key="warning_index" t-esc="warning"/>
+                </ul>
+            </div>
+
+            <!-- ── loading, then empty, then the document ──────────────── -->
+            <div t-if="state.loading" class="o_etp_fe_empty text-muted">
+                <span class="fa fa-circle-o-notch fa-spin me-2" role="img"
+                      aria-label="Loading"/>Loading the form…
+            </div>
+            <div t-elif="!sections.length" class="o_etp_fe_empty">
+                <div class="fw-bold">This form has no sections yet.</div>
+                <div class="text-muted">
+                    A form is sections of items; every question lives in a
+                    section. Add one to start.
+                </div>
+                <button t-if="editable" type="button"
+                        class="btn btn-sm btn-primary mt-2"
+                        t-on-click="onAddSection">
+                    <i class="fa fa-plus me-1" aria-hidden="true"/>Add section
+                </button>
+            </div>
+
+            <t t-else="">
+                <div t-foreach="sections" t-as="section"
+                     t-key="section.id or section_index"
+                     class="o_etp_fe_section">
+
+                    <!-- a section that is not an object at all: the document is
+                         a jsonb blob the API also writes, so this is reachable
+                         and dropping it silently would lose an operator's data
+                         on the next save -->
+                    <div t-if="!isReadableSection(section)"
+                         class="alert alert-warning mb-0 py-2" role="alert">
+                        Section <t t-esc="section_index + 1"/> is not readable
+                        here. It is left exactly as it is; edit it in the raw
+                        JSON below or in the console.
+                    </div>
+
+                    <t t-else="">
+                        <div class="o_etp_fe_shead">
+                            <input type="text"
+                                   class="form-control o_etp_fe_stitle"
+                                   placeholder="Section title (optional)"
+                                   aria-label="Section title"
+                                   t-att-data-value="section.title or ''"
+                                   t-att-readonly="!editable"
+                                   t-on-change="(ev) => this.onSectionTitle(section_index, ev)"/>
+                            <span class="badge text-bg-light border">
+                                <t t-esc="(section.items or []).length"/> item<t
+                                    t-if="(section.items or []).length != 1">s</t>
+                            </span>
+                            <div class="o_etp_fe_sactions" t-if="editable">
+                                <button type="button"
+                                        class="btn btn-sm btn-light"
+                                        aria-label="Move section up"
+                                        title="Move section up"
+                                        t-att-disabled="section_index === 0"
+                                        t-on-click="() => this.onMoveSection(section_index, -1)">
+                                    <i class="fa fa-arrow-up" aria-hidden="true"/>
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-light"
+                                        aria-label="Move section down"
+                                        title="Move section down"
+                                        t-att-disabled="section_index === sections.length - 1"
+                                        t-on-click="() => this.onMoveSection(section_index, 1)">
+                                    <i class="fa fa-arrow-down" aria-hidden="true"/>
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-light text-danger"
+                                        aria-label="Delete section"
+                                        title="Delete section"
+                                        t-on-click="() => this.onDeleteSection(section_index)">
+                                    <i class="fa fa-trash-o" aria-hidden="true"/>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div t-if="!(section.items or []).length"
+                             class="o_etp_fe_empty small text-muted">
+                            No items in this section yet.
+                        </div>
+
+                        <t t-foreach="section.items or []" t-as="item"
+                           t-key="itemKey(item, section_index, item_index)">
+                            <t t-call="assessments_be_v2.FormItemEditorCard"/>
+                        </t>
+
+                        <div class="o_etp_fe_additem" t-if="editable">
+                            <label t-attf-for="o_etp_fe_add_{{ section_index }}"
+                                   class="text-muted small mb-0">
+                                Add an item
+                            </label>
+                            <select class="form-select form-select-sm"
+                                    t-attf-id="o_etp_fe_add_{{ section_index }}"
+                                    t-att-disabled="!state.kinds.length"
+                                    t-on-change="(ev) => this.onAddItem(section_index, ev)">
+                                <option value="">Choose a type…</option>
+                                <option t-foreach="state.kinds" t-as="kind"
+                                        t-key="kind.kind"
+                                        t-att-value="kind.kind"
+                                        t-esc="kind.label"/>
+                            </select>
+                        </div>
+                    </t>
+                </div>
+
+                <button t-if="editable" type="button"
+                        class="btn btn-sm btn-secondary o_etp_fe_addsection"
+                        t-on-click="onAddSection">
+                    <i class="fa fa-plus me-1" aria-hidden="true"/>Add section
+                </button>
+            </t>
+        </div>
+    </t>
+
+    <!-- ══ one item ═══════════════════════════════════════════════════════
+         Called from inside the section loop, so `item`, `item_index`,
+         `section` and `section_index` are already in scope. Split out only
+         because the section loop is unreadable with 200 lines inlined in it.
+    -->
+    <t t-name="assessments_be_v2.FormItemEditorCard">
+        <t t-set="kind" t-value="kindOf(item)"/>
+        <t t-set="issues" t-value="itemIssues(section_index, item_index)"/>
+        <t t-set="collapsed"
+           t-value="isCollapsed(item, section_index, item_index)"/>
+        <div class="o_etp_fe_item"
+             t-att-class="{ o_etp_fe_bad: issues.problems.length }">
+
+            <div class="o_etp_fe_ihead">
+                <button type="button" class="btn btn-sm btn-light"
+                        t-att-aria-expanded="!collapsed"
+                        t-att-aria-label="collapsed ? 'Expand item' : 'Collapse item'"
+                        t-att-title="collapsed ? 'Expand item' : 'Collapse item'"
+                        t-on-click="() => this.toggleCollapsed(item, section_index, item_index)">
+                    <i t-attf-class="fa fa-caret-{{ collapsed ? 'right' : 'down' }}"
+                       aria-hidden="true"/>
+                </button>
+                <span class="o_etp_fe_inum" t-esc="item_index + 1"/>
+
+                <select class="form-select form-select-sm o_etp_fe_ikind"
+                        aria-label="Question type"
+                        t-att-disabled="!editable or !state.kinds.length"
+                        t-on-change="(ev) => this.onItemKind(section_index, item_index, ev)">
+                    <!-- A kind this build does not know STAYS SELECTED and
+                         stays stored. Without this option the picker would show
+                         the first known type instead, and the next change to any
+                         field would silently rewrite the item's kind. -->
+                    <option t-if="!isKnownKind(item)" selected="selected"
+                            t-att-value="item.kind or ''"
+                            t-esc="kind.label"/>
+                    <option t-foreach="state.kinds" t-as="option_kind"
+                            t-key="option_kind.kind"
+                            t-att-value="option_kind.kind"
+                            t-att-selected="option_kind.kind === item.kind"
+                            t-esc="option_kind.label"/>
+                </select>
+
+                <span class="o_etp_fe_itext text-truncate"
+                      t-esc="(item.title or '').trim() or 'Untitled'"/>
+
+                <span t-attf-class="badge {{ kind.role === 'question' ? 'text-bg-light border' : 'text-bg-secondary' }}"
+                      t-esc="roleLabel(item)"/>
+                <span t-if="issues.problems.length"
+                      class="badge text-bg-danger"
+                      t-attf-title="{{ issues.problems.length }} problem(s)">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"/>
+                    <t t-esc="issues.problems.length"/>
+                </span>
+
+                <div class="o_etp_fe_iactions" t-if="editable">
+                    <button type="button" class="btn btn-sm btn-light"
+                            aria-label="Move item up" title="Move item up"
+                            t-att-disabled="item_index === 0"
+                            t-on-click="() => this.onMoveItem(section_index, item_index, -1)">
+                        <i class="fa fa-arrow-up" aria-hidden="true"/>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light"
+                            aria-label="Move item down" title="Move item down"
+                            t-att-disabled="item_index === (section.items or []).length - 1"
+                            t-on-click="() => this.onMoveItem(section_index, item_index, 1)">
+                        <i class="fa fa-arrow-down" aria-hidden="true"/>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light"
+                            aria-label="Duplicate item" title="Duplicate item"
+                            t-on-click="() => this.onDuplicateItem(section_index, item_index)">
+                        <i class="fa fa-copy" aria-hidden="true"/>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light text-danger"
+                            aria-label="Delete item" title="Delete item"
+                            t-on-click="() => this.onDeleteItem(section_index, item_index)">
+                        <i class="fa fa-trash-o" aria-hidden="true"/>
+                    </button>
+                </div>
+            </div>
+
+            <div t-if="!collapsed" class="o_etp_fe_ibody">
+
+                <!-- what publish says about THIS item, in its own card, so a
+                     missing answer key is next to the box it belongs in -->
+                <div t-if="issues.problems.length"
+                     class="alert alert-danger py-1 px-2 small mb-2" role="alert">
+                    <ul class="mb-0 ps-3">
+                        <li t-foreach="issues.problems" t-as="problem"
+                            t-key="problem_index"
+                            t-esc="shortProblem(problem, item, section.title)"/>
+                    </ul>
+                </div>
+                <div t-if="issues.warnings.length"
+                     class="alert alert-warning py-1 px-2 small mb-2" role="alert">
+                    <ul class="mb-0 ps-3">
+                        <li t-foreach="issues.warnings" t-as="warning"
+                            t-key="warning_index"
+                            t-esc="shortProblem(warning, item, section.title)"/>
+                    </ul>
+                </div>
+                <div t-if="kind.hint" class="text-muted small mb-2"
+                     t-esc="kind.hint"/>
+
+                <div class="o_etp_fe_field">
+                    <label t-attf-for="o_etp_fe_t_{{ section_index }}_{{ item_index }}">
+                        <t t-if="kind.role === 'informational'">Heading</t>
+                        <t t-else="">Question</t>
+                    </label>
+                    <input type="text" class="form-control"
+                           t-attf-id="o_etp_fe_t_{{ section_index }}_{{ item_index }}"
+                           t-att-data-value="item.title or ''"
+                           t-att-readonly="!editable"
+                           t-attf-placeholder="{{ kind.role === 'informational' ? 'Heading shown above the next question' : 'What the candidate is asked' }}"
+                           t-on-change="(ev) => this.onItemField(section_index, item_index, 'title', ev)"/>
+                </div>
+                <div class="o_etp_fe_field">
+                    <label t-attf-for="o_etp_fe_h_{{ section_index }}_{{ item_index }}">
+                        <t t-if="kind.role === 'informational'">Body</t>
+                        <t t-else="">Help text</t>
+                    </label>
+                    <textarea class="form-control" rows="2"
+                              t-attf-id="o_etp_fe_h_{{ section_index }}_{{ item_index }}"
+                              t-att-readonly="!editable"
+                              placeholder="Shown under the question. Optional."
+                              t-att-data-value="item.help or ''"
+                              t-on-change="(ev) => this.onItemField(section_index, item_index, 'help', ev)"/>
+                </div>
+
+                <!-- ── media, one panel per plate ───────────────────────── -->
+                <t t-if="needs(item, 'media')">
+                    <t t-call="assessments_be_v2.FormItemEditorMedia">
+                        <t t-set="field" t-value="'media_url'"/>
+                        <t t-set="field_label"
+                           t-value="needs(item, 'media_b') ? 'Plate A' : 'Media'"/>
+                    </t>
+                </t>
+                <t t-if="needs(item, 'media_b') or needs(item, 'media_b_optional')">
+                    <t t-call="assessments_be_v2.FormItemEditorMedia">
+                        <t t-set="field" t-value="'media_url_b'"/>
+                        <t t-set="field_label"
+                           t-value="needs(item, 'media_b') ? 'Plate B' : 'Output plate (optional)'"/>
+                    </t>
+                </t>
+
+                <!-- ── options and the answer key ───────────────────────── -->
+                <div t-if="wantsOptions(item)" class="o_etp_fe_panel">
+                    <div class="o_etp_fe_plabel">
+                        Options
+                        <span class="text-muted fw-normal">
+                            - <t t-if="multiKey(item)">tick every correct
+                            answer</t><t t-else="">tick the one correct
+                            answer</t>
+                        </span>
+                    </div>
+                    <div t-if="!optionsOf(item).length"
+                         class="text-muted small mb-1">
+                        <t t-if="needs(item, 'options_optional')">
+                            No rating axis on this item, which is the normal
+                            case - the written prompt is the answer.
+                        </t>
+                        <t t-elif="kind.role === 'media'">
+                            No options, so this plate rides along on the next
+                            question instead of being one.
+                        </t>
+                        <t t-else="">No options yet.</t>
+                    </div>
+                    <div t-foreach="optionsOf(item)" t-as="option"
+                         t-key="option.id or option_index"
+                         class="o_etp_fe_orow">
+                        <input t-att-type="multiKey(item) ? 'checkbox' : 'radio'"
+                               class="form-check-input"
+                               t-attf-name="o_etp_fe_key_{{ section_index }}_{{ item_index }}"
+                               t-att-checked="option.correct"
+                               t-att-disabled="!editable"
+                               t-attf-aria-label="Option {{ option_index + 1 }} is correct"
+                               t-attf-title="Mark option {{ option_index + 1 }} correct"
+                               t-on-change="(ev) => this.onOptionCorrect(section_index, item_index, option_index, ev)"/>
+                        <input type="text" class="form-control form-control-sm"
+                               t-att-data-value="option.label or ''"
+                               t-att-readonly="!editable"
+                               t-attf-aria-label="Option {{ option_index + 1 }} label"
+                               placeholder="Option label"
+                               t-on-change="(ev) => this.onOptionLabel(section_index, item_index, option_index, ev)"/>
+                        <t t-if="editable">
+                            <button type="button" class="btn btn-sm btn-light"
+                                    aria-label="Move option up"
+                                    t-att-disabled="option_index === 0"
+                                    t-on-click="() => this.onMoveOption(section_index, item_index, option_index, -1)">
+                                <i class="fa fa-arrow-up" aria-hidden="true"/>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light"
+                                    aria-label="Move option down"
+                                    t-att-disabled="option_index === optionsOf(item).length - 1"
+                                    t-on-click="() => this.onMoveOption(section_index, item_index, option_index, 1)">
+                                <i class="fa fa-arrow-down" aria-hidden="true"/>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-light text-danger"
+                                    aria-label="Remove option"
+                                    t-on-click="() => this.onDeleteOption(section_index, item_index, option_index)">
+                                <i class="fa fa-times" aria-hidden="true"/>
+                            </button>
+                        </t>
+                    </div>
+                    <button t-if="editable" type="button"
+                            class="btn btn-sm btn-link ps-0"
+                            t-on-click="() => this.onAddOption(section_index, item_index)">
+                        <i class="fa fa-plus me-1" aria-hidden="true"/>Add option
+                    </button>
+                </div>
+
+                <!-- ── grid: rows, columns, and the key per row ─────────── -->
+                <div t-if="needs(item, 'grid')" class="o_etp_fe_panel">
+                    <div class="o_etp_fe_gridlists">
+                        <div>
+                            <div class="o_etp_fe_plabel">Rows</div>
+                            <div t-foreach="rowsOf(item)" t-as="row"
+                                 t-key="row_index" class="o_etp_fe_orow">
+                                <input type="text"
+                                       class="form-control form-control-sm"
+                                       t-att-data-value="row"
+                                       t-att-readonly="!editable"
+                                       t-attf-aria-label="Row {{ row_index + 1 }} label"
+                                       placeholder="Row label"
+                                       t-on-change="(ev) => this.onGridRow(section_index, item_index, row_index, ev)"/>
+                                <button t-if="editable" type="button"
+                                        class="btn btn-sm btn-light text-danger"
+                                        aria-label="Remove row"
+                                        t-on-click="() => this.onDeleteGridRow(section_index, item_index, row_index)">
+                                    <i class="fa fa-times" aria-hidden="true"/>
+                                </button>
+                            </div>
+                            <button t-if="editable" type="button"
+                                    class="btn btn-sm btn-link ps-0"
+                                    t-on-click="() => this.onAddGridRow(section_index, item_index)">
+                                <i class="fa fa-plus me-1" aria-hidden="true"/>Add row
+                            </button>
+                        </div>
+                        <div>
+                            <div class="o_etp_fe_plabel">Columns</div>
+                            <div t-foreach="columnsOf(item)" t-as="column"
+                                 t-key="column_index" class="o_etp_fe_orow">
+                                <input type="text"
+                                       class="form-control form-control-sm"
+                                       t-att-data-value="column"
+                                       t-att-readonly="!editable"
+                                       t-attf-aria-label="Column {{ column_index + 1 }} label"
+                                       placeholder="Column label"
+                                       t-on-change="(ev) => this.onGridColumn(section_index, item_index, column_index, ev)"/>
+                                <button t-if="editable" type="button"
+                                        class="btn btn-sm btn-light text-danger"
+                                        aria-label="Remove column"
+                                        t-on-click="() => this.onDeleteGridColumn(section_index, item_index, column_index)">
+                                    <i class="fa fa-times" aria-hidden="true"/>
+                                </button>
+                            </div>
+                            <button t-if="editable" type="button"
+                                    class="btn btn-sm btn-link ps-0"
+                                    t-on-click="() => this.onAddGridColumn(section_index, item_index)">
+                                <i class="fa fa-plus me-1" aria-hidden="true"/>Add column
+                            </button>
+                        </div>
+                    </div>
+
+                    <div t-if="!rowsOf(item).length or !columnsOf(item).length"
+                         class="text-muted small">
+                        A grid needs at least one row and one column before an
+                        answer key can be set.
+                    </div>
+                    <div t-else="" class="table-responsive">
+                        <div class="o_etp_fe_plabel">
+                            Answer key
+                            <span class="text-muted fw-normal">
+                                - <t t-if="multiKey(item)">every correct column
+                                per row</t><t t-else="">one correct column per
+                                row</t>
+                            </span>
+                        </div>
+                        <table class="table table-sm o_etp_fe_grid">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Row</th>
+                                    <th scope="col" t-foreach="columnsOf(item)"
+                                        t-as="column" t-key="column_index"
+                                        t-esc="column or '(unnamed)'"/>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="rowsOf(item)" t-as="row"
+                                    t-key="row_index">
+                                    <th scope="row" t-esc="row or '(unnamed)'"/>
+                                    <td t-foreach="columnsOf(item)" t-as="column"
+                                        t-key="column_index">
+                                        <input t-att-type="multiKey(item) ? 'checkbox' : 'radio'"
+                                               class="form-check-input"
+                                               t-attf-name="o_etp_fe_grid_{{ section_index }}_{{ item_index }}_{{ row_index }}"
+                                               t-att-checked="isGridKeyed(item, row_index, column)"
+                                               t-att-disabled="!editable"
+                                               t-attf-aria-label="{{ row or 'row' }}: {{ column or 'column' }} is correct"
+                                               t-on-change="(ev) => this.onGridKey(section_index, item_index, row_index, column, ev)"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ── a linear scale's bounds and its correct point ────── -->
+                <div t-if="needs(item, 'scale')" class="o_etp_fe_panel">
+                    <div class="o_etp_fe_plabel">Scale</div>
+                    <div class="o_etp_fe_inline">
+                        <label t-attf-for="o_etp_fe_smin_{{ section_index }}_{{ item_index }}">From</label>
+                        <input type="number" class="form-control form-control-sm"
+                               t-attf-id="o_etp_fe_smin_{{ section_index }}_{{ item_index }}"
+                               t-att-data-value="item.scale_min"
+                               t-att-readonly="!editable"
+                               t-on-change="(ev) => this.onItemNumber(section_index, item_index, 'scale_min', ev)"/>
+                        <label t-attf-for="o_etp_fe_smax_{{ section_index }}_{{ item_index }}">to</label>
+                        <input type="number" class="form-control form-control-sm"
+                               t-attf-id="o_etp_fe_smax_{{ section_index }}_{{ item_index }}"
+                               t-att-data-value="item.scale_max"
+                               t-att-readonly="!editable"
+                               t-on-change="(ev) => this.onItemNumber(section_index, item_index, 'scale_max', ev)"/>
+                    </div>
+                    <div class="o_etp_fe_inline">
+                        <input type="text" class="form-control form-control-sm"
+                               t-att-data-value="item.scale_min_label or ''"
+                               t-att-readonly="!editable"
+                               aria-label="Label for the lowest point"
+                               placeholder="Label for the lowest point"
+                               t-on-change="(ev) => this.onItemField(section_index, item_index, 'scale_min_label', ev)"/>
+                        <input type="text" class="form-control form-control-sm"
+                               t-att-data-value="item.scale_max_label or ''"
+                               t-att-readonly="!editable"
+                               aria-label="Label for the highest point"
+                               placeholder="Label for the highest point"
+                               t-on-change="(ev) => this.onItemField(section_index, item_index, 'scale_max_label', ev)"/>
+                    </div>
+                </div>
+
+                <div t-if="needs(item, 'rating')" class="o_etp_fe_panel">
+                    <div class="o_etp_fe_inline">
+                        <label t-attf-for="o_etp_fe_rmax_{{ section_index }}_{{ item_index }}">
+                            Stars (1 to)
+                        </label>
+                        <input type="number" class="form-control form-control-sm"
+                               t-attf-id="o_etp_fe_rmax_{{ section_index }}_{{ item_index }}"
+                               t-att-data-value="item.rating_max"
+                               t-att-readonly="!editable"
+                               t-on-change="(ev) => this.onItemNumber(section_index, item_index, 'rating_max', ev)"/>
+                    </div>
+                </div>
+
+                <!-- ── the correct point, picked rather than typed ──────── -->
+                <div t-if="needs(item, 'golden_point')" class="o_etp_fe_panel">
+                    <div class="o_etp_fe_plabel">Answer key</div>
+                    <div t-if="!scalePoints(item).length"
+                         class="text-muted small">
+                        Set a range whose highest value is above its lowest (and
+                        no more than 20 points apart) to choose the correct
+                        point.
+                    </div>
+                    <select t-else="" class="form-select form-select-sm w-auto"
+                            aria-label="The correct point on the scale"
+                            t-att-disabled="!editable"
+                            t-on-change="(ev) => this.onItemField(section_index, item_index, 'golden_answer', ev)">
+                        <option value="">Not set</option>
+                        <option t-foreach="scalePoints(item)" t-as="point"
+                                t-key="point" t-att-value="point"
+                                t-att-selected="point === goldenOf(item)"
+                                t-esc="point"/>
+                    </select>
+                </div>
+
+                <!-- ── the written answer key ───────────────────────────── -->
+                <div t-if="needs(item, 'golden') or needs(item, 'golden_optional')"
+                     class="o_etp_fe_panel">
+                    <label t-attf-for="o_etp_fe_g_{{ section_index }}_{{ item_index }}"
+                           class="o_etp_fe_plabel">
+                        <t t-if="needs(item, 'golden_optional')">Answer rationale</t>
+                        <t t-else="">Golden answer</t>
+                    </label>
+                    <textarea class="form-control" rows="3"
+                              t-attf-id="o_etp_fe_g_{{ section_index }}_{{ item_index }}"
+                              t-att-readonly="!editable"
+                              placeholder="The model answer the judge marks each candidate against."
+                              t-att-data-value="item.golden_answer or ''"
+                              t-on-change="(ev) => this.onItemField(section_index, item_index, 'golden_answer', ev)"/>
+                </div>
+
+                <!-- ── annotation points ────────────────────────────────── -->
+                <div t-if="needs(item, 'regions')" class="o_etp_fe_panel">
+                    <div class="o_etp_fe_inline">
+                        <label t-attf-for="o_etp_fe_ac_{{ section_index }}_{{ item_index }}">
+                            Points to find
+                        </label>
+                        <input type="number" class="form-control form-control-sm"
+                               t-attf-id="o_etp_fe_ac_{{ section_index }}_{{ item_index }}"
+                               t-att-data-value="item.annotation_count"
+                               t-att-readonly="!editable or hasDrawnRegions(item)"
+                               t-on-change="(ev) => this.onItemNumber(section_index, item_index, 'annotation_count', ev)"/>
+                        <span t-if="hasDrawnRegions(item)"
+                              class="text-muted small">
+                            Fixed by the
+                            <t t-esc="annotationNumbers(item).length"/> marker(s)
+                            drawn on the image in the designer - the markers
+                            decide the points, not this number.
+                        </span>
+                    </div>
+                    <div t-if="!annotationNumbers(item).length"
+                         class="text-muted small">
+                        Set how many points the candidate must describe, or draw
+                        the markers in the designer.
+                    </div>
+                    <div t-foreach="annotationNumbers(item)" t-as="number"
+                         t-key="number" class="o_etp_fe_orow">
+                        <span class="o_etp_fe_pnum" t-esc="number"/>
+                        <input type="text" class="form-control form-control-sm"
+                               t-att-data-value="goldenLabelOf(item, number)"
+                               t-att-readonly="!editable"
+                               t-attf-aria-label="Golden answer for point {{ number }}"
+                               placeholder="What a correct description of this point says"
+                               t-on-change="(ev) => this.onGoldenLabel(section_index, item_index, number, ev)"/>
+                    </div>
+                </div>
+
+                <!-- ── the per-kind switches ────────────────────────────── -->
+                <div t-if="(kind.flags or []).length" class="o_etp_fe_panel">
+                    <div t-foreach="kind.flags" t-as="flag" t-key="flag.name"
+                         class="form-check">
+                        <input type="checkbox" class="form-check-input"
+                               t-attf-id="o_etp_fe_f_{{ section_index }}_{{ item_index }}_{{ flag.name }}"
+                               t-att-checked="item[flag.name]"
+                               t-att-disabled="!editable"
+                               t-on-change="(ev) => this.onItemFlag(section_index, item_index, flag.name, ev)"/>
+                        <label class="form-check-label"
+                               t-attf-for="o_etp_fe_f_{{ section_index }}_{{ item_index }}_{{ flag.name }}">
+                            <t t-esc="flag.label"/>
+                            <span class="d-block text-muted small"
+                                  t-esc="flag.hint"/>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <!-- ══ one media plate ════════════════════════════════════════════════
+         Expects `field` ("media_url" / "media_url_b") and `field_label` from
+         the caller, plus the item scope. ONE template for both plates, because
+         upload, import, preview and the failure state are identical for each -
+         and a second copy is how the B plate quietly loses the content-type
+         stamp or the error line.
+    -->
+    <t t-name="assessments_be_v2.FormItemEditorMedia">
+        <div class="o_etp_fe_panel o_etp_fe_media">
+            <div class="o_etp_fe_plabel" t-esc="field_label"/>
+            <div class="o_etp_fe_inline">
+                <input type="text" class="form-control form-control-sm"
+                       t-att-data-value="item[field] or ''"
+                       t-att-readonly="!editable"
+                       t-attf-aria-label="{{ field_label }} URL"
+                       placeholder="Paste a media URL, or upload a file"
+                       t-on-change="(ev) => this.onItemField(section_index, item_index, field, ev)"/>
+                <t t-if="editable">
+                    <!-- The file input is inside its LABEL, which is what makes
+                         a styled upload control keyboard-reachable: the label is
+                         focusable through the input it wraps and Enter/Space on
+                         it opens the picker. A div with a click handler is not. -->
+                    <label class="btn btn-sm btn-secondary mb-0">
+                        <i class="fa fa-upload me-1" aria-hidden="true"/>Upload
+                        <input type="file" class="o_etp_fe_file"
+                               t-attf-aria-label="Upload a file for {{ field_label }}"
+                               t-att-disabled="mediaBusy(section_index, item_index, field)"
+                               t-on-change="(ev) => this.onPickMedia(section_index, item_index, field, ev)"/>
+                    </label>
+                    <button type="button" class="btn btn-sm btn-secondary"
+                            title="Copy a Drive, Dropbox, OneDrive or SharePoint link into this app"
+                            t-att-disabled="mediaBusy(section_index, item_index, field)"
+                            t-on-click="() => this.onImportMedia(section_index, item_index, field)">
+                        <i class="fa fa-cloud-download me-1" aria-hidden="true"/>Import link
+                    </button>
+                    <button t-if="item[field]" type="button"
+                            class="btn btn-sm btn-light text-danger"
+                            t-attf-aria-label="Remove {{ field_label }}"
+                            title="Remove this media"
+                            t-on-click="() => this.onClearMedia(section_index, item_index, field)">
+                        <i class="fa fa-times" aria-hidden="true"/>
+                    </button>
+                </t>
+                <span t-if="mediaBusy(section_index, item_index, field)"
+                      class="text-muted small">
+                    <span class="fa fa-circle-o-notch fa-spin me-1" role="img"
+                          aria-label="Working"/>Working…
+                </span>
+            </div>
+
+            <div t-if="mediaError(section_index, item_index, field)"
+                 class="alert alert-danger py-1 px-2 small mt-1 mb-0"
+                 role="alert" t-esc="mediaError(section_index, item_index, field)"/>
+
+            <div t-if="item[field]" class="o_etp_fe_preview">
+                <!-- A YouTube or Vimeo link is a PLAYER PAGE, not bytes: no
+                     <video> element can render it, so it is named rather than
+                     drawn as a broken plate. Publish keeps it as a video URL. -->
+                <div t-if="isEmbedOnly(item[field])" class="text-muted small">
+                    <i class="fa fa-film me-1" aria-hidden="true"/>
+                    Public video link - it plays for the candidate, and cannot
+                    be previewed here.
+                </div>
+                <video t-elif="isVideoUrl(item, field)" controls="controls"
+                       preload="metadata" t-att-src="item[field]"/>
+                <img t-else="" t-att-src="item[field]"
+                     t-attf-alt="{{ field_label }} preview"/>
+            </div>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,227 @@
+/* Annotation editor - the graphical box surface for an Image Labelling question.
+
+   NOT SCOPED UNDER `.o_etp_backend`, unlike the rest of this module's visual
+   layer. That gate exists so broad selectors (`.o_form_sheet`, `.badge`, list
+   rows) cannot reach another Odoo app's screens. Every class here is
+   `o_etp_annot_*` and exists only inside this widget's own template, so there
+   is nothing to bleed - and dropping the gate means the editor still renders
+   correctly if it is ever mounted on a form that does not carry the class.
+
+   The design tokens are the module's (backend.scss :root), with literal
+   fallbacks so the file is legible on its own. */
+
+.o_etp_annot {
+    --annot-line: var(--etp-accent, #5b4be6);
+    --annot-warn: var(--etp-fail, #d64545);
+
+    /* ---- toolbar ------------------------------------------------------- */
+    .o_etp_annot_bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .o_etp_annot_count {
+        font-weight: 600;
+        color: var(--etp-text, #14161f);
+    }
+    .o_etp_annot_hint {
+        font-size: 0.8125rem;
+        /* Collapses first when the sheet narrows: the counter and the two
+           buttons are the parts an operator cannot do without. */
+        flex: 1 1 12rem;
+        min-width: 0;
+    }
+    .o_etp_annot_actions {
+        display: flex;
+        gap: 0.375rem;
+        margin-left: auto;
+    }
+    .o_etp_annot_problems {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    .o_etp_annot_loading {
+        padding: 0.75rem 0;
+    }
+
+    /* ---- the plate ----------------------------------------------------- */
+    /* The wrapper takes its height from the image and nothing else, so the
+       overlay below (inset: 0) is the picture exactly. Any rule that would let
+       the two diverge - object-fit, a max-height, a background-size - would
+       slide every box off its defect at some widths and not others, which is
+       the hardest kind of alignment bug to see in a screenshot. */
+    .o_etp_annot_plate {
+        position: relative;
+        width: 100%;
+        line-height: 0;
+        border-radius: var(--etp-radius-sm, 11px);
+        overflow: hidden;
+        background: var(--etp-surface-2, #fbfbfe);
+        border: 1px solid var(--etp-border, #e8eaf3);
+        /* A dropped drag must not select the surrounding form text. */
+        user-select: none;
+
+        /* An image that 404s or 403s has no intrinsic size, so the wrapper
+           collapses to a hairline and the panel reads as a rendering fault
+           rather than as the missing picture it is. Only applied once the load
+           has actually failed - a min-height during loading would size the
+           per-cent boxes against it and make every marker jump when the bitmap
+           finally arrives. */
+        &.o_etp_annot_plate--broken {
+            min-height: 6rem;
+        }
+    }
+    .o_etp_annot_img {
+        display: block;
+        width: 100%;
+        height: auto;
+        /* The browser's native image drag would hijack every box drag. */
+        -webkit-user-drag: none;
+        user-select: none;
+    }
+    .o_etp_annot_layer {
+        position: absolute;
+        inset: 0;
+        cursor: crosshair;
+        touch-action: none;   /* a pen or finger drag must draw, not scroll */
+    }
+
+    /* ---- one box ------------------------------------------------------- */
+    .o_etp_annot_box {
+        position: absolute;
+        box-sizing: border-box;
+        border: 2px solid var(--annot-line);
+        background: rgba(91, 75, 230, 0.12);
+        border-radius: 3px;
+        cursor: move;
+        transition: background var(--etp-fast, 0.14s) var(--etp-ease, ease);
+
+        &:hover {
+            background: rgba(91, 75, 230, 0.2);
+        }
+        /* Tab lands here, and the ring has to read against a photograph of
+           anything - hence a white halo under the accent ring rather than a
+           single-colour outline that vanishes on a pale plate. */
+        &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--annot-line);
+        }
+        &.o_etp_annot_box--selected {
+            background: rgba(91, 75, 230, 0.26);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+        }
+        /* A box with no golden answer is a mark no candidate can earn, and the
+           save refuses it. Saying so on the plate is quicker to act on than
+           reading the number out of the refusal. */
+        &.o_etp_annot_box--unkeyed {
+            border-color: var(--annot-warn);
+            border-style: dashed;
+            background: rgba(214, 69, 69, 0.12);
+        }
+    }
+    .o_etp_annot_badge {
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        min-width: 1.35rem;
+        padding: 0 0.25rem;
+        font-size: 0.75rem;
+        line-height: 1.35rem;
+        font-weight: 700;
+        text-align: center;
+        color: #fff;
+        background: var(--annot-line);
+        border-radius: 3px 0 3px 0;
+    }
+    .o_etp_annot_box--unkeyed .o_etp_annot_badge {
+        background: var(--annot-warn);
+    }
+    .o_etp_annot_grip {
+        position: absolute;
+        right: -5px;
+        bottom: -5px;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border: 2px solid var(--annot-line);
+        border-radius: 2px;
+        cursor: nwse-resize;
+    }
+    .o_etp_annot_box--unkeyed .o_etp_annot_grip {
+        border-color: var(--annot-warn);
+    }
+
+    /* ---- the label list ------------------------------------------------ */
+    .o_etp_annot_list {
+        margin-top: 0.625rem;
+    }
+    .o_etp_annot_row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.375rem;
+        border-radius: var(--etp-radius-xs, 8px);
+
+        + .o_etp_annot_row {
+            margin-top: 0.25rem;
+        }
+        &.o_etp_annot_row--selected {
+            background: var(--etp-accent-softer, #f6f5ff);
+        }
+    }
+    .o_etp_annot_pill {
+        flex: 0 0 auto;
+        min-width: 1.5rem;
+        padding: 0 0.3rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1.5rem;
+        text-align: center;
+        color: #fff;
+        background: var(--annot-line);
+        border-radius: 999px;
+    }
+    .o_etp_annot_label {
+        flex: 1 1 auto;
+        min-width: 0;
+
+        /* Odoo's form inputs are borderless-until-focus; these sit on a white
+           sheet in a list, so a resting border is what makes the row read as a
+           row of fields at all. */
+        border: 1px solid var(--etp-border-strong, #d5d9e6);
+
+        &:focus {
+            border-color: var(--annot-line);
+            box-shadow: 0 0 0 3px var(--etp-accent-ring, rgba(91, 75, 230, 0.28));
+        }
+    }
+    .o_etp_annot_flag {
+        flex: 0 0 auto;
+        font-weight: 500;
+        cursor: help;
+    }
+    .o_etp_annot_del {
+        flex: 0 0 auto;
+        padding: 0.125rem 0.375rem;
+
+        &:focus-visible {
+            outline: 2px solid var(--annot-warn);
+            outline-offset: 1px;
+        }
+    }
+
+    /* Narrow sheets (a split-screen form, a phone) - the flag and the hint drop
+       to their own line rather than squeezing the label input to nothing. */
+    @media (max-width: 575.98px) {
+        .o_etp_annot_row {
+            flex-wrap: wrap;
+        }
+        .o_etp_annot_label {
+            flex: 1 1 100%;
+            order: 3;
+        }
+    }
+}

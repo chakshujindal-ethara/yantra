@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="assessments_be_v2.EtpCollapsibleText">
+        <div class="o_etp_ctext"
+             t-att-class="{
+                 'o_etp_ctext--expanded': collapse.expanded,
+                 'o_etp_ctext--collapsed': !collapse.expanded,
+                 'o_etp_ctext--overflowing': collapse.overflowing,
+                 'o_etp_ctext--toggleable': showToggle,
+             }">
+            <div class="o_etp_ctext_clamp" t-ref="clamp" t-on-focusin="onFocusIn">
+                <t t-if="props.readonly">
+                    <span class="o_etp_ctext_ro" t-esc="props.record.data[props.name] or ''"/>
+                </t>
+                <t t-else="">
+                    <div t-ref="div">
+                        <textarea
+                            class="o_input"
+                            t-att-class="{
+                                'o_field_translate': isTranslatable,
+                                'o_field_placeholder': props.dynamicPlaceholder,
+                            }"
+                            t-att-id="props.id"
+                            t-att-placeholder="props.placeholder"
+                            t-att-rows="rowCount"
+                            t-ref="textarea"
+                            t-on-blur="onBlur"
+                        />
+                        <div class="o_field_input_buttons">
+                            <TranslationButton
+                                t-if="isTranslatable"
+                                fieldName="props.name"
+                                record="props.record"
+                            />
+                            <button t-if="props.dynamicPlaceholder"
+                                class="btn m-0 py-2 px-2 fa fa-magic position-relative"
+                                title="Insert Field"
+                                t-on-click="onDynamicPlaceholderOpen"
+                            />
+                        </div>
+                    </div>
+                </t>
+            </div>
+            <button t-if="showToggle" type="button"
+                    class="o_etp_ctext_chevron"
+                    t-att-data-tooltip="toggleTitle"
+                    t-att-aria-label="toggleTitle"
+                    t-att-aria-expanded="collapse.expanded ? 'true' : 'false'"
+                    t-on-click.stop.prevent="() => this.toggle()">
+                <i class="fa"
+                   t-att-class="collapse.expanded ? 'fa-chevron-up' : 'fa-chevron-down'"
+                   aria-hidden="true"/>
+            </button>
+        </div>
+    </t>
+
+</templates>

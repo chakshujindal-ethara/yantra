@@ -1,0 +1,93 @@
+{{- /*
+Only /v1 (prefix) and /health (exact) reach the gateway: /ready and /metrics stay in-cluster.
+Two Ingresses because nginx's body limit is per Ingress: the API and the app take bodies up to ingress.apiBodySize;
+the files host (presigned uploads straight to MinIO) up to ingress.filesBodySize, streamed without buffering.
+*/ -}}
+{{- if .Values.ingress.enabled }}
+{{- $full := include "yantra.fullname" . }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $full }}
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.apiBodySize | quote }}
+    {{- with .Values.ingress.clusterIssuer }}
+    cert-manager.io/cluster-issuer: {{ . }}
+    {{- end }}
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  tls:
+    - secretName: {{ .Values.ingress.tlsSecretName }}
+      hosts:
+        - {{ include "yantra.apiHost" . }}
+        {{- if .Values.app.enabled }}
+        - {{ include "yantra.appHost" . }}
+        {{- end }}
+  rules:
+    - host: {{ include "yantra.apiHost" . }}
+      http:
+        paths:
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $full }}-gateway
+                port: {name: http}
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: {{ $full }}-gateway
+                port: {name: http}
+    {{- if .Values.app.enabled }}
+    - host: {{ include "yantra.appHost" . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $full }}-app
+                port: {name: http}
+    {{- end }}
+{{- if .Values.minio.enabled }}
+---
+{{- /* presigned links name this host: browsers upload media and download deliverables through it */}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $full }}-files
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.filesBodySize | quote }}
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    {{- with .Values.ingress.clusterIssuer }}
+    cert-manager.io/cluster-issuer: {{ . }}
+    {{- end }}
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  tls:
+    - secretName: {{ .Values.ingress.tlsSecretName }}-files
+      hosts:
+        - {{ include "yantra.filesHost" . }}
+  rules:
+    - host: {{ include "yantra.filesHost" . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $full }}-minio
+                port: {name: api}
+{{- end }}
+{{- end }}

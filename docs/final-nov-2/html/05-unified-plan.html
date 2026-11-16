@@ -1,0 +1,1318 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Yantra: the unified plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f8f9fa;--surface:#ffffff;--surface2:#f3f3f5;--fg:#030213;--muted:#717182;--line:#e0e0e4;--accent:#b800b8;--accent-soft:#fbdaf7;--ring:#b800b8;--code:#f3f3f5;
+ --body:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;--mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 var(--body)}
+.shell{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);background:var(--surface);padding:28px 20px 40px max(20px,env(safe-area-inset-left,0px))}
+nav.toc .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+nav.toc .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+nav.toc .brand b{display:block;font-size:16px}
+nav.toc .brand small{display:block;color:var(--muted);font-size:12.5px}
+nav.toc .set{margin:18px 0 8px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+nav.toc a{display:block;color:var(--fg);text-decoration:none;font-size:14.5px;padding:7px 10px;border-radius:8px;line-height:1.4}
+nav.toc a:hover{background:var(--surface2)}
+nav.toc a.h3{padding-left:24px;color:var(--muted);font-size:13.5px}
+nav.toc a.doc{color:var(--muted)}
+nav.toc a.doc.on{background:var(--accent-soft);color:var(--fg);font-weight:600}
+.theme{margin:14px 0 4px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);font:500 13.5px var(--body);padding:8px 12px;border-radius:8px;cursor:pointer}
+.theme:focus-visible,nav.toc a:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+main{padding:56px max(24px,env(safe-area-inset-right,0px)) 96px max(24px,env(safe-area-inset-left,0px));min-width:0}
+article{max-width:880px;margin:0 auto}
+article h1{font-size:40px;line-height:1.15;letter-spacing:-.01em;margin:0 0 24px;text-wrap:balance}
+article h2{font-size:28px;line-height:1.25;margin:64px 0 20px;padding-top:24px;border-top:1px solid var(--line);text-wrap:balance}
+article h3{font-size:21px;margin:40px 0 14px;text-wrap:balance}
+article p{margin:0 0 18px;max-width:72ch}
+article ul,article ol{padding-left:26px;margin:0 0 20px}
+article li{margin:6px 0;max-width:70ch}
+article li p{margin:0}
+article a{color:var(--accent)}
+article strong{font-weight:600}
+article hr{display:none}
+article code{font:14.5px var(--mono);background:var(--code);padding:2px 6px;border-radius:5px}
+article pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow:auto;font:14px/1.55 var(--mono);margin:0 0 24px}
+article pre code{background:none;padding:0;font-size:inherit}
+.tablewrap{overflow-x:auto;margin:0 0 28px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+article table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.5}
+article th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2);padding:14px 16px;border-bottom:1px solid var(--line)}
+article td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+article tr:last-child td{border-bottom:0}
+article td:first-child{font-weight:600;white-space:normal;min-width:140px}
+figure.diagram{margin:8px 0 36px;background:#ffffff;border:1px solid var(--line);border-radius:14px;padding:12px;overflow-x:auto}
+figure.diagram svg{display:block;max-width:100%;height:auto}
+figure.diagram figcaption{font-size:13.5px;color:var(--muted);padding:10px 8px 2px}
+blockquote{margin:0 0 20px;padding:14px 20px;border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0}
+.foot{margin-top:72px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:980px){.shell{grid-template-columns:1fr}nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding-top:32px}article h1{font-size:32px}article h2{font-size:24px;margin-top:44px}}
+</style></head>
+<body><div class="shell">
+<nav class="toc" aria-label="Contents">
+  <div class="brand"><div class="mark">Y</div><div><b>Yantra</b><small>plan, design and screens, 2 November 2026</small></div></div>
+  <button type="button" class="theme" id="theme" aria-label="Toggle light or dark theme"></button>
+  <div class="set">Documents</div><a class="doc" href="01-understanding-yantra.html">Understanding Yantra</a><a class="doc" href="02-system-design.html">System design</a><a class="doc" href="03-user-flows.html">User flows</a><a class="doc" href="04-tech-stack.html">Tech stack</a><a class="doc on" href="05-unified-plan.html">The unified plan</a>
+  <div class="set">On this page</div><a class="h2" href="#1-summary">1. Summary</a><a class="h2" href="#2-the-business">2. The business</a><a class="h2" href="#3-principles">3. Principles</a><a class="h2" href="#4-architecture-one-repository-a-ring-of-services">4. Architecture: one repository, a ring of services</a><a class="h2" href="#5-stages-and-gates">5. Stages and gates</a><a class="h2" href="#6-decisions-for-leadership">6. Decisions for leadership</a><a class="h2" href="#7-measures-and-kill-criteria">7. Measures and kill criteria</a><a class="h2" href="#8-risks">8. Risks</a><a class="h2" href="#9-alternatives-considered">9. Alternatives considered</a>
+</nav>
+<main><article>
+<h1>Yantra: the unified plan</h1>
+<ul>
+<li><strong>Status:</strong> proposal, 2 November 2026. Audience: leadership and engineering.</li>
+<li><strong>Base:</strong> the Yantra repository (<code>README.md</code>, <code>ARCHITECTURE.md</code>, <code>ROADMAP.md</code>, <code>MODULES.md</code>, <code>DATAMODEL.md</code>, <code>INFRASTRUCTURE.md</code>) is the point of truth. This is an execution plan on that base. Section 2.5 lists the places where it proposes a change; each stays a proposal until leadership accepts it.</li>
+<li><strong>Stages used throughout:</strong> Stage 0 lock and validate · Stage 1 the working loop (weeks 1-12) · Stage 2 Talent, Performance, Hub · Stage 3 the environment factory.</li>
+<li><strong>Scope:</strong> the business Yantra is built for, the architecture (one repository, services as separate deployables), the stages and their gates, the decisions to lock, the measures, the risks, and the alternatives considered.</li>
+<li><strong>Evidence tags:</strong> <strong>[D]</strong> disclosed by the company named, <strong>[R]</strong> reported by press or analysts, <strong>[E]</strong> estimate, <strong>[L]</strong> read from Ethara&#39;s own repositories, <strong>(assumption)</strong> to confirm.</li>
+<li><strong>Companions:</strong> <a href="01-understanding-yantra.html">Understanding Yantra</a> (the plain-language guide), <a href="02-system-design.html">System design</a>, <a href="03-user-flows.html">User flows</a>, <a href="04-tech-stack.html">Tech stack</a>, <a href="../mockups/unified-plan.html">The screens</a> (one screen per journey). Every diagram can be edited in draw.io.</li>
+</ul>
+
+<hr>
+<h2 id="1-summary">1. Summary</h2>
+<p>Yantra sells <strong>trusted, quality-scored human work to AI labs and environment vendors</strong>, run on one platform, and never becomes a horizontal marketplace. The platform finds people, proves what they can do, keeps them on a bench, puts them on work, measures the work, pays on accepted units, prices every unit with a known margin, and turns accepted work into artifacts with lineage that can be delivered once or licensed many times.</p>
+<p>The build is a closed loop first: vet, onboard, claim, review, pay, deliver, invoice, with real money moving in a twelve-week Stage 1. Three product pillars follow on demand (Talent, Performance, Hub), and an environment factory in one or two verticals becomes a business line only after two buyers confirm it. Every stage ends with measured evidence; nothing ships on intent.</p>
+<p>The code lives in <strong>one repository</strong> and runs as <strong>a ring of services</strong>, each its own deployable with its own database, behind one gateway, around Odoo 19 Community Edition as the system of record for people and money. Keycloak is identity from day one.</p>
+<hr>
+<h2 id="2-the-business">2. The business</h2>
+<h3 id="2-1-what-is-sold-to-whom-in-what-order">2.1 What is sold, to whom, in what order</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Order</th>
+<th>Offer</th>
+<th>Buyer</th>
+<th>Evidence it is wanted</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Now</td>
+<td>managed per-unit delivery on a credentialed bench: tasks defined by the client, worked by verified contractors, reviewed, delivered with a manifest and invoiced per accepted unit</td>
+<td>environment vendors, then labs</td>
+<td>existing prime-vendor work [L]; labs pay $200-2,000 per calibrated task [E]</td>
+</tr>
+<tr>
+<td>Month 7 on</td>
+<td>an environment factory in one or two verticals (ERP replicas on Odoo, Indian finance and tax workflows, credentialed medicine or law, Indic language), shipped as signed, conformance-tested artifacts with an automated quality gate</td>
+<td>labs and vendors buying exclusive or shared environments</td>
+<td>replicas ~$20K, clones ~$300K, exclusivity 4-5x [E]</td>
+</tr>
+<tr>
+<td>After</td>
+<td>existing hubs (DataVendor, Prime Intellect, Hugging Face) as <strong>channels</strong> for non-exclusive surplus, never as the product</td>
+<td>the long tail</td>
+<td>hubs already exist; distribution is cheaper to rent than to build</td>
+</tr>
+<tr>
+<td>Only behind a non-Indian entity</td>
+<td>hourly engagements with a bought tracker</td>
+<td>clients who insist</td>
+<td>misclassification risk [R]</td>
+</tr>
+</tbody></table></div>
+<h3 id="2-2-why-india-is-the-edge">2.2 Why India is the edge</h3>
+<ul>
+<li>Cost: an expert at $15-40 per hour against $85-125 in the US [E].</li>
+<li>Compliance that no Western platform handles natively: TDS, GST, the Social Security Code levy, DPDP consent.</li>
+<li>Domestic rails: Razorpay, no foreign exchange, payout setup inside the app. A comparable platform lost 60% of applicants at payout setup before fixing the flow [D].</li>
+</ul>
+<h3 id="2-3-what-is-not-built">2.3 What is not built</h3>
+<ul>
+<li>A horizontal marketplace. The repository&#39;s envelope of 20K onsite and 200K online workers stays the design ceiling; year one is sized at 3,000 registered and 500 concurrent and measured before any extraction.</li>
+<li>Recruiting ahead of signed demand. Verified people with no work churn and complain publicly.</li>
+<li>Appraisals for non-tasking staff; that is the ERP track on the existing addons.</li>
+<li>Hourly pay by default. Trackers are the evidence misclassification suits use [R].</li>
+</ul>
+<h3 id="2-4-year-one-scale-inside-the-repository-s-envelope">2.4 Year-one scale (inside the repository&#39;s envelope)</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Assumption</th>
+<th>Design response</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Registered workers</td>
+<td>1,000-3,000</td>
+<td>one <code>market</code> database; worker rows off the hot path</td>
+</tr>
+<tr>
+<td>Concurrent active workers</td>
+<td>300-500</td>
+<td>claim = one short transaction with <code>SKIP LOCKED</code></td>
+</tr>
+<tr>
+<td>Peak claims per second</td>
+<td>5-20</td>
+<td>indexed available set; p99 under 500 ms</td>
+</tr>
+<tr>
+<td>Units per batch</td>
+<td>1,000-20,000</td>
+<td>background import; paginated views; chunked export</td>
+</tr>
+<tr>
+<td>Reviews per day</td>
+<td>5,000-20,000</td>
+<td>bounded JSON answers; artifacts in S3</td>
+</tr>
+<tr>
+<td>Pay window</td>
+<td>weekly, 1,000-3,000 workers</td>
+<td>chunked job under a lease; vendor bills in chunks of 200</td>
+</tr>
+</tbody></table></div>
+<h3 id="2-5-relationship-to-the-repository-documents">2.5 Relationship to the repository documents</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Plan element</th>
+<th>Repository source</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hub-and-spoke shape; Odoo 19 CE as the system of record; nine services; database per service; Keycloak; NATS JetStream with CloudEvents; gateway as the only ingress</td>
+<td><code>ARCHITECTURE.md</code>, <code>INFRASTRUCTURE.md</code></td>
+<td>as specified</td>
+</tr>
+<tr>
+<td>Module choices, OCA substitutions, licence obligations</td>
+<td><code>MODULES.md</code></td>
+<td>as specified</td>
+</tr>
+<tr>
+<td>Work-unit, claim, verdict, earning and payout tables</td>
+<td><code>DATAMODEL.md</code></td>
+<td>as specified; this plan adds a price card, a rubric version, a reason code and cost fields per unit</td>
+</tr>
+<tr>
+<td>Phases 0-6 and their verification criteria</td>
+<td><code>ROADMAP.md</code></td>
+<td>kept; this plan proposes running a thin slice of Phases 0, 4 and 5 first as a working loop with real money, while Phases 1-3 continue on the existing addons</td>
+</tr>
+<tr>
+<td>The load test at 200K registered and 20K concurrent claims</td>
+<td><code>ROADMAP.md</code> Phase 5</td>
+<td>kept as the ceiling test; year one is sized at 3,000 registered and 500 concurrent, measured before extraction</td>
+</tr>
+<tr>
+<td>Submodule per service</td>
+<td><code>README.md</code>, <code>CONTRIBUTING.md</code></td>
+<td><strong>proposal:</strong> fold into one repository (section 4.2)</td>
+</tr>
+<tr>
+<td>Stripe Connect as the primary payout rail, Razorpay for India</td>
+<td><code>ARCHITECTURE.md</code></td>
+<td><strong>proposal:</strong> Razorpay first, because the paying entity is Indian; Stripe Connect when a non-Indian entity exists</td>
+</tr>
+<tr>
+<td><code>hub</code> and <code>runner</code> services; the environment factory</td>
+<td>not in the repository</td>
+<td><strong>proposal:</strong> Stage 2 prototype, Stage 3 business line</td>
+</tr>
+<tr>
+<td><code>assess</code> runtime inside the Odoo image for Stage 1</td>
+<td><code>ARCHITECTURE.md</code> lists <code>services/assess</code> as its own service</td>
+<td><strong>proposal:</strong> the Assessment v2 engine already runs there; it moves to its own deployable in Stage 2</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="3-principles">3. Principles</h2>
+<ol>
+<li>The canonical accept verdict is the only money event. No accept, no pay, no invoice.</li>
+<li>Every work unit stores the rubric version it was judged against, and every rejection carries a reason code. A reviewer can flag &quot;rubric unclear&quot;.</li>
+<li>Skills carry an evidence level: claimed (resume), verified (assessment), proven (performance). Never mixed in one field.</li>
+<li>Every unit has a sell-side price frozen at publish and a cost (pay, review, seeds, rail fees, levy) recorded at accept. Margin per batch is visible weekly, and a batch below its floor cannot go live without a recorded approval.</li>
+<li>Workers are bench members, not project hires. Projects end, people return to the bench at zero cost. Keep about 3 verified people per committed seat. Never recruit without signed demand.</li>
+<li>One repository, many deployables. Each service owns its data, publishes its contract, and ships on its own pipeline. Nothing calls another service&#39;s database.</li>
+<li>Reuse first: Assessment v2 is <code>assess</code>, the Strix claim pattern is <code>market</code>, Odoo accounting is the ledger, the Flutter client is the app, Razorpay is the rail, Keycloak is identity.</li>
+<li>Identity is bound to the payout account. One bank account per worker. Changing it needs step-up authentication and a 72-hour hold after any account recovery.</li>
+<li>No profit lever lowers contributor pay. Rates are shown before work is accepted. Pay reliability is published.</li>
+<li>Evidence at every gate. Nothing ships on intent.</li>
+</ol>
+<hr>
+<h2 id="4-architecture-one-repository-a-ring-of-services">4. Architecture: one repository, a ring of services</h2>
+<p>The shape, the service names and the integration rules below are the repository&#39;s (<code>ARCHITECTURE.md</code>, <code>INFRASTRUCTURE.md</code>). Two things are proposals: folding the submodules into one repository (4.2) and two additional services, <code>hub</code> and <code>runner</code> (4.3).</p>
+<h3 id="4-1-shape">4.1 Shape</h3>
+<p>Odoo 19 CE is the hub: the system of record for people, skills, contracts, accounting (GST, TDS), projects and client billing. A ring of services owns the high-volume and specialised paths. The Flutter app is the single face for workers, reviewers and mobile staff, and reaches the ring only through the gateway. State flows into Odoo asynchronously through outboxes and the bus.</p>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1290" height="964" viewBox="0 0 1290 964" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1290" height="964" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Containers: one repository, a ring of services around Odoo</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Level 2. Every service is its own deployable with its own database. The app reaches services only through the gateway.</text>
+<rect x="70" y="100" width="1180" height="120" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="116.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">CLIENTS</text>
+<rect x="70" y="380" width="1180" height="230" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="396.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">SERVICE RING: ONE DEPLOYABLE AND ONE POSTGRESQL DATABASE EACH</text>
+<rect x="70" y="780" width="1180" height="110" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="796.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">SHARED PLATFORM</text>
+<rect x="90" y="135" width="300" height="65" rx="10" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="240.0" y="151.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Flutter app</text>
+<text x="240.0" y="170.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">workers, reviewers, candidates, ops on mobile</text>
+<text x="240.0" y="186.2" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">app/</text>
+<rect x="930" y="135" width="300" height="65" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="1080.0" y="158.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Odoo backend UI</text>
+<text x="1080.0" y="177.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">ops, finance, HR</text>
+<rect x="90" y="270" width="300" height="70" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="240.0" y="282.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">gateway</text>
+<text x="240.0" y="300.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Keycloak JWT, rate limits, idempotency keys,</text>
+<text x="240.0" y="314.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">public OpenAPI</text>
+<text x="240.0" y="330.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services/gateway</text>
+<rect x="90" y="420" width="180" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="180.0" y="437.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">assess</text>
+<text x="180.0" y="455.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">papers, certification,</text>
+<text x="180.0" y="469.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">skills write-back</text>
+<text x="180.0" y="485.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">in the Odoo image (Stage 1)</text>
+<rect x="290" y="420" width="180" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="380.0" y="437.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">market</text>
+<text x="380.0" y="456.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">projects, batches, units,</text>
+<text x="380.0" y="469.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">claims, price cards,</text>
+<text x="380.0" y="483.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">delivery gate</text>
+<rect x="490" y="420" width="180" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="580.0" y="444.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality</text>
+<text x="580.0" y="462.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">review claims, verdicts,</text>
+<text x="580.0" y="476.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">audit, reason codes</text>
+<rect x="690" y="420" width="180" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="780.0" y="444.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout</text>
+<text x="780.0" y="462.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">earnings, pay windows, cost</text>
+<text x="780.0" y="476.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">ledger, rails</text>
+<rect x="890" y="420" width="160" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="970.0" y="451.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">notify</text>
+<text x="970.0" y="469.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">email, push, WhatsApp</text>
+<rect x="90" y="520" width="180" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="180.0" y="532.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">hub</text>
+<text x="180.0" y="550.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">artifacts, lineage, rights,</text>
+<text x="180.0" y="564.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">entitlements</text>
+<text x="180.0" y="580.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Stage 2</text>
+<rect x="290" y="520" width="180" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="380.0" y="539.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">runner</text>
+<text x="380.0" y="557.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">environment quality gate</text>
+<text x="380.0" y="573.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Stage 2 prototype</text>
+<rect x="490" y="520" width="180" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="580.0" y="539.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">tracker</text>
+<text x="580.0" y="557.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">hourly evidence</text>
+<text x="580.0" y="573.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">scaffold</text>
+<rect x="690" y="520" width="180" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="780.0" y="539.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">analytics</text>
+<text x="780.0" y="557.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">CDC read models</text>
+<text x="780.0" y="573.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">scaffold</text>
+<rect x="1070" y="420" width="160" height="170" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="1150.0" y="482.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">NATS JetStream</text>
+<text x="1150.0" y="501.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">every service publishes</text>
+<text x="1150.0" y="514.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">from its outbox and</text>
+<text x="1150.0" y="528.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">subscribes; CloudEvents</text>
+<rect x="490" y="660" width="380" height="80" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="680.0" y="677.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo: system of record</text>
+<text x="680.0" y="695.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">worker record, bench, skills, accounting, vendor bills with</text>
+<text x="680.0" y="709.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">TDS, client invoices</text>
+<text x="680.0" y="725.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services/odoo, ethara_* addons</text>
+<rect x="90" y="810" width="200" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="190.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Keycloak</text>
+<text x="190.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">OIDC staff, JWT workers and</text>
+<text x="190.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services</text>
+<rect x="320" y="810" width="260" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="450.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">PostgreSQL</text>
+<text x="450.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one database per service, PgBouncer,</text>
+<text x="450.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">PITR</text>
+<rect x="610" y="810" width="180" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="700.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Redis</text>
+<text x="700.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">idempotency, sessions,</text>
+<text x="700.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">cache</text>
+<rect x="820" y="810" width="180" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="910.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">S3</text>
+<text x="910.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">payloads, documents,</text>
+<text x="910.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">deliveries</text>
+<rect x="1030" y="810" width="200" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1130.0" y="823.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">RazorpayX, Gemini, SMTP,</text>
+<text x="1130.0" y="838.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">FCM</text>
+<text x="1130.0" y="857.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">external providers</text>
+<path d="M240.0,200.0 L240.0,270.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="204.8" y="226.0" width="70.5" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="240.0" y="235.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">HTTPS, JWT</text>
+<path d="M1080.0,200.0 L1080.0,210.0 L1080.0,640.0 L770.0,640.0 L770.0,660.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L180.0,360.0 L180.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L380.0,360.0 L380.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L580.0,360.0 L580.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L780.0,360.0 L780.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L970.0,360.0 L970.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M90.0,305.0 L40.0,305.0 L40.0,700.0 L490.0,700.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="193.4" y="691.0" width="143.1" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="265.0" y="700.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">ethara_api controllers</text>
+<path d="M1050.0,486.0 L1060.0,486.0 L1060.0,460.0 L1070.0,460.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arr)"/>
+<path d="M1150.0,590.0 L1150.0,720.0 L870.0,720.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="965.7" y="711.0" width="88.7" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="1010.0" y="720.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">outbox bridge</text>
+<path d="M780.0,500.0 L780.0,760.0 L1130.0,760.0 L1130.0,810.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="928.8" y="751.0" width="52.4" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="955.0" y="760.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payouts</text>
+<rect x="40" y="927.0" width="22" height="14" rx="4" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="68.0" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Client app</text>
+<rect x="152.5" y="927.0" width="22" height="14" rx="4" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="180.5" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Service (own deployable, own database)</text>
+<rect x="434.4" y="927.0" width="22" height="14" rx="4" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="462.4" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Odoo: system of record</text>
+<rect x="619.5" y="927.0" width="22" height="14" rx="4" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="647.5" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Shared platform</text>
+<rect x="762.25" y="927.0" width="22" height="14" rx="4" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="790.2" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">External provider</text>
+<rect x="917.1" y="927.0" width="22" height="14" rx="4" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="945.1" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Stage 2 or 3</text>
+</svg><figcaption>Containers: one repository, a ring of services</figcaption></figure>
+<h3 id="4-2-the-repository">4.2 The repository</h3>
+<p>The hub repository <code>yantra</code> stays the base. The proposal is to fold the eleven submodules (the app, nine services, deployment) into it as directories, trunk-based, with every deployable and its chart beside the code that produces it. The service names, the database-per-service rule and the charts are unchanged.</p>
+<pre><code>yantra/
+  app/                    Flutter: worker, reviewer, onboarding, earnings, ops-on-mobile journeys
+  services/
+    gateway/              JWT validation, rate limits, idempotency, retry absorption, public OpenAPI
+    assess/               Assessment v2 contract: papers, certification events, skills write-back
+    market/               projects, batches, units, claims, price cards, assigned mode, delivery gate
+    quality/              review claims, verdicts, audit sample, reason codes, calibration, trust
+    payout/               earnings, pay windows, holds, cost ledger per unit, rail adapters
+    notify/               the only holder of messaging credentials: email, FCM, WhatsApp
+    odoo/                 Odoo 19 CE image, OCA modules, ethara_* addons (workforce, api, accounting glue)
+    hub/                  Stage 2: registry of datasets, environments, models; lineage; rights; entitlements
+    runner/               Stage 2 prototype, Stage 3 production: determinism, pass-rate band, reward-hack audit
+    tracker/              scaffold only, until a client insists on hourly pay
+    analytics/            scaffold only, until CDC read models are needed
+  packages/
+    contracts/            OpenAPI per service, CloudEvents schemas, generated Dart and Python clients
+    py-common/            auth, tracing, outbox publisher, idempotency, config, test fixtures
+  deployment/
+    charts/&lt;service&gt;/     one Helm chart per deployable
+    argocd/               app-of-apps per environment
+    policies/             Kyverno, network policies, egress allow-list
+    terraform/            Postgres, Redis, S3, Keycloak, NATS
+  tools/                  claim-storm harness, fixtures, data generators, migration helpers
+  docs/                   this plan, ADRs, runbooks per job and adapter
+</code></pre>
+<p>Rules that keep one repository from becoming one application:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A service imports only <code>packages/*</code></td>
+<td>never another service&#39;s code; cross-references are ids, not foreign keys across databases</td>
+</tr>
+<tr>
+<td>Database per service</td>
+<td>each service owns its schema and migrations; no cross-database joins; read models are built from events</td>
+</tr>
+<tr>
+<td>Synchronous calls go through the gateway contract, asynchronous through the bus</td>
+<td>a service never calls another service&#39;s database or internal URL</td>
+</tr>
+<tr>
+<td>Transactional outbox everywhere</td>
+<td>every state change that others care about is written to the service&#39;s outbox in the same transaction and published to NATS by a relay</td>
+</tr>
+<tr>
+<td>A contract change and all its consumers land in one pull request</td>
+<td>the generated clients in <code>packages/contracts</code> are rebuilt in CI; a stale consumer fails the build</td>
+</tr>
+<tr>
+<td>Affected-only CI, one release train</td>
+<td>path filters run the tests, contract tests and image build of what changed; every image is signed, carries an SBOM and is tagged per service</td>
+</tr>
+<tr>
+<td>Every service ships four things</td>
+<td>a Dockerfile, a Helm chart, migrations, and a runbook; a service without a runbook does not deploy to production</td>
+</tr>
+<tr>
+<td>Decisions are written down</td>
+<td>an ADR in <code>docs/adr</code> for every choice that constrains more than one service</td>
+</tr>
+</tbody></table></div>
+<h3 id="4-3-services-what-each-owns-in-which-stage">4.3 Services: what each owns, in which stage</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Owns</th>
+<th>Stage 1</th>
+<th>Later</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gateway</code></td>
+<td>the only ingress for the app: Keycloak JWT validation, per-worker rate limits with 429 and Retry-After, idempotency keys for every mutation, retry absorption, the public OpenAPI contract</td>
+<td>built in full; routes for assess, market, quality, payout, notify, odoo</td>
+<td>buyer Organizations and step-up for the client console</td>
+</tr>
+<tr>
+<td><code>assess</code></td>
+<td>papers generated from the project SOP, proctored sittings, certification tag, retake policy, outcome events, skills write-back with evidence level</td>
+<td>the Assessment v2 engine behind its own contract and route; its runtime stays in the <code>odoo</code> image for Stage 1 (the one exception to a service per deployable)</td>
+<td>extraction into its own deployable in Stage 2; credential checks against issuers; AI interviews in Stage 3</td>
+</tr>
+<tr>
+<td><code>market</code></td>
+<td>client projects, batches, work units, claims with <code>SKIP LOCKED</code> and TTL, import with dry run, price card with <code>unit_price</code> frozen at publish, assigned mode, rubric version on every unit, delivery gate and manifest</td>
+<td>built in full</td>
+<td>quote engine with tiers; agentic unit types (trajectory, rubric, pairwise, grader check) in Stage 2; authoring tasks in Stage 3</td>
+</tr>
+<tr>
+<td><code>quality</code></td>
+<td>review claims (never own work), single review plus a 10% audit sample, the canonical verdict, reason codes, the &quot;rubric unclear&quot; flag, client-caused rework marked billable, review earnings</td>
+<td>built in full</td>
+<td>calibration, seeded gold, advisory LLM pre-review, disputes, trust score per domain in Stage 2; the runner verdict as a review stage in Stage 3</td>
+</tr>
+<tr>
+<td><code>payout</code></td>
+<td>earnings on the accept event, weekly pay window (Saturday to Friday IST), holds, cost ledger per unit (pay, review, audit, rail fee, levy), statements; rail adapters (RazorpayX, bank file)</td>
+<td>built in full; vendor bills with TDS and two-person approval raised in Odoo through the bus; reconciliation to the paisa</td>
+<td>a second rail or country</td>
+</tr>
+<tr>
+<td><code>notify</code></td>
+<td>the only holder of messaging credentials; templates; delivery log</td>
+<td>email</td>
+<td>FCM and WhatsApp with the mobile build</td>
+</tr>
+<tr>
+<td><code>odoo</code></td>
+<td>the system of record: worker record, agreements, DPDP consent, documents, the <strong>bench</strong> (skills with evidence level, availability stale after 14 days, past quality), accounting, self-billed vendor bills with TDS, client invoices, margin report</td>
+<td>the <code>ethara_workforce</code>, <code>ethara_api</code> and accounting glue addons on a separate <code>yantra</code> deployment of the existing image</td>
+<td>OCA <code>queue_job</code>, <code>sign_oca</code>, <code>fs_attachment</code> after the licence audit</td>
+</tr>
+<tr>
+<td><code>hub</code></td>
+<td>datasets, environments and models as versioned entries with cards, lineage to units and people, a rights field enforced in queries, delivery mappings; entitlements with an exclusivity class; signed OCI delivery through Harbor; OpenEnv conformance</td>
+<td>not built</td>
+<td>internal catalogue in Stage 2; storefront and entitlements in Stage 3</td>
+</tr>
+<tr>
+<td><code>runner</code></td>
+<td>the environment quality gate: determinism replay, pass-rate band against a reference panel, reward-hackability audit; sandboxed execution</td>
+<td>not built</td>
+<td>standalone prototype in Stage 2 against free public environments; production in Stage 3</td>
+</tr>
+<tr>
+<td><code>tracker</code></td>
+<td>activity ingestion, screenshots to S3, caps, anomaly flags</td>
+<td>scaffold: chart and health endpoint only</td>
+<td>built only if a client insists on hourly pay</td>
+</tr>
+<tr>
+<td><code>analytics</code></td>
+<td>CDC read models, BI</td>
+<td>scaffold</td>
+<td>Stage 3, when data exceeds what Odoo reports and the Performance views can serve</td>
+</tr>
+<tr>
+<td><code>app</code></td>
+<td>one Flutter codebase: apply, onboarding checklist, task list, runner, review console, earnings, ops on mobile</td>
+<td>web first</td>
+<td>mobile store release with FCM in Stage 2</td>
+</tr>
+</tbody></table></div>
+<h3 id="4-4-stack">4.4 Stack</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Choice</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Service runtime</td>
+<td>Python 3.12, FastAPI, SQLAlchemy, Alembic; one <code>uv</code> workspace for the whole repository</td>
+<td>one language across Odoo and the ring; the team&#39;s skill; generated clients from one OpenAPI per service</td>
+</tr>
+<tr>
+<td>System of record</td>
+<td>Odoo 19 CE, OCA modules only, <code>ethara_*</code> addons</td>
+<td>ledger, HR, skills, access rules and India localisation come free; no Enterprise code</td>
+</tr>
+<tr>
+<td>Client</td>
+<td>Flutter, single codebase, gateway-only networking</td>
+<td>the design system, API client and proctoring exist; mobile for Indian gig workers from the same code</td>
+</tr>
+<tr>
+<td>Identity</td>
+<td>Keycloak: OIDC for staff into Odoo, JWT for workers and service-to-service</td>
+<td>built; one realm in Stage 1; buyer Organizations later</td>
+</tr>
+<tr>
+<td>Events</td>
+<td>NATS JetStream with CloudEvents envelopes; transactional outbox in every service; no broker client inside Odoo (an outbox bridge instead)</td>
+<td>at-least-once delivery with idempotent consumers; replay for new read models</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>PostgreSQL, one database per service on a dedicated server, PgBouncer in transaction mode, PITR; Crunchy or Percona operator in Stage 3</td>
+<td>the shared primary is the proven bottleneck [L]; an operator needs a platform owner</td>
+</tr>
+<tr>
+<td>Locks and jobs</td>
+<td>lease rows for every scheduled job; <code>queue_job</code> in Odoo after the licence audit</td>
+<td>session advisory locks leaked under pooling [L]</td>
+</tr>
+<tr>
+<td>Cache and idempotency</td>
+<td>Redis</td>
+<td>idempotency dedup with a unique-constraint fallback in Postgres</td>
+</tr>
+<tr>
+<td>Files</td>
+<td>S3 with per-project prefixes, IAM roles, SSE-KMS, presigned URLs of five minutes</td>
+<td>bytes never cross Odoo or the gateway</td>
+</tr>
+<tr>
+<td>Payments</td>
+<td>Razorpay (RazorpayX payouts) primary; bank file fallback</td>
+<td>Ethara&#39;s existing Indian provider; a global rail needs a non-Indian entity</td>
+</tr>
+<tr>
+<td>AI</td>
+<td>Vertex Gemini through one client with a cost ledger and quota guards; no third-party proxy</td>
+<td>the proxy is the breach vector [R]</td>
+</tr>
+<tr>
+<td>Ingress and delivery</td>
+<td>Istio as deployed; Argo CD app-of-apps; Helm chart per service; Harbor, cosign, SBOM, Kyverno</td>
+<td>supply chain is the lesson from the incumbents&#39; incidents [R]</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>Prometheus, Grafana, Loki, OpenTelemetry traces across gateway and ring, Sentry</td>
+<td>a request is traceable from the app to the ledger</td>
+</tr>
+<tr>
+<td>CI</td>
+<td>GitHub Actions with path filters; contract tests; fresh-database tests per service; the claim-storm harness as a gate</td>
+<td>affected-only builds keep one repository fast</td>
+</tr>
+</tbody></table></div>
+<h3 id="4-5-integration-rules">4.5 Integration rules</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Worker mutation</td>
+<td>app → gateway (idempotency key) → service database → outbox → bus → Odoo ledger. Never a synchronous write path from the app into Odoo tables</td>
+</tr>
+<tr>
+<td>Events out of Odoo</td>
+<td><code>ethara.outbox</code> rows written by <code>ethara_*</code> models, drained by a lease-locked cron into NATS; no broker client in the Odoo process</td>
+</tr>
+<tr>
+<td>Calls into Odoo</td>
+<td>native <code>@http.route</code> controllers in <code>ethara_api</code> secured by Keycloak JWT; no in-Odoo REST framework; XML-RPC forbidden for new work</td>
+</tr>
+<tr>
+<td>Hot paths</td>
+<td>the claim path writes only unit and claim rows; no counters on worker or batch rows; no chatter per claim; task lists show no counts</td>
+</tr>
+<tr>
+<td>Contention</td>
+<td>retries with backoff on Odoo lock errors; hot rows live in service databases</td>
+</tr>
+<tr>
+<td>Money</td>
+<td>the accept event from <code>quality</code> is the only trigger for an earning in <code>payout</code> and a bill in <code>odoo</code>; nightly reconciliation alerts and never auto-adjusts</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="5-stages-and-gates">5. Stages and gates</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1616" height="702" viewBox="0 0 1616 702" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1616" height="702" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">The plan on a timeline: stages, steps and gates</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Left: the step and the number its gate must show. Right: when it runs, in weeks.</text>
+<text x="450.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W0</text>
+<text x="522.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W2</text>
+<text x="594.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W4</text>
+<text x="666.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W6</text>
+<text x="738.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W8</text>
+<text x="810.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W10</text>
+<text x="882.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W12</text>
+<text x="954.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W14</text>
+<text x="1026.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W16</text>
+<text x="1098.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W18</text>
+<text x="1170.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W20</text>
+<text x="1242.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W22</text>
+<text x="1314.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W24</text>
+<text x="1386.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W26</text>
+<text x="1458.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W28</text>
+<text x="1530.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W30</text>
+<text x="40.0" y="152.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Stage 0: lock and validate</text>
+<text x="40.0" y="170.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">3 bottleneck statements; baseline sheet</text>
+<rect x="460" y="144" width="108" height="36" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="514.0" y="162.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="210.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Foundations</text>
+<text x="40.0" y="228.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">empty service deploys signed; DB under 100 connections</text>
+<rect x="496" y="202" width="72" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="532.0" y="220.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="268.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Identity, bench, onboarding</text>
+<text x="40.0" y="286.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">20 synthetic applicants ELIGIBLE, no DB edits</text>
+<rect x="568" y="260" width="72" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="604.0" y="278.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="326.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Market core and review</text>
+<text x="40.0" y="344.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">500 workers, 2,000 units: 0 double claims, p99 &lt; 500 ms</text>
+<rect x="640" y="318" width="108" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="694.0" y="336.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="384.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Money and margin</text>
+<text x="40.0" y="402.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">earnings = bills = payouts net + TDS, to the paisa</text>
+<rect x="748" y="376" width="72" height="36" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="784.0" y="394.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="442.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Delivery and dogfood</text>
+<text x="40.0" y="460.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">gate holds on one bad line; a real window paid</text>
+<rect x="820" y="434" width="36" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="838.0" y="452.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="500.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">First paying pilot</text>
+<text x="40.0" y="518.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">one batch invoiced; one pay cycle; zero deltas</text>
+<rect x="856" y="492" width="72" height="36" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="892.0" y="510.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="558.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Stage 2: Talent, Performance, Hub</text>
+<text x="40.0" y="576.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">3 dashboards retired; one vendor paying</text>
+<rect x="928" y="550" width="648" height="36" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1252.0" y="568.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="616.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Stage 3: environment factory (month 8 on)</text>
+<text x="40.0" y="634.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">first exclusive deal as a single-member entitlement</text>
+<rect x="460" y="608" width="1116" height="36" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1018.0" y="626.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle"></text>
+<path d="M460.0,124.0 L460.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M532.0,124.0 L532.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M604.0,124.0 L604.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M676.0,124.0 L676.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M748.0,124.0 L748.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M820.0,124.0 L820.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M892.0,124.0 L892.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M964.0,124.0 L964.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1036.0,124.0 L1036.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1108.0,124.0 L1108.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1180.0,124.0 L1180.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1252.0,124.0 L1252.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1324.0,124.0 L1324.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1396.0,124.0 L1396.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1468.0,124.0 L1468.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1540.0,124.0 L1540.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+</svg><figcaption>The plan on a timeline</figcaption></figure>
+<h3 id="stage-0-lock-and-validate-weeks-0-2-parallel-with-the-foundations-step">Stage 0: lock and validate (weeks 0-2, parallel with the foundations step)</h3>
+<p>No counterpart in <code>ROADMAP.md</code>; this is the commercial and legal work that lets Stage 1 build against a real pilot.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Work</th>
+<th>Owner</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Lock the decisions in section 6</td>
+<td>sponsor, product owner</td>
+<td>signed decisions table</td>
+</tr>
+<tr>
+<td>Record baselines on 2-3 live projects: time to staff, recruiter hours per hire, QC cost per unit, rework rate, idle cost</td>
+<td>ops</td>
+<td>a baseline sheet</td>
+</tr>
+<tr>
+<td>Interview 5 environment vendors and 2 lab procurement teams: cost per calibrated task, QA pass-through, throughput they cannot hire</td>
+<td>sales, CTO</td>
+<td>3 quantified bottleneck statements; 2 written requests</td>
+</tr>
+<tr>
+<td>Counsel: contractor agreement, NDA, IP assignment, DPDP roles, levy scope. Chartered accountant: TDS section, LUT</td>
+<td>finance</td>
+<td>opinions on file</td>
+</tr>
+<tr>
+<td>Open the SOC 2 Type 2 window</td>
+<td>CTO</td>
+<td>engagement letter</td>
+</tr>
+<tr>
+<td>Run the bench flow on a spreadsheet with a small group</td>
+<td>ops</td>
+<td>the flow understood before it is coded</td>
+</tr>
+</tbody></table></div>
+<h3 id="stage-1-the-working-loop-on-a-bench-weeks-1-12">Stage 1: the working loop on a bench (weeks 1-12)</h3>
+<p>Maps to <code>ROADMAP.md</code> as a thin slice of Phase 0 (foundation), the contractor part of Phase 4 (online workforce foundation) and the core of Phase 5 (task marketplace and payments). Phases 1-3 (HRMS, Finance, ITMS) continue in parallel on the existing addons.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Weeks</th>
+<th>Delivers</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Foundations</td>
+<td>1-2</td>
+<td>the repository laid out as in 4.2 with the former submodules folded in; CI with path filters, signed images, SBOM; a Helm chart and Argo CD application per service; NATS JetStream; Keycloak realm wired to the gateway; a dedicated Postgres server with one database per service, PgBouncer, PITR; Redis; S3 prefixes and IAM; <code>packages/contracts</code> with the first OpenAPI and event schemas; the claim-storm harness; alerts and the egress allow-list</td>
+<td>an empty <code>market</code> service deploys to staging through the pipeline with a signed image, health checks and a trace; the harness runs at 1.5x the largest cohort with zero errors; the production database stays under 100 connections at rest</td>
+</tr>
+<tr>
+<td>Identity, bench, onboarding</td>
+<td>3-4</td>
+<td>gateway in full; worker record, click-wrap agreements, DPDP consent, documents and the bench record (skills with evidence level, availability) in <code>odoo</code>; <code>worker.eligible</code> on the bus and a worker read model in <code>market</code>; Assessment v2 outcome events, certification tag and retake policy behind the <code>assess</code> contract; identity bound to the payout account; the hard-question apply form; payout setup inside the app</td>
+<td>20 synthetic applicants reach ELIGIBLE with no database edits; zero cross-worker reads; worker tokens expire within 24 hours</td>
+</tr>
+<tr>
+<td>Market core and review</td>
+<td>5-7</td>
+<td><code>market</code>: projects, batches, units, import with dry run, publish (freezes <code>unit_pay</code> and <code>unit_price</code>), claim with <code>SKIP LOCKED</code>, submit, skip, TTL release, assigned mode, rubric version on every unit; <code>quality</code>: review claims, verdicts, audit sample, reason codes, the &quot;rubric unclear&quot; flag, billable client rework; Flutter task list, runner and review console; margin floor as a warning with a recorded approval</td>
+<td>500 simulated workers on 2,000 units through the gateway: zero double claims, p99 under 500 ms; reviewers never draw their own work; a batch below its margin floor cannot publish without approval</td>
+</tr>
+<tr>
+<td>Money and margin</td>
+<td>8-9</td>
+<td><code>payout</code>: earnings on the canonical verdict, pay window, holds, cost fields per unit, statements; <code>odoo</code>: self-billed vendor bills with TDS, two-person approval, RazorpayX sandbox, bank-file fallback, reconciliation; margin report per batch and project</td>
+<td>50 workers and 1,000 units: earnings equal bills equal payouts net plus TDS to the paisa; the margin report equals the invoice minus every cost line</td>
+</tr>
+<tr>
+<td>Delivery and dogfood</td>
+<td>10</td>
+<td>delivery gate and manifest in <code>market</code>, client invoice in <code>odoo</code>, retention purge; an internal batch of 300-500 units worked by existing taskers; the four numbers on the ops dashboard; runbooks per service</td>
+<td>the gate holds a batch on one bad line; a real pay window paid; the invoice equals accepted units times rate</td>
+</tr>
+<tr>
+<td>First paying pilot and go/no-go</td>
+<td>11-12</td>
+<td>the first paying client project on the platform; people return to the bench when the batch ends; the next batch staffed from the bench; on-call rota and alerts live</td>
+<td>one real batch delivered and invoiced; one real pay cycle; zero double claims and zero reconciliation deltas; days to staff the second batch under the baseline</td>
+</tr>
+</tbody></table></div>
+<h3 id="stage-2-talent-performance-hub-weeks-13-30-on-demand-and-in-parallel-squads">Stage 2: Talent, Performance, Hub (weeks 13-30, on demand and in parallel squads)</h3>
+<p>Maps to the rest of Phases 4 and 5 and the first part of Phase 6 (AI layer and intelligence) in <code>ROADMAP.md</code>, plus the internal Hub.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Pillar</th>
+<th>Delivers</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Economics</td>
+<td>quote engine: price = expected cost / (1 − target margin) from observed cost per client and task type; tiers by quality (standard, premium, gold) and turnaround (standard, rush); margin drift alerts on live batches; a unit-economics fact table</td>
+<td>quotes within 10% of actual cost on 3 batches</td>
+</tr>
+<tr>
+<td>Platform</td>
+<td><code>assess</code> extracted into its own deployable; Flutter mobile with FCM; WhatsApp; a KYC provider; credential verification against issuers; LLM-use review flags; Keycloak buyer Organizations; OCA modules after the licence audit</td>
+<td>the mobile build in a store; a credential verified end to end</td>
+</tr>
+<tr>
+<td>Quality</td>
+<td>calibration exams, seeded gold, advisory LLM pre-review, a dispute workflow, trust score per domain, reviewer ranks</td>
+<td>dispute uphold rate tracked; seeds catch a planted bad worker in a test batch</td>
+</tr>
+<tr>
+<td>Talent</td>
+<td>resume parse, explainable match to the project SOP profile, auto-assigned paper, human sign-off on rejections, pool re-match; recruiting channels measured per channel; a fellowship with 2 institution partnerships</td>
+<td>one real hiring drive end to end; time to staff under the baseline; cost per verified professional per channel</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>standard signals from events; Me, Pod Lead and TPM views; gating and rate tiers from scores</td>
+<td>3 CSV-fed dashboards retired; numbers reconcile with the old ones on the same weeks</td>
+</tr>
+<tr>
+<td>Hub, internal</td>
+<td>registry of datasets and environments with versions, cards, lineage, rights field, delivery mappings; environment validation (an oracle passes, an empty environment fails)</td>
+<td>deliveries from 3 projects catalogued; one client delivery shipped through the Hub</td>
+</tr>
+<tr>
+<td>Runner prototype</td>
+<td>the quality gate (determinism, pass-rate band, reward-hack audit) as a standalone tool run against 20 free public environments; findings published</td>
+<td>the gate rejects at least one hackable environment; the write-up earns a vendor conversation</td>
+</tr>
+<tr>
+<td>Client console</td>
+<td>intake, SLA and throughput, acceptance rate, quality report, deliveries, feedback that flows back as review events</td>
+<td>one environment vendor as a paying customer</td>
+</tr>
+</tbody></table></div>
+<h3 id="stage-3-the-environment-factory-months-8-12-and-on">Stage 3: the environment factory (months 8-12 and on)</h3>
+<p>Beyond the current <code>ROADMAP.md</code>; a proposed business line, conditional on the Stage 0 buyer conversations.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Work</th>
+<th>Delivers</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>One vertical</td>
+<td>pick from: Odoo-based ERP replicas (LGPL, Ethara operates it), Indian finance and tax workflows (GSTN, TDS, UPI), credentialed medicine or law, Indic language</td>
+<td>two buyer conversations confirm demand before the build</td>
+</tr>
+<tr>
+<td>Factory pipeline</td>
+<td>authoring tasks in <code>market</code> (agentic unit types), the runner gate as a stage in <code>quality</code>, human QA, cosign and SBOM on accept, provenance (contributor ids, IP assignment, OSS manifest)</td>
+<td>the first environment passes the gate and a lab or vendor quality bar</td>
+</tr>
+<tr>
+<td>Hub, external</td>
+<td>entitlements with an exclusivity class (a sole licence withdraws other listings), scoped pull tokens, OpenEnv conformance, canary seeds, a thin storefront for the non-exclusive tier, hubs as channels</td>
+<td>the first exclusive deal recorded as a single-member entitlement; the first non-exclusive listing on a hub</td>
+</tr>
+<tr>
+<td>Scale and AI</td>
+<td>CDC into <code>analytics</code>, a Postgres operator if HA demands it, AI interviews, semantic search, auto-match</td>
+<td>triggers: more than about 3,000 concurrently active workers, p99 claim over 1 s at the load target, review contention with claims, a second payout rail or country</td>
+</tr>
+<tr>
+<td>Hourly engagements</td>
+<td>only behind a non-Indian paying entity, with a bought tracker, screenshots off</td>
+<td>leadership decision</td>
+</tr>
+</tbody></table></div>
+<h3 id="team">Team</h3>
+<p>Stage 1 is a squad of five to seven: a tech lead (architecture, contracts, the gateway, CI and the deploy gate, load tests, security review), three backend engineers (one on <code>market</code> and <code>quality</code>, one on <code>payout</code> and the Odoo accounting glue, one on <code>assess</code>, <code>notify</code> and the workforce addon), one Flutter engineer (worker, reviewer, onboarding and earnings journeys), a named DevOps owner at two days a week (charts, Argo CD, NATS, Postgres, Redis, alerts), optional QA (the claim-storm harness, end-to-end scripts, fresh-database CI), and a finance lead (pay-window approvals, TDS rules, the RazorpayX account, bank files). Stage 2 adds a Talent pair and a Performance pair; the runner prototype and Stage 3 need two to three engineers with RL or verifier experience.</p>
+<p>Ways of working: a weekly demo against the gate, not against intent; every step ends with measured evidence; nothing from Stage 2 starts before the lock; an incident produces a configuration or a test, never a workaround; every service has an owner by role and a runbook before it reaches production.</p>
+<hr>
+<h2 id="6-decisions-for-leadership">6. Decisions for leadership</h2>
+<p>Every decision has a default, so the build can start before the meeting. Rows marked <strong>open</strong> need a choice in the lock meeting or at the first paying pilot.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Model order</td>
+<td>managed per-unit delivery on a credentialed bench now; environment factory in one or two verticals from month 8; hubs as channels; hourly only behind a non-Indian entity</td>
+</tr>
+<tr>
+<td>Topology</td>
+<td>one repository; a service per deployable with its own database from day one; Odoo as the system of record on a separate <code>yantra</code> deployment of the existing image</td>
+</tr>
+<tr>
+<td>Pay basis</td>
+<td>per accepted task; hourly only with a tracker, which is off by default</td>
+</tr>
+<tr>
+<td>Worker legal model</td>
+<td>independent contractor: self-billed vendor bill plus TDS</td>
+</tr>
+<tr>
+<td>Rails, countries, cadence</td>
+<td>India only via Razorpay (RazorpayX payouts, bank file as fallback); weekly Saturday-Friday IST window; 7-day first hold; foreign workers need a non-Indian entity</td>
+</tr>
+<tr>
+<td>Client pricing</td>
+<td>fixed unit rate per project with a stated target margin in Stage 1</td>
+</tr>
+<tr>
+<td>Pricing method (<strong>open</strong>, decide at the first paying pilot)</td>
+<td>from Stage 2: quote = expected cost / (1 − target margin), by tier and turnaround; margin floor per batch as a warning with a recorded override</td>
+</tr>
+<tr>
+<td>Data ownership and resale</td>
+<td>client-owned by default; Ethara-funded runs flagged for reuse or licensing; retention 180 days</td>
+</tr>
+<tr>
+<td>First clients</td>
+<td>an internal dogfood batch, then one existing prime-vendor project, then one small environment vendor, then a lab</td>
+</tr>
+<tr>
+<td>Public positioning</td>
+<td>the platform brand for managed delivery and the credentialed network; no 200K-worker marketplace claim</td>
+</tr>
+<tr>
+<td>Delivery and billing format</td>
+<td>JSONL plus manifest; per-unit invoice; e-invoicing only for Indian clients</td>
+</tr>
+<tr>
+<td>Task source</td>
+<td>client-defined, imported with a dry run; authoring in Stage 3</td>
+</tr>
+<tr>
+<td>Quality model</td>
+<td>single review plus a 10% audit sample; double-blind available per batch; the accept verdict is the only money event</td>
+</tr>
+<tr>
+<td>Gating</td>
+<td>certification exam plus optional seeded gold</td>
+</tr>
+<tr>
+<td>KYC depth</td>
+<td>PAN plus penny drop; a KYC provider in Stage 2</td>
+</tr>
+<tr>
+<td>AI use on tasks</td>
+<td>per-batch flag; paste off by default</td>
+</tr>
+<tr>
+<td>Domain</td>
+<td>a Yantra subdomain of ethara.ai</td>
+</tr>
+<tr>
+<td>Identity</td>
+<td>Keycloak, one realm, from Stage 1: OIDC for staff, JWT for workers and services; buyer Organizations and step-up only when a buyer demands SSO or money moves outside two-person approval</td>
+</tr>
+<tr>
+<td>Bench policy</td>
+<td>contractors return to the bench at project end; 3 verified people per committed seat; availability stale after 14 days</td>
+</tr>
+<tr>
+<td>Recruiting rule</td>
+<td>never without signed demand; channels measured on cost per verified professional</td>
+</tr>
+<tr>
+<td>First factory vertical (<strong>open</strong>, decide after the Stage 0 interviews)</td>
+<td>one of the four candidates in Stage 3</td>
+</tr>
+<tr>
+<td>Levy</td>
+<td>priced into every rate card as a line item from day one, before the Social Security Code rate is notified</td>
+</tr>
+<tr>
+<td>Rubric and reason codes</td>
+<td>rubric version on every unit; reason code mandatory on every rejection; &quot;rubric unclear&quot; routes to the TPM within 2 days</td>
+</tr>
+<tr>
+<td>Quality gate for environments</td>
+<td>determinism replay, pass-rate band, reward-hack audit; a finding is a hard fail</td>
+</tr>
+<tr>
+<td>Artifact contract</td>
+<td>OpenEnv, pinned per version; Harbor-signed OCI images; Hugging Face Hub for the free tier only</td>
+</tr>
+<tr>
+<td>Trust score scope (<strong>open</strong>)</td>
+<td>per domain, not global</td>
+</tr>
+<tr>
+<td>Data products</td>
+<td>only artifacts Ethara funded and owns; rights field enforced in queries; legal review of each licence template</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="7-measures-and-kill-criteria">7. Measures and kill criteria</h2>
+<h3 id="the-four-numbers-reported-from-the-delivery-step-onward">The four numbers (reported from the delivery step onward)</h3>
+<ol>
+<li>Days to staff a project: baseline vs bench.</li>
+<li>Idle cost: baseline vs bench.</li>
+<li>First-pass acceptance: bench vs normal hires.</li>
+<li>Cost per accepted unit delivered.</li>
+</ol>
+<h3 id="platform-measures">Platform measures</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Measure</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Overhaul</td>
+<td>time to stand up a new project type under one week (schema, instructions, quality policy, rate card)</td>
+</tr>
+<tr>
+<td>Economics</td>
+<td>contribution margin per client and task type; quote accuracy; review cost over contributor pay; cash gap in days; <strong>north star: gross margin per accepted unit</strong></td>
+</tr>
+<tr>
+<td>Quality</td>
+<td>first-pass acceptance per batch; rework depth; dispute uphold rate; assessment-score vs 30-day QC-score correlation</td>
+</tr>
+<tr>
+<td>Supply</td>
+<td>cost per verified contributor per channel; verified-to-first-accepted ratio; active over registered; credentialed pool per category; 90-day retention</td>
+</tr>
+<tr>
+<td>Trust</td>
+<td>fraud per 1,000 accounts; on-time payout %; 100% of payouts reconciled before statements; security incidents (zero); zero double claims; zero reconciliation deltas</td>
+</tr>
+<tr>
+<td>Platform</td>
+<td>p99 claim under 500 ms at 500 concurrent workers; zero client-visible incidents during a batch deadline or an exam sitting; every service deployable independently within 30 minutes of a merge</td>
+</tr>
+<tr>
+<td>Hub</td>
+<td>share of deliveries through the Hub; reuse rate; environment gate pass rate; days from project close to listing</td>
+</tr>
+<tr>
+<td>Customers</td>
+<td>number of vendor and lab customers; share of revenue from the largest; net revenue retention</td>
+</tr>
+</tbody></table></div>
+<h3 id="kill-and-change-course-tests">Kill and change-course tests</h3>
+<ul>
+<li>Fewer than 3 signed vendor customers in two quarters: the neutral-supply thesis has not held; sell direct or stop.</li>
+<li>Task prices or volumes fall two quarters in a row, or two labs complete insourcing: shrink the factory ambition.</li>
+<li>Exclusivity premium quoted below 2x: list more aggressively on hubs.</li>
+<li>Verified-account fraud rate stays high after two quarters: change geography or price point.</li>
+<li>The bench is not faster and cheaper on the four numbers after the pilot: stop the bench, keep the contractor structure.</li>
+<li>A failed Stage 1 gate, or a lock outcome that picks hourly pay or an employee model: replan before building further.</li>
+</ul>
+<hr>
+<h2 id="8-risks">8. Risks</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Safeguard</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Database connection exhaustion recurs</td>
+<td>a dedicated server with one database per service; a connection budget per chart; PgBouncer; an alert at 85%</td>
+</tr>
+<tr>
+<td>Locks leak under transaction pooling</td>
+<td>lease-row locks for every scheduled job; claims in one transaction; a dedicated cron pod in Odoo</td>
+</tr>
+<tr>
+<td>Double claim or double pay</td>
+<td>unique indexes; the quality verdict as the only trigger; idempotent consumers; nightly reconciliation that alerts and never auto-adjusts</td>
+</tr>
+<tr>
+<td>A distributed system before the team has run one</td>
+<td>the transactional outbox and idempotency in <code>packages/py-common</code>, not re-written per service; a trace from app to ledger on every request; runbooks before production; a named DevOps owner</td>
+</tr>
+<tr>
+<td>Contract drift between services and the app</td>
+<td>generated clients from one OpenAPI per service; a contract change and its consumers in one pull request; contract tests in CI</td>
+</tr>
+<tr>
+<td>Supply-chain compromise</td>
+<td>slim hash-pinned signed images; SBOM and scans; no third-party LLM proxy; egress allow-list; secrets outside the database</td>
+</tr>
+<tr>
+<td>Client data confidentiality</td>
+<td>per-project storage prefixes; five-minute presigned URLs; blind rules; audit trail; retention purge</td>
+</tr>
+<tr>
+<td>Payment fraud</td>
+<td>PAN and penny-drop checks; one bank account per worker; reviewer never author; holds and caps; two-person approval; webhook signatures</td>
+</tr>
+<tr>
+<td>Business-model churn after build</td>
+<td>the thin loop; pay basis, quality policy and settlement as configuration; events as the seams</td>
+</tr>
+<tr>
+<td>Deploy errors</td>
+<td>one-shot migration job per service; a deploy gate on contract versions; fresh-database CI</td>
+</tr>
+<tr>
+<td>Bus factor</td>
+<td>ownership by role; a named DevOps owner; runbooks per job and adapter</td>
+</tr>
+<tr>
+<td>Worker trust</td>
+<td>notice before repricing or offboarding; published pay windows; disputes answered within the next window</td>
+</tr>
+<tr>
+<td>Margin engine read as pay cuts</td>
+<td>principle 9; rates visible before claim; pay reliability published; no lever touches contributor pay</td>
+</tr>
+<tr>
+<td>Performance tracking felt as surveillance</td>
+<td>self-view first with the same data the lead sees; tracking only where a contract requires it</td>
+</tr>
+<tr>
+<td>Misclassification (India Code on Social Security; US suits cite trackers)</td>
+<td>output-based contracts; tracker off; levy priced in; counsel review per country before any foreign supply</td>
+</tr>
+<tr>
+<td>Reselling data Ethara does not own</td>
+<td>rights field on every artifact, enforced in queries; legal review per licence template</td>
+</tr>
+<tr>
+<td>A shipped hackable environment</td>
+<td>the runner gate is a hard fail; an escape is a severity-one defect</td>
+</tr>
+<tr>
+<td>Offshore supply fails a lab&#39;s quality bar</td>
+<td>calibration gating and seeded gold before capacity is promised; measured in the Stage 2 vendor pilot before the factory</td>
+</tr>
+<tr>
+<td>Social-media recruiting looks like a scam</td>
+<td>own domain only, named team, no direct messages, post the work not the job; associations and WhatsApp for senior professionals</td>
+</tr>
+<tr>
+<td>Recruiting ahead of demand</td>
+<td>the recruiting rule; verified people with no work churn and complain publicly</td>
+</tr>
+<tr>
+<td>OpenEnv churn</td>
+<td>pin the OpenEnv version per artifact; conformance as a build target</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="9-alternatives-considered">9. Alternatives considered</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Options considered</th>
+<th>Choice</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Topology</td>
+<td>(a) Odoo addons with service boundaries, extracted on measured triggers; (b) a service per deployable from day one; (c) nine full services plus registry, runner and a storefront from day one</td>
+<td><strong>(b)</strong>, with <code>tracker</code> and <code>analytics</code> as scaffolds and <code>hub</code> and <code>runner</code> from Stage 2</td>
+<td>hot paths are isolated from Odoo from the first batch; teams ship independently; the cost is about three weeks and a named platform owner, paid once</td>
+</tr>
+<tr>
+<td>Repository layout</td>
+<td>one repository; one repository per service as submodules</td>
+<td><strong>one repository</strong></td>
+<td>a contract change lands with its consumers in one pull request; one CI; one place to read</td>
+</tr>
+<tr>
+<td>Identity</td>
+<td>Odoo users now, Keycloak later; Keycloak from day one</td>
+<td><strong>Keycloak from day one</strong></td>
+<td>it is built; service-to-service JWTs are needed from the first deployable</td>
+</tr>
+<tr>
+<td>Events</td>
+<td>an outbox table drained in-process; NATS from day one</td>
+<td><strong>NATS from day one</strong>, with a transactional outbox in every service</td>
+<td>the first consumer outside the Odoo process exists in Stage 1</td>
+</tr>
+<tr>
+<td>First customer</td>
+<td>an internal project; existing prime-vendor work plus a direct lab pilot; a small environment vendor first</td>
+<td><strong>dogfood, then prime vendor, then a small vendor, then a lab</strong></td>
+<td>each step is cheaper to win than the next and produces the evidence the next one asks for; a lab needs SOC 2 and gate evidence</td>
+</tr>
+<tr>
+<td>Scale target</td>
+<td>200K registered; tens of thousands; 3,000 registered and 500 concurrent in year one</td>
+<td><strong>3,000 / 500</strong>, 200K as the ceiling</td>
+<td>a comparable platform runs about 30K weekly active [E]; measure before extracting</td>
+</tr>
+<tr>
+<td>Business-model order</td>
+<td>several labellings of the same sequence</td>
+<td>managed per-unit on a bench, then the factory, then hubs as channels; data products are what the factory produces, not a separate line</td>
+<td>one sequence, one vocabulary</td>
+</tr>
+<tr>
+<td>Pricing in Stage 1</td>
+<td>a quote engine with quality and turnaround tiers now; one fixed rate per project with a price card and actual margin</td>
+<td><strong>fixed rate now, tiers in Stage 2</strong></td>
+<td>tiers need observed cost per unit, which does not exist before the money step has run</td>
+</tr>
+<tr>
+<td>Margin floor</td>
+<td>a hard block on publish; a warning with a recorded approval</td>
+<td><strong>warning plus approval</strong> in Stage 1</td>
+<td>a hard block with no cost history would block the dogfood batch before any cost history exists</td>
+</tr>
+<tr>
+<td>Talent pillar</td>
+<td>resume parsing and matching in Stage 1; a hard-question apply form plus Assessment v2 now and matching in Stage 2</td>
+<td><strong>form now, matching in Stage 2, AI interviews in Stage 3</strong></td>
+<td>matching needs a pool to match across</td>
+</tr>
+<tr>
+<td>Dashboards</td>
+<td>standard signals from events for everyone now; a margin report and the four numbers now, Performance views later</td>
+<td><strong>margin report and the four numbers in Stage 1; Performance in Stage 2</strong></td>
+<td>the event stream from Stage 1 is what Performance reads</td>
+</tr>
+<tr>
+<td>Recruiting</td>
+<td>recruit 200 credentialed contributors in two domains before the pilot; recruit only against signed demand</td>
+<td><strong>only against the pilot project</strong>, unless a vendor signs in Stage 0</td>
+<td>verified people with no work churn and complain publicly</td>
+</tr>
+<tr>
+<td>Spreadsheet first</td>
+<td>run the whole loop on a sheet; run only the bench flow on a sheet</td>
+<td><strong>bench flow only</strong></td>
+<td>claim, review and pay are already proven in code; the sheet is for the one flow that is new</td>
+</tr>
+<tr>
+<td>Client login in Stage 1</td>
+<td>a client console now; a manifest, an invoice and a weekly report now</td>
+<td><strong>no client login in Stage 1</strong></td>
+<td>the console earns its keep when the first vendor pays, in Stage 2</td>
+</tr>
+<tr>
+<td>Mobile</td>
+<td>no mobile until later; mobile in Stage 2</td>
+<td><strong>Stage 2</strong></td>
+<td>Indian gig workers are on phones, and the Flutter codebase makes mobile nearly free once the web journeys exist</td>
+</tr>
+<tr>
+<td>Environment factory</td>
+<td>a capped side channel; a business line from day one; a conditional Stage 3 line</td>
+<td><strong>conditional Stage 3 line</strong></td>
+<td>three independent research threads put the premium in exclusive environments (4-5x [E]); the risk is handled by the gate, not by capping the line</td>
+</tr>
+<tr>
+<td>Factory services</td>
+<td>registry, runner and a storefront as full services before a buyer exists; the quality gate alone as a Stage 2 prototype</td>
+<td><strong>gate first</strong></td>
+<td>the gate is the only piece with evidence value before a buyer exists</td>
+</tr>
+<tr>
+<td>Keycloak depth</td>
+<td>two realms and three authentication levels now; one realm now, Organizations and step-up on demand</td>
+<td><strong>one realm now</strong></td>
+<td>no second identity source exists yet; step-up lands with the first money movement outside two-person approval</td>
+</tr>
+<tr>
+<td>ML hires</td>
+<td>hire 2-3 ML engineers for verifier tooling now; only when Stage 3 is approved</td>
+<td><strong>only when Stage 3 is approved</strong></td>
+<td>the Stage 2 prototype runs against free environments with the tech lead plus one engineer</td>
+</tr>
+<tr>
+<td>SOC 2</td>
+<td>later; open the Type 2 window now</td>
+<td><strong>now, in Stage 0</strong></td>
+<td>cheap to start and the longest pole in any lab conversation</td>
+</tr>
+<tr>
+<td>Hub as revenue</td>
+<td>a licensing line from Stage 2; Ethara-funded artifacts only, from Stage 3</td>
+<td><strong>Stage 3, Ethara-funded only</strong></td>
+<td>work produced under a client contract belongs to the client</td>
+</tr>
+<tr>
+<td>Appraisals for non-tasking staff</td>
+<td>inside Performance; the ERP track</td>
+<td><strong>ERP track</strong></td>
+<td>no event data exists for it; it moves no gate</td>
+</tr>
+<tr>
+<td>Tracker</td>
+<td>on by default for evidence; off by default</td>
+<td><strong>off by default</strong></td>
+<td>trackers are the evidence misclassification suits use [R]</td>
+</tr>
+</tbody></table></div>
+
+
+<p class="foot">Yantra, 2 November 2026. Every diagram can be edited in draw.io. Evidence tags: [D] disclosed by the company named, [R] reported by press or analysts, [E] estimate, [L] read from the company's own repositories.</p>
+</article></main></div>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme');
+function cur(){var t=r.getAttribute('data-theme');if(t)return t;return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
+function paint(){b.textContent=cur()==='dark'?'\u263C Light mode':'\u263E Dark mode';}
+try{var s=localStorage.getItem('etp.theme');if(s==='dark'||s==='light')r.setAttribute('data-theme',s);}catch(e){}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('etp.theme',n);}catch(e){}paint();});paint();
+})();
+</script>
+</body></html>

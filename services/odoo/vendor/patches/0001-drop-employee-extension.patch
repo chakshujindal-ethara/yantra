@@ -1,0 +1,13 @@
+# Assessment v2 does not use employee_extension (its knowledge base: 'carried over from the fork point');
+# depending on it would pull in etp_applicant_assessment, website, project, hr_skills and OCR (PyTorch).
+--- a/addons/assessments_be_v2/__manifest__.py
++++ b/addons/assessments_be_v2/__manifest__.py
+@@ -17,7 +17,7 @@
+         "python": ["PyJWT", "httpx", "boto3", "cryptography", "defusedxml",
+                    "PIL", "redis"],
+     },
+-    "depends": ["base", "mail", "hr", "hr_recruitment", "employee_extension",
++    "depends": ["base", "mail", "hr", "hr_recruitment",
+                 "auth_signup", "api_auth_gateway"],
+     "data": [
+         "security/etp_assessment_security.xml",

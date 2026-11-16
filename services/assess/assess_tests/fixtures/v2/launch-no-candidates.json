@@ -1,0 +1,67 @@
+{
+    "ok": false,
+    "error": {
+        "code": "launch_blocked",
+        "message": "Launch blocked: At least one candidate assigned - No candidates assigned. Add candidates before launching."
+    },
+    "gates": [
+        {
+            "code": "duration",
+            "label": "Duration is at least 2 minutes",
+            "passed": true,
+            "reason": ""
+        },
+        {
+            "code": "state",
+            "label": "Assessment is in Draft",
+            "passed": true,
+            "reason": ""
+        },
+        {
+            "code": "candidates",
+            "label": "At least one candidate assigned",
+            "passed": false,
+            "reason": "No candidates assigned. Add candidates before launching."
+        },
+        {
+            "code": "generator",
+            "label": "Question generator selected",
+            "passed": true,
+            "reason": ""
+        },
+        {
+            "code": "questions_available",
+            "label": "Generator has servable questions",
+            "passed": true,
+            "reason": ""
+        },
+        {
+            "code": "question_limit",
+            "label": "Requested question count is available",
+            "passed": true,
+            "reason": ""
+        },
+        {
+            "code": "answer_keys",
+            "label": "Every question has something markable on it",
+            "passed": true,
+            "reason": ""
+        },
+        {
+            "code": "grading_keys",
+            "label": "Graded questions have an answer key",
+            "passed": true,
+            "reason": "",
+            "warning": false
+        },
+        {
+            "code": "reviewed_rubrics",
+            "label": "Subjective rubrics are human-reviewed (not required)",
+            "passed": true,
+            "reason": ""
+        }
+    ],
+    "failed_gates": [
+        "candidates"
+    ]
+}

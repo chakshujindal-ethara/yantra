@@ -1,0 +1,7 @@
+{
+    "ok": false,
+    "error": {
+        "code": "assessment_closed",
+        "message": "Cannot assign candidates to a done assessment"
+    }
+}

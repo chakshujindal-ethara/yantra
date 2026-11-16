@@ -1,0 +1,34 @@
+{
+ "ok": true,
+ "data": [
+  {
+   "id": 12,
+   "name": "QB Smoke - AI-Artifact Defect Description",
+   "state": "done",
+   "active": true,
+   "generator": {
+    "id": 9,
+    "name": "AI-Artifact Description Assessment"
+   },
+   "question_limit": 16,
+   "questions_available": 16,
+   "duration_minutes": 120,
+   "start_date": "2026-08-02T08:02:26Z",
+   "end_date": null,
+   "candidate_count": 1,
+   "assigned_count": 1,
+   "submitted_count": 1,
+   "releasable_count": 1,
+   "awaiting_scoring_count": 1,
+   "response_count": 16,
+   "invite_summary": "1 sent",
+   "create_date": "2026-08-02T08:02:26Z"
+  }
+ ],
+ "meta": {
+  "total": 1,
+  "limit": 40,
+  "offset": 0,
+  "has_more": false
+ }
+}

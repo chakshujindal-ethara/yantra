@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Task templates in Odoo: list, author, save and archive. The structure
+         is authored with Form Studio's own item editor (`be_form_item_editor`)
+         in template mode. -->
+
+    <record id="assessments_be_task_template_tree" model="ir.ui.view">
+        <field name="name">assessments.be.task.template.list</field>
+        <field name="model">assessments.be.task.template</field>
+        <field name="arch" type="xml">
+            <list class="o_etp_backend">
+                <field name="name"/>
+                <field name="response"/>
+                <field name="question_type" string="Question Type"
+                       optional="show"/>
+                <field name="origin_prompt_id" string="Origin SOP"
+                       optional="show"/>
+                <field name="item_count" string="Items" optional="show"/>
+                <field name="usable_count" string="Usable" optional="show"/>
+                <!-- The warning flag is the reason an operator opens this list
+                     at all: a template whose shape cannot be generated from is
+                     the thing that wastes a review cycle. -->
+                <field name="has_shape_warnings" widget="boolean"
+                       string="Warnings" optional="show"
+                       decoration-warning="has_shape_warnings"/>
+                <field name="authored_by" optional="hide"/>
+                <field name="write_date" string="Updated" optional="show"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="assessments_be_task_template_form" model="ir.ui.view">
+        <field name="name">assessments.be.task.template.form</field>
+        <field name="model">assessments.be.task.template</field>
+        <field name="arch" type="xml">
+            <!-- W11: questions are edited with Form Studio's own item editor,
+                 in template mode - no publish check, so answer keys stay
+                 optional. Only the answer-key fields the chosen response uses
+                 are shown, and an Odoo save clears the others
+                 (`web_save`), as the app's editor does. Labels are the app's. -->
+            <form class="o_etp_backend">
+                <sheet>
+                    <field name="id" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Judge prompt adherence"/></h1>
+                    </div>
+                    <div class="alert alert-info" role="status"
+                         invisible="id or authored_by != 'llm_edited'">
+                        Drafted from the SOP. Check the wording and the answer
+                        keys, then Save; Discard to drop it.
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not has_shape_warnings">
+                        <strong>This shape has warnings.</strong>
+                        <field name="shape_warnings" readonly="1" nolabel="1"/>
+                    </div>
+                    <!-- Never blocks a save: a half-authored template is a
+                         normal state. -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not generate_problems">
+                        <strong>Fix before generating:</strong>
+                        <field name="generate_problems" readonly="1" nolabel="1"/>
+                    </div>
+                    <group>
+                        <group string="Shape">
+                            <field name="response" string="What a candidate does"/>
+                            <!-- Computed from the primitive, never chosen:
+                                 TASK_PRIMITIVE_TO_QUESTION_TYPE is the single
+                                 mapping and a second editable copy here is how
+                                 the two would drift. -->
+                            <field name="question_type" readonly="1"/>
+                            <field name="origin_prompt_id"
+                                   options="{'no_create': True}"/>
+                            <field name="authored_by"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Counts">
+                            <field name="item_count" readonly="1"/>
+                            <field name="usable_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="instructions"
+                               string="Instructions for the generator"
+                               placeholder="What this shape is for. Never shown to a candidate."/>
+                    </group>
+                    <group string="How the answer is marked"
+                           invisible="response not in ('free_text', 'describe_media')">
+                        <field name="rubric_criteria" string="Criteria"
+                               placeholder="One criterion per line. The grader marks against these, so every item of this task is judged the same way."/>
+                        <field name="rubric_pass_condition"
+                               string="A passing answer must"
+                               placeholder="e.g. Names the flaw AND proposes a fix"/>
+                        <field name="rubric_constraints"
+                               string="Limits the answer must respect"
+                               placeholder="e.g. Under 150 words, no bullet lists"/>
+                    </group>
+                    <group string="What the candidate must mark"
+                           invisible="response != 'annotate_image'">
+                        <field name="annotation_targets" string="Targets"
+                               placeholder="One expected annotation per line. Coverage and precision are graded against this list."/>
+                        <field name="annotation_expected_count"
+                               string="Marks in a complete answer"/>
+                    </group>
+                    <group invisible="response not in ('compare_two', 'author_prompt', 'author_video_prompt', 'annotate_image')">
+                        <field name="media_brief"
+                               string="What the image must show"
+                               invisible="response == 'author_video_prompt'"
+                               placeholder="Anchors the stimulus so every generated item is a variation on the same task."/>
+                        <field name="media_brief"
+                               string="What the clip must show"
+                               invisible="response != 'author_video_prompt'"
+                               placeholder="Anchors the stimulus so every generated item is a variation on the same task."/>
+                    </group>
+                    <separator string="Questions"/>
+                    <field name="structure_json" nolabel="1"
+                           widget="be_form_item_editor"
+                           options="{'skip_publish_check': true}"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="assessments_be_task_template_search" model="ir.ui.view">
+        <field name="name">assessments.be.task.template.search</field>
+        <field name="model">assessments.be.task.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="origin_prompt_id" string="Origin SOP"/>
+                <separator/>
+                <filter name="has_warnings" string="Has Warnings"
+                        domain="[('has_shape_warnings', '=', True)]"/>
+                <filter name="usable" string="Has Usable Items"
+                        domain="[('usable_count', '&gt;', 0)]"/>
+                <separator/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="group_by_response" string="Response"
+                        context="{'group_by': 'response'}"/>
+                <filter name="group_by_origin" string="Origin SOP"
+                        context="{'group_by': 'origin_prompt_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_task_template" model="ir.actions.act_window">
+        <field name="name">Task Templates</field>
+        <field name="res_model">assessments.be.task.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="assessments_be_task_template_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No task templates yet
+            </p>
+            <p>
+                A template states the shape of a task once - the axes, the
+                options, the answer key - so generation produces items in
+                exactly that shape instead of inferring one from the SOP prose.
+                Author them from a generator's Skills &amp; Templates tab.
+            </p>
+        </field>
+    </record>
+
+</odoo>

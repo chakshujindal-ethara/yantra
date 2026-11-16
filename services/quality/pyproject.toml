@@ -1,0 +1,21 @@
+[project]
+name = "yantra-quality"
+version = "0.1.0"
+description = "quality: review claims, verdicts, the audit sample, reason codes, the canonical accept."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "yantra-common",
+  "yantra-contracts",
+  "sqlalchemy==2.0.36",
+  "psycopg[binary]==3.2.3",
+  "alembic==1.14.0",
+  "fastapi==0.115.5",
+  "pydantic==2.9.2",
+]
+
+[build-system]
+requires = ["hatchling==1.26.3"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["yantra_quality"]

@@ -1,0 +1,10 @@
+{
+    "ok": true,
+    "data": {
+        "format": "csv",
+        "generator_id": 1,
+        "questions_created": 2,
+        "warnings": [],
+        "message": "Imported 2 draft question(s) from CSV into 'Yantra quick: Transcription basics'. Review them in Pending Approvals."
+    }
+}

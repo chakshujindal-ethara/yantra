@@ -1,0 +1,263 @@
+/* Form Studio item editor — the back-office authoring surface.
+
+   SCOPED ENTIRELY UNDER `.o_etp_form_editor`, the widget's own root, so this
+   file cannot reach any other screen. It reads the `--etp-*` tokens
+   `backend.scss` defines on `.o_etp_backend` (the class the Studio form arch
+   carries) and gives every one a literal fallback: the widget must still be
+   legible if it is ever mounted on a view that does not carry that hook.
+
+   THE FOCUS RING IS NOT DECORATION. This is a keyboard-heavy surface - every
+   move, delete, key toggle and add is a button, and an operator tabbing through
+   a fifty-item form has to be able to see where they are. Odoo's default
+   outline is suppressed on `.btn`, so it is restored here explicitly. */
+
+.o_etp_form_editor {
+    --fe-border: var(--etp-border, #e8eaf3);
+    --fe-border-strong: var(--etp-border-strong, #d5d9e6);
+    --fe-surface: var(--etp-surface, #ffffff);
+    --fe-surface-2: var(--etp-surface-2, #fbfbfe);
+    --fe-muted: var(--etp-muted, #565d6e);
+    --fe-accent: var(--etp-accent, #5b4be6);
+    --fe-accent-ring: var(--etp-accent-ring, rgba(91, 75, 230, 0.28));
+    --fe-fail: var(--etp-fail, #d64545);
+    --fe-radius: var(--etp-radius-sm, 11px);
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    /* One ring for every interactive thing in here, including the file-picker
+       label, which is focusable through the input it wraps. */
+    .btn:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    label:focus-within {
+        outline: 2px solid var(--fe-accent);
+        outline-offset: 1px;
+        border-radius: 4px;
+    }
+
+    /* ---- toolbar ------------------------------------------------------ */
+    .o_etp_fe_bar {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: var(--fe-surface-2);
+        border: 1px solid var(--fe-border);
+        border-radius: var(--fe-radius);
+        position: sticky;
+        top: 0;
+        /* Above the cards, below Odoo's own control panel and any dialog. */
+        z-index: 2;
+    }
+    .o_etp_fe_count {
+        font-size: 0.9rem;
+    }
+    .o_etp_fe_bar_actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+
+    /* ---- empty states ------------------------------------------------- */
+    .o_etp_fe_empty {
+        padding: 1rem;
+        border: 1px dashed var(--fe-border-strong);
+        border-radius: var(--fe-radius);
+        background: var(--fe-surface-2);
+    }
+
+    /* ---- sections ----------------------------------------------------- */
+    .o_etp_fe_section {
+        border: 1px solid var(--fe-border);
+        border-radius: var(--fe-radius);
+        background: var(--fe-surface);
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    .o_etp_fe_shead {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .o_etp_fe_stitle {
+        font-weight: 600;
+        max-width: 28rem;
+    }
+    .o_etp_fe_sactions,
+    .o_etp_fe_iactions {
+        display: flex;
+        gap: 0.25rem;
+        margin-left: auto;
+    }
+    .o_etp_fe_additem {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+
+        select {
+            max-width: 16rem;
+        }
+    }
+    .o_etp_fe_addsection {
+        align-self: flex-start;
+    }
+
+    /* ---- one item ----------------------------------------------------- */
+    .o_etp_fe_item {
+        border: 1px solid var(--fe-border);
+        border-left: 3px solid var(--fe-border-strong);
+        border-radius: var(--fe-radius);
+        background: var(--fe-surface-2);
+        margin-bottom: 0.5rem;
+
+        /* A card publish would refuse. The left edge is the cue that survives
+           collapsing the card, so a problem cannot be hidden by tidying up. */
+        &.o_etp_fe_bad {
+            border-left-color: var(--fe-fail);
+        }
+    }
+    .o_etp_fe_ihead {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.5rem;
+        flex-wrap: wrap;
+    }
+    .o_etp_fe_inum {
+        min-width: 1.5rem;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+        color: var(--fe-muted);
+    }
+    .o_etp_fe_ikind {
+        max-width: 14rem;
+    }
+    .o_etp_fe_itext {
+        flex: 1 1 12rem;
+        min-width: 0;
+        color: var(--fe-muted);
+    }
+    .o_etp_fe_ibody {
+        padding: 0 0.75rem 0.75rem 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    /* ---- fields and panels -------------------------------------------- */
+    .o_etp_fe_field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+
+        > label {
+            font-size: 0.8rem;
+            color: var(--fe-muted);
+            margin: 0;
+        }
+    }
+    .o_etp_fe_panel {
+        border-top: 1px solid var(--fe-border);
+        padding-top: 0.5rem;
+    }
+    .o_etp_fe_plabel {
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .o_etp_fe_inline {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        input[type="number"] {
+            width: 6rem;
+        }
+        label {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--fe-muted);
+        }
+    }
+
+    /* ---- option / row lines ------------------------------------------- */
+    .o_etp_fe_orow {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.25rem;
+
+        input[type="text"] {
+            flex: 1 1 auto;
+            min-width: 8rem;
+        }
+        input[type="checkbox"],
+        input[type="radio"] {
+            flex: 0 0 auto;
+            margin: 0;
+        }
+    }
+    .o_etp_fe_pnum {
+        flex: 0 0 1.5rem;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+        color: var(--fe-muted);
+    }
+    .o_etp_fe_gridlists {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+
+        > div {
+            flex: 1 1 14rem;
+            min-width: 12rem;
+        }
+    }
+    .o_etp_fe_grid {
+        th,
+        td {
+            vertical-align: middle;
+        }
+        td {
+            text-align: center;
+        }
+    }
+
+    /* ---- media -------------------------------------------------------- */
+    .o_etp_fe_media {
+        input[type="text"] {
+            flex: 1 1 18rem;
+            min-width: 10rem;
+        }
+    }
+    /* Hidden, not display:none - the label wraps it, and a display:none input
+       is not focusable, which would take the Upload button off the keyboard. */
+    .o_etp_fe_file {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .o_etp_fe_preview {
+        margin-top: 0.5rem;
+
+        img,
+        video {
+            max-width: 260px;
+            max-height: 180px;
+            border: 1px solid var(--fe-border);
+            border-radius: var(--etp-radius-xs, 8px);
+            background: #fff;
+        }
+    }
+}

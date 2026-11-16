@@ -1,0 +1,494 @@
+{
+  "realm": "yantra",
+  "enabled": true,
+  "displayName": "Yantra (local)",
+  "sslRequired": "none",
+  "accessTokenLifespan": 900,
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+  "ssoSessionIdleTimeout": 86400,
+  "ssoSessionMaxLifespan": 86400,
+  "offlineSessionMaxLifespanEnabled": true,
+  "offlineSessionMaxLifespan": 86400,
+  "bruteForceProtected": false,
+  "permanentLockout": false,
+  "failureFactor": 10,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "quickLoginCheckMilliSeconds": 1000,
+  "minimumQuickLoginWaitSeconds": 60,
+  "maxDeltaTimeSeconds": 43200,
+  "passwordPolicy": "",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": false,
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyDigits": 6,
+  "otpPolicyPeriod": 30,
+  "roles": {
+    "realm": [
+      {
+        "name": "worker",
+        "description": "A worker on the platform: claims units, gets paid"
+      },
+      {
+        "name": "reviewer",
+        "description": "Reviews and audits other workers' units (also a worker for pay)"
+      },
+      {
+        "name": "ops",
+        "description": "Operator: projects, batches, listings, papers, workers, quality, support",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "mfa-required"
+          ]
+        }
+      },
+      {
+        "name": "finance",
+        "description": "Finance: closes, approves and pays pay windows; decides adjustments",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "mfa-required"
+          ]
+        }
+      },
+      {
+        "name": "admin",
+        "description": "Platform admin: dead letters, job schedules",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "mfa-required"
+          ]
+        }
+      },
+      {
+        "name": "client",
+        "description": "A client (lab or vendor) buying work: sees its own projects, deliveries and invoices"
+      },
+      {
+        "name": "mfa-required",
+        "description": "Internal marker: the browser login asks this person for a TOTP code (held through ops, finance and admin). Never forwarded to a service."
+      },
+      {
+        "name": "default-roles-yantra",
+        "description": "What every new account gets: the worker role (self-registration makes a worker)",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "worker"
+          ],
+          "client": {
+            "account": [
+              "view-profile",
+              "manage-account"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "defaultRole": {
+    "name": "default-roles-yantra"
+  },
+  "browserFlow": "browser-mfa",
+  "authenticationFlows": [
+    {
+      "alias": "browser-mfa",
+      "description": "Cookie, else username and password; a TOTP code for anyone holding mfa-required",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-cookie",
+          "requirement": "ALTERNATIVE",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "flowAlias": "browser-mfa forms",
+          "requirement": "ALTERNATIVE",
+          "priority": 20,
+          "autheticatorFlow": true,
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "alias": "browser-mfa forms",
+      "description": "Username and password, then the conditional OTP form",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-username-password-form",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "auth-conditional-otp-form",
+          "authenticatorConfig": "otp-for-staff",
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "alias": "direct-grant-password",
+      "description": "Rig and staging smoke only: username and password, no OTP (the password grant never runs in production)",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "direct-grant-validate-username",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "direct-grant-validate-password",
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        }
+      ]
+    }
+  ],
+  "authenticatorConfig": [
+    {
+      "alias": "otp-for-staff",
+      "config": {
+        "forceOtpRole": "mfa-required",
+        "defaultOtpOutcome": "skip"
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "yantra-app",
+      "name": "Yantra app and CLI (local: the password grant is on for the CLI and the rig's direct login)",
+      "publicClient": true,
+      "enabled": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:8095/*",
+        "http://localhost:8090/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8095"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "oauth2.device.authorization.grant.enabled": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "yantra-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "yantra",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ],
+      "optionalClientScopes": [],
+      "defaultClientScopes": [
+        "basic",
+        "roles",
+        "profile",
+        "email",
+        "web-origins",
+        "acr"
+      ]
+    },
+    {
+      "clientId": "yantra-odoo",
+      "name": "Odoo bridge (service account)",
+      "publicClient": false,
+      "enabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "yantra-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "yantra",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ],
+      "secret": "yantra-odoo-local-secret"
+    },
+    {
+      "clientId": "yantra-assess",
+      "name": "Assessment v2 bridge (service account)",
+      "description": "Yantra's assess adapter proves itself to the Odoo assessment bridge with this client's token (client credentials only).",
+      "publicClient": false,
+      "enabled": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": false,
+      "attributes": {
+        "oauth2.device.authorization.grant.enabled": "false"
+      },
+      "secret": "yantra-assess-local-secret"
+    }
+  ],
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "no-reply@yantra.local",
+    "fromDisplayName": "Yantra (local)"
+  },
+  "directGrantFlow": "direct-grant-password",
+  "users": [
+    {
+      "id": "00000000-0000-4000-8000-00000000a001",
+      "username": "ops1",
+      "enabled": true,
+      "email": "ops1@yantra.local",
+      "firstName": "Ops",
+      "lastName": "One",
+      "realmRoles": [
+        "ops",
+        "finance"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000a002",
+      "username": "ops2",
+      "enabled": true,
+      "email": "ops2@yantra.local",
+      "firstName": "Ops",
+      "lastName": "Two",
+      "realmRoles": [
+        "ops",
+        "finance"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "username": "worker1",
+      "enabled": true,
+      "email": "worker1@yantra.local",
+      "firstName": "Worker",
+      "lastName": "One",
+      "realmRoles": [
+        "worker",
+        "reviewer"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "username": "worker2",
+      "enabled": true,
+      "email": "worker2@yantra.local",
+      "firstName": "Worker",
+      "lastName": "Two",
+      "realmRoles": [
+        "worker",
+        "reviewer"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "username": "worker3",
+      "enabled": true,
+      "email": "worker3@yantra.local",
+      "firstName": "Worker",
+      "lastName": "Three",
+      "realmRoles": [
+        "worker",
+        "reviewer"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "username": "worker4",
+      "enabled": true,
+      "email": "worker4@yantra.local",
+      "firstName": "Worker",
+      "lastName": "Four",
+      "realmRoles": [
+        "worker"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "username": "worker5",
+      "enabled": true,
+      "email": "worker5@yantra.local",
+      "firstName": "Worker",
+      "lastName": "Five",
+      "realmRoles": [
+        "worker"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000b001",
+      "username": "service-account-yantra-odoo",
+      "enabled": true,
+      "serviceAccountClientId": "yantra-odoo",
+      "realmRoles": [
+        "ops"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-0000000000c1",
+      "username": "client1",
+      "enabled": true,
+      "email": "client1@yantra.local",
+      "firstName": "Client",
+      "lastName": "One",
+      "realmRoles": [
+        "client"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-0000000000c2",
+      "username": "client2",
+      "enabled": true,
+      "email": "client2@yantra.local",
+      "firstName": "Client",
+      "lastName": "Two",
+      "realmRoles": [
+        "client"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000ad01",
+      "username": "admin1",
+      "enabled": true,
+      "email": "admin1@yantra.local",
+      "firstName": "Admin",
+      "lastName": "One",
+      "realmRoles": [
+        "admin"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000ad02",
+      "username": "noroles1",
+      "enabled": true,
+      "email": "noroles1@yantra.local",
+      "firstName": "No",
+      "lastName": "Roles",
+      "realmRoles": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    }
+  ]
+}

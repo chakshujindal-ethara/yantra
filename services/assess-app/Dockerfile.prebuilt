@@ -1,0 +1,10 @@
+# The exam app from a bundle built on the host (build.sh -> dist/): the local rig's VM is too small for the
+# Flutter build. Same runtime as Dockerfile's last stage.
+FROM nginxinc/nginx-unprivileged:1.27.5-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0
+ENV NGINX_ENVSUBST_OUTPUT_DIR=/tmp/assess-nginx \
+    ODOO_UPSTREAM=odoo:8069
+COPY nginx.conf /etc/nginx/templates/assess.conf.template
+COPY docker/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/18-assess-config.sh /docker-entrypoint.d/18-assess-config.sh
+COPY dist /usr/share/nginx/html
+EXPOSE 8080

@@ -1,0 +1,184 @@
+{
+  "displayName": "Yantra (staging)",
+  "roles": {
+    "realm": [
+      {
+        "name": "smoke",
+        "description": "Staging smoke users only: the one role the yantra-smoke password flow admits"
+      }
+    ]
+  },
+  "authenticatorConfig": [
+    {
+      "alias": "not-a-smoke-user",
+      "config": {
+        "condUserRole": "smoke",
+        "negate": "true"
+      }
+    }
+  ],
+  "authenticationFlows": [
+    {
+      "alias": "direct-grant-password",
+      "description": "yantra-smoke only (bound on that client): username and password, no OTP, and only for holders of the smoke role",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "direct-grant-validate-username",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "direct-grant-validate-password",
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "flowAlias": "direct-grant-password smoke users only",
+          "requirement": "CONDITIONAL",
+          "priority": 30,
+          "autheticatorFlow": true,
+          "userSetupAllowed": false
+        }
+      ],
+      "id": "00000000-0000-4000-8000-0000000f0001"
+    },
+    {
+      "alias": "direct-grant-password smoke users only",
+      "description": "Deny anyone without the smoke role: a real person's password never skips their OTP through this client",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "conditional-user-role",
+          "authenticatorConfig": "not-a-smoke-user",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "deny-access-authenticator",
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "yantra-app",
+      "redirectUris": [
+        "https://app.staging.yantra.example/*"
+      ],
+      "webOrigins": [
+        "https://app.staging.yantra.example"
+      ]
+    },
+    {
+      "clientId": "yantra-smoke",
+      "name": "Staging smoke test (confidential; its secret lives in the secret store)",
+      "publicClient": false,
+      "enabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "protocolMappers": [
+        {
+          "name": "yantra-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "yantra",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ],
+      "authenticationFlowBindingOverrides": {
+        "direct_grant": "00000000-0000-4000-8000-0000000f0001"
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "00000000-0000-4000-8000-00000000a001",
+      "username": "ops1",
+      "enabled": true,
+      "email": "ops1@yantra.local",
+      "emailVerified": true,
+      "firstName": "Ops",
+      "lastName": "One",
+      "realmRoles": [
+        "finance",
+        "ops",
+        "smoke"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000a002",
+      "username": "ops2",
+      "enabled": true,
+      "email": "ops2@yantra.local",
+      "emailVerified": true,
+      "firstName": "Ops",
+      "lastName": "Two",
+      "realmRoles": [
+        "finance",
+        "ops",
+        "smoke"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "username": "worker1",
+      "enabled": true,
+      "email": "worker1@yantra.local",
+      "emailVerified": true,
+      "firstName": "Worker",
+      "lastName": "One",
+      "realmRoles": [
+        "reviewer",
+        "smoke",
+        "worker"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "username": "worker2",
+      "enabled": true,
+      "email": "worker2@yantra.local",
+      "emailVerified": true,
+      "firstName": "Worker",
+      "lastName": "Two",
+      "realmRoles": [
+        "reviewer",
+        "smoke",
+        "worker"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "username": "worker3",
+      "enabled": true,
+      "email": "worker3@yantra.local",
+      "emailVerified": true,
+      "firstName": "Worker",
+      "lastName": "Three",
+      "realmRoles": [
+        "reviewer",
+        "smoke",
+        "worker"
+      ]
+    }
+  ]
+}

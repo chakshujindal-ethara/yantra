@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Yantra Unified Mockups</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Ethara portal tokens (PortalTokens.light / .dark): magenta is the accent only; status colours are semantic. */
+:root{
+  --bg:#f8f9fa; --surface:#ffffff; --surface2:#f3f3f5; --fg:#030213; --muted:#717182; --line:#e0e0e4;
+  --accent:#b800b8; --accent-ink:#ffffff; --accent-soft:#fbdaf7; --ring:#b800b8;
+  --info:#1d4ed8; --info-soft:#eff6ff; --amber:#c2410c; --amber-soft:#fff7ed;
+  --bad:#b91c1c; --bad-soft:#fef2f2; --ok:#047857; --ok-soft:#ecfdf5;
+  --shadow:0 2px 4px rgba(3,2,19,.06),0 12px 28px rgba(3,2,19,.06);
+  --display:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif; --body:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif; --mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a0a0d; --surface:#18181c; --surface2:#222228; --fg:#ececf0; --muted:#a0a0ac; --line:#2f2f35;
+  --accent:#c552bc; --accent-ink:#0a0a0d; --accent-soft:#2a1427; --ring:#d66ecd;
+  --info:#84aef9; --info-soft:#111e38; --amber:#f0b15a; --amber-soft:#2a1c0a;
+  --bad:#f58686; --bad-soft:#2c1414; --ok:#4ade80; --ok-soft:#11281b;
+  --shadow:0 2px 6px rgba(0,0,0,.45),0 12px 28px rgba(0,0,0,.4); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a0a0d; --surface:#18181c; --surface2:#222228; --fg:#ececf0; --muted:#a0a0ac; --line:#2f2f35;
+  --accent:#c552bc; --accent-ink:#0a0a0d; --accent-soft:#2a1427; --ring:#d66ecd;
+  --info:#84aef9; --info-soft:#111e38; --amber:#f0b15a; --amber-soft:#2a1c0a;
+  --bad:#f58686; --bad-soft:#2c1414; --ok:#4ade80; --ok-soft:#11281b;
+  --shadow:0 2px 6px rgba(0,0,0,.45),0 12px 28px rgba(0,0,0,.4); color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font:16px/1.6 var(--body);margin:0}
+a{color:var(--accent)}
+h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.25}
+[hidden]{display:none!important}
+
+/* Shell */
+.shell{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:100vh}
+.nav{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);background:var(--surface);padding:32px 20px 24px max(20px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:8px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.brand .mark{width:40px;height:40px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 18px var(--display);flex:0 0 40px}
+.brand h1{font-size:17px}
+.brand small{display:block;color:var(--muted);font:500 13px var(--body);margin-top:2px}
+.stages{margin:0 0 16px;color:var(--fg);font:500 13px/1.6 var(--body);padding:12px 14px;background:var(--surface2);border-radius:10px}
+.stages b{color:var(--fg);font-weight:600}
+.nav .group{font:600 11.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 0 2px;padding-left:16px}
+.nav button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:none;color:var(--fg);font:500 15px/1.35 var(--body);padding:10px 16px;border-radius:10px;cursor:pointer;min-height:44px}
+.nav button:hover{background:var(--surface2)}
+.nav button[aria-current="true"]{background:var(--accent);color:var(--accent-ink)}
+.nav button .n{font:500 12px var(--mono);opacity:.7;min-width:22px}
+.theme{margin:0 0 8px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);font:500 14px var(--body);padding:12px 16px;border-radius:10px;cursor:pointer;min-height:44px}
+.theme:hover{border-color:var(--accent)}
+.nav button:focus-visible,.theme:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+main{padding:48px max(48px,env(safe-area-inset-right,0px)) 80px 48px;min-width:0}
+.wrap{max-width:1100px;margin:0 auto}
+.screen{display:flex;flex-direction:column;gap:40px}
+.screen header{display:flex;flex-direction:column;gap:16px}
+.eyebrow{font:600 12px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.screen h2{font-size:34px;letter-spacing:-.3px}
+.lead{color:var(--muted);max-width:62ch;margin:0;font-size:18px;line-height:1.6}
+.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font:500 14px var(--body);color:var(--muted);background:var(--surface)}
+.chip b{color:var(--fg);font-weight:600}
+kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:1px 6px;background:var(--surface2)}
+
+/* The mocked app */
+.frame{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.topbar{display:flex;align-items:center;gap:20px;min-height:60px;padding:0 24px;border-bottom:1px solid var(--line);background:var(--surface2)}
+.topbar .logo{font:700 15px var(--display);color:var(--accent);display:flex;gap:10px;align-items:center}
+.topbar .logo i{width:20px;height:20px;border-radius:6px;background:var(--accent);display:inline-block}
+.topbar .crumb{color:var(--muted);font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar .right{margin-left:auto;display:flex;gap:12px;align-items:center}
+.env{font:500 12px var(--mono);padding:4px 10px;border-radius:6px;background:var(--amber-soft);color:var(--amber)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font:600 12px var(--body)}
+.appbody{display:grid;grid-template-columns:220px minmax(0,1fr)}
+.appbody.plain{grid-template-columns:minmax(0,1fr)}
+.side{border-right:1px solid var(--line);padding:20px 12px;display:flex;flex-direction:column;gap:4px;background:var(--surface)}
+.side a{display:block;padding:10px 14px;border-radius:8px;color:var(--fg);text-decoration:none;font-size:15px}
+.side a.on{background:var(--surface2);font-weight:600}
+.side .g{font:600 11.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:16px 14px 6px}
+.content{padding:32px;display:flex;flex-direction:column;gap:24px;min-width:0}
+.content.narrow{max-width:760px;margin:0 auto;width:100%}
+.titlebar{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.titlebar h3{font-size:20px}
+.sub{color:var(--muted);font-size:15px;line-height:1.55}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.grid{display:grid;gap:20px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:24px;background:var(--surface);min-width:0;display:flex;flex-direction:column;gap:16px}
+.card.soft{background:var(--surface2);border-color:transparent}
+.card.soft .sub{color:var(--fg);opacity:.85}
+.card table{min-width:0}
+.card h4{font-size:16px}
+.card p{margin:0}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:20px;background:var(--surface);min-width:0}
+.kpi .l{font:600 12px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font:600 28px/1.15 var(--display);margin-top:8px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.5}
+.kpi.good .v{color:var(--ok)} .kpi.warn .v{color:var(--amber)} .kpi.bad .v{color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+th,td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.5}
+tr{height:52px}
+th{font:600 12px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:14px}
+.pill{display:inline-block;padding:4px 12px;border-radius:999px;font:600 13px var(--body);border:1px solid transparent;white-space:nowrap}
+.p-neutral{background:var(--surface2);color:var(--muted)}
+.p-warn{background:var(--amber-soft);color:var(--amber)}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+.p-info{background:var(--info-soft);color:var(--info)}
+.p-later{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:10px 16px;font:600 14px var(--body);cursor:default;min-height:40px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:var(--bg)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{padding:6px 12px;font-size:13px;min-height:32px}
+.btn[aria-disabled="true"]{opacity:.5}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font:600 13px var(--body);color:var(--muted)}
+.input{border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--surface);font-size:15px;min-height:44px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.input.area{min-height:96px;align-items:flex-start;line-height:1.5}
+.input .ph{color:var(--muted)}
+.check{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line)}
+.check:first-child{padding-top:0} .check:last-child{border-bottom:0;padding-bottom:0}
+.check .ic{width:24px;height:24px;border-radius:50%;flex:0 0 24px;display:grid;place-items:center;font:700 12px var(--body);margin-top:2px}
+.ic.done{background:var(--ok-soft);color:var(--ok)} .ic.todo{border:2px solid var(--line);color:transparent} .ic.wait{background:var(--amber-soft);color:var(--amber)} .ic.fail{background:var(--bad-soft);color:var(--bad)}
+.check .t{flex:1;min-width:0} .check .t b{display:block;font-weight:600} .check .t span{color:var(--muted);font-size:14.5px;line-height:1.5}
+.bar{height:10px;border-radius:999px;background:var(--surface2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--info)}
+.banner{display:flex;gap:12px;align-items:center;padding:16px 20px;border-radius:10px;font-size:15px;line-height:1.5}
+.banner.info{background:var(--info-soft);color:var(--info)} .banner.warn{background:var(--amber-soft);color:var(--amber)} .banner.bad{background:var(--bad-soft);color:var(--bad)}
+.banner b{font-weight:600}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:4px 10px;font:500 13.5px var(--body);color:var(--fg)}
+.tag.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tag.warn{background:var(--amber-soft);border-color:transparent;color:var(--amber)}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs span{padding:12px 16px;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs span.on{color:var(--fg);font-weight:600;border-color:var(--accent)}
+.money{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:10px 20px;font-size:15px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-variant-numeric:tabular-nums}
+.wave{height:64px;border-radius:8px;background:repeating-linear-gradient(90deg,var(--accent) 0 2px,transparent 2px 6px);opacity:.5}
+.evidence{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.evidence .e{border:1px solid var(--line);border-radius:10px;padding:16px;font-size:14.5px;line-height:1.5;color:var(--muted)}
+.evidence .e b{display:block;font-family:var(--display);font-size:15px;color:var(--fg);margin-bottom:4px}
+.evidence .e.ok{border-color:var(--ok)}
+.tree{font-family:var(--mono);font-size:13.5px;line-height:1.7;white-space:pre;overflow-x:auto;margin:0;padding:20px;background:var(--surface2);border-radius:10px}
+
+/* Loop and stage cards */
+.loop{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.loop .node{border:1px solid var(--line);border-radius:12px;padding:20px;background:var(--surface)}
+.loop .node b{display:block;font-family:var(--display);font-size:17px}
+.loop .node span{display:block;color:var(--muted);font-size:14.5px;margin-top:6px;line-height:1.5}
+.loop .node em{display:block;font:500 12.5px var(--mono);color:var(--info);margin-top:12px;font-style:normal}
+.loop .node.key{border-color:var(--ok);border-width:2px}
+.stagecards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+.stagecards.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ms{border-top:4px solid var(--accent);padding:16px 0 0;display:flex;flex-direction:column;gap:8px}
+.ms.s0{border-color:var(--muted)} .ms.s2{border-color:var(--info)} .ms.s3{border-color:var(--amber)}
+.ms b{display:block;font-family:var(--display);font-size:16px}
+.ms .w{font:500 13px var(--mono);color:var(--muted)}
+.ms p{margin:0;font-size:14.5px;color:var(--muted);line-height:1.55}
+.ms .gate{font-size:14px;padding:12px 14px;background:var(--surface2);border-radius:8px;color:var(--fg);line-height:1.5}
+
+/* Notes under the frame */
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.note{border:1px solid var(--line);border-top:4px solid var(--info);border-radius:12px;padding:24px;background:var(--surface);font-size:15.5px;line-height:1.6}
+.note.q{border-top-color:var(--amber)} .note.later{border-top-color:var(--muted)}
+.note h4{font:600 12px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.note p,.note ul{margin:0} .note ul{padding-left:20px} .note li{margin:6px 0}
+.note code,.sub code{font:500 13.5px var(--mono);background:var(--surface2);padding:1px 6px;border-radius:5px}
+.footer{color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:24px;margin-top:64px}
+
+@media (max-width:960px){
+  .shell{grid-template-columns:1fr}
+  .nav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:24px max(24px,env(safe-area-inset-right,0px)) 24px max(24px,env(safe-area-inset-left,0px))}
+  .nav button{min-height:44px}
+  .theme{margin-top:16px}
+  main{padding:32px max(24px,env(safe-area-inset-right,0px)) 64px max(24px,env(safe-area-inset-left,0px))}
+  .screen{gap:32px}
+  .screen h2{font-size:28px}
+  .lead{font-size:17px}
+  .appbody{grid-template-columns:1fr} .side{display:none}
+  .loop,.stagecards,.stagecards.three{grid-template-columns:1fr}
+  .content{padding:24px}
+  .topbar{padding:0 16px}
+}
+@media (prefers-reduced-motion:no-preference){.screen{animation:fade .18s ease-out}}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="nav" id="nav" aria-label="Screens">
+  <div class="brand"><div class="mark">Y</div><div><h1>Yantra Unified</h1><small>one repository, a ring of services</small></div></div>
+  <p class="stages"><b>Stage 0</b> lock and validate<br><b>Stage 1</b> the working loop, weeks 1-12<br><b>Stage 2</b> Talent, Performance, Hub<br><b>Stage 3</b> the environment factory</p>
+</aside>
+<main><div class="wrap">
+
+<section class="screen" id="overview" data-group="Start here" data-title="Thesis and stages">
+  <header>
+    <div class="eyebrow">Start here · everyone</div>
+    <h2>Trusted supply, verified production</h2>
+    <p class="lead">Yantra finds people, proves what they can do, keeps them on a bench, puts them on work, pays on accepted units and prices every unit with a known margin. A twelve-week loop with real money comes first; everything else follows on evidence.</p>
+    <div class="meta"><span class="chip">Use <kbd>←</kbd> <kbd>→</kbd> to move</span><span class="chip">Four stages, one gate each</span></div>
+  </header>
+  <div class="frame"><div class="appbody plain"><div class="content">
+   <h3>The loop</h3>
+   <div class="loop">
+     <div class="node"><b>Find</b><span>Channels measured per verified person.</span><em>talent · Stage 2</em></div>
+     <div class="node"><b>Vet</b><span>A paper from the project SOP certifies a skill.</span><em>assess</em></div>
+     <div class="node"><b>Bench</b><span>Verified people, skills by evidence, availability.</span><em>odoo</em></div>
+     <div class="node"><b>Quote</b><span>Price card, cost per unit, margin floor.</span><em>market · payout</em></div>
+     <div class="node"><b>Work</b><span>Assigned or open claim, rubric version on every unit.</span><em>market</em></div>
+     <div class="node key"><b>Review</b><span>Reason code on every verdict. Accept is the only money event.</span><em>quality</em></div>
+     <div class="node"><b>Pay</b><span>Weekly window, TDS, identity bound to the account.</span><em>payout</em></div>
+     <div class="node"><b>Measure</b><span>The same signals from events for everyone.</span><em>performance · Stage 2</em></div>
+     <div class="node"><b>Catalogue</b><span>Artifacts with lineage, rights and a quality gate.</span><em>hub · Stage 2-3</em></div>
+   </div>
+   <h3>Four stages</h3>
+   <div class="stagecards">
+     <div class="ms s0"><b>Stage 0 · lock and validate</b><span class="w">weeks 0-2, in parallel</span><p>Decisions, baselines on live projects, vendor and lab interviews, counsel, SOC 2 window.</p><div class="gate">Three quantified bottleneck statements and a baseline sheet.</div></div>
+     <div class="ms"><b>Stage 1 · the working loop</b><span class="w">weeks 1-12</span><p>Foundations, identity and bench, market and review, money, delivery, first paying pilot.</p><div class="gate">One real batch delivered and invoiced; the next batch staffed from the bench.</div></div>
+     <div class="ms s2"><b>Stage 2 · Talent, Performance, Hub</b><span class="w">weeks 13-30</span><p>Talent, Performance, internal Hub, quality depth, client console, runner prototype.</p><div class="gate">Three dashboards retired; one environment vendor paying.</div></div>
+     <div class="ms s3"><b>Stage 3 · the environment factory</b><span class="w">months 8-12 and on</span><p>One vertical, authoring tasks, the runner gate, signed artifacts, entitlements.</p><div class="gate">The first exclusive deal as a single-member entitlement.</div></div>
+   </div></div></div></div>
+  <div class="notes"><div class="note"><h4>Principles everyone agreed on</h4><ul><li>Accept is the only money event.</li><li>Pay per accepted unit; tracker off by default.</li><li>No horizontal marketplace; hubs are channels.</li><li>Reuse what runs: Odoo, Assessment v2, the Flutter app, Razorpay, Keycloak.</li></ul></div><div class="note q"><h4>Decisions still open</h4><p>The pricing method, the first factory vertical and the scope of the trust score. Full list in section 6 of the plan.</p></div></div>
+</section>
+<section class="screen" id="architecture" data-group="Start here" data-title="One repository, a ring of services">
+  <header>
+    <div class="eyebrow">Start here · engineering</div>
+    <h2>One repository, many deployables</h2>
+    <p class="lead">Odoo 19 CE is the system of record for people and money. Every other capability is a service with its own container, chart and database, reached only through the gateway. State flows into Odoo through outboxes and NATS.</p>
+    <div class="meta"><span class="chip">Persona <b>tech lead, DevOps</b></span><span class="chip">Step <b>foundations, weeks 1-2</b></span></div>
+  </header>
+  <div class="frame"><div class="appbody plain"><div class="content">
+   <div class="split">
+     <div class="card"><h4>The repository</h4><pre class="tree">yantra/
+  app/            Flutter app
+  services/
+    gateway/      JWT, limits, idempotency
+    assess/       papers, certification
+    market/       batches, units, claims
+    quality/      reviews, verdicts, audit
+    payout/       earnings, windows, rails
+    notify/       email, push, WhatsApp
+    odoo/         Odoo 19 CE, ethara_*
+    hub/ runner/  Stage 2-3
+  packages/
+    contracts/    OpenAPI, events, clients
+    py-common/    auth, outbox, tracing
+  deployment/     charts, Argo CD, policies
+  tools/          claim-storm harness
+  docs/           plan, ADRs, runbooks</pre></div>
+     <div class="card"><h4>The ring at week 12</h4><div class="tablewrap"><table><thead><tr><th>Service</th><th>Owns</th><th>State</th></tr></thead><tbody><tr><td><span class="mono">gateway</span></td><td>the only ingress for the app</td><td><span class="pill p-ok">built</span></td></tr><tr><td><span class="mono">market</span></td><td>claims, price cards, delivery</td><td><span class="pill p-ok">built</span></td></tr><tr><td><span class="mono">quality</span></td><td>verdicts, audit, reason codes</td><td><span class="pill p-ok">built</span></td></tr><tr><td><span class="mono">payout</span></td><td>earnings, windows, cost ledger</td><td><span class="pill p-ok">built</span></td></tr><tr><td><span class="mono">assess</span></td><td>papers, certification, skills</td><td><span class="pill p-later">Stage 2</span></td></tr><tr><td><span class="mono">odoo</span></td><td>people, bench, ledger, invoices</td><td><span class="pill p-ok">built</span></td></tr></tbody></table></div>
+       <p class="sub"><code>assess</code> runs inside the Odoo image until Stage 2. <code>notify</code> ships email. <code>hub</code>, <code>runner</code>, <code>tracker</code> and <code>analytics</code> come later.</p></div>
+   </div>
+   <div class="grid g3">
+     <div class="card soft"><h4>Worker mutation</h4><p class="sub">App → gateway → service database → outbox → NATS → Odoo ledger. Never a direct write into Odoo tables.</p></div>
+     <div class="card soft"><h4>Money</h4><p class="sub">The accept event is the only trigger for an earning and a vendor bill. Nightly reconciliation alerts; it never auto-adjusts.</p></div>
+     <div class="card soft"><h4>Release</h4><p class="sub">Affected-only CI. Every image signed with an SBOM. A service without a runbook does not reach production.</p></div>
+   </div></div></div></div>
+  <div class="notes"><div class="note"><h4>Rules that keep one repository from becoming one application</h4><ul><li>A service imports only <code>packages/*</code>; ids cross boundaries, foreign keys never do.</li><li>A contract change and all its consumers land in one pull request.</li><li>Sync calls go through the gateway contract, async through the bus.</li><li>Every service ships a Dockerfile, a chart, migrations and a runbook.</li></ul></div><div class="note"><h4>What the foundations gate proves</h4><p>An empty <code>market</code> service deploys to staging through the pipeline with a signed image, health checks and a trace. The claim-storm harness runs at 1.5x the largest cohort with zero errors. The production database stays under 100 connections at rest.</p></div></div>
+</section>
+<section class="screen" id="leadership" data-group="Leadership" data-title="The four numbers">
+  <header>
+    <div class="eyebrow">Leadership · the stop rule</div>
+    <h2>If the bench is not faster and cheaper on these, we stop</h2>
+    <p class="lead">Four numbers compare the bench with the way projects are staffed today. Every tile clicks through to the units behind it; nothing on this page is typed in by hand.</p>
+    <div class="meta"><span class="chip">Persona <b>leadership, sponsor</b></span><span class="chip">Stage <b>1, from the delivery step</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">Leadership · week 44</div><div class="right"><span class="env">yantra-prod</span><div class="avatar">LD</div></div></div><div class="appbody plain"><div class="content">
+   <div class="grid g4">
+     <div class="kpi good"><div class="l">1 · Days to staff</div><div class="v">4</div><div class="d">baseline 19 days</div></div>
+     <div class="kpi good"><div class="l">2 · Idle cost</div><div class="v">₹0</div><div class="d">baseline ₹25,00,000 a month</div></div>
+     <div class="kpi"><div class="l">3 · First-pass acceptance</div><div class="v">86%</div><div class="d">regular hires 74%</div></div>
+     <div class="kpi"><div class="l">4 · Cost per accepted unit</div><div class="v">₹51</div><div class="d">pay 40 · review 9 · rail 2</div></div>
+   </div>
+   <div class="split">
+     <div class="card"><h4>Gross margin per accepted unit</h4><div class="tablewrap"><table><thead><tr><th>Project</th><th class="num">Price</th><th class="num">Cost</th><th class="num">Margin</th></tr></thead><tbody><tr><td>Hindi call transcription</td><td class="num"><span class="money">120</span></td><td class="num"><span class="money">51</span></td><td class="num"><span class="pill p-ok">57%</span></td></tr><tr><td>Python code review</td><td class="num"><span class="money">900</span></td><td class="num"><span class="money">468</span></td><td class="num"><span class="pill p-ok">48%</span></td></tr><tr><td>Marathi caption review</td><td class="num"><span class="money">60</span></td><td class="num"><span class="money">41</span></td><td class="num"><span class="pill p-bad">31%, override on file</span></td></tr></tbody></table></div>
+       <p class="sub">The north star. The floor is 35%; a batch below it needs a recorded override.</p></div>
+     <div class="card"><h4>Watch list</h4>
+       <div class="evidence">
+         <div class="e ok"><b>Vendor customers</b>1 of 3 signed by Q2 2027</div>
+         <div class="e ok"><b>On-time payout</b>100%, six windows</div>
+         <div class="e"><b>Fraud per 1,000 accounts</b>2.1, watch after Q1</div>
+         <div class="e ok"><b>Client-visible incidents</b>0 in six weeks</div>
+       </div></div>
+   </div></div></div></div>
+  <div class="notes"><div class="note"><h4>Where the numbers come from</h4><ul><li>Days to staff and idle cost: assignment and bench records.</li><li>Acceptance and cost per unit: verdicts and the cost ledger.</li><li>Baselines recorded in Stage 0 on live projects.</li></ul></div><div class="note q"><h4>Open question</h4><p>Who owns the formulas: operations and HR for the standard signals, TPMs for the weights per project.</p></div></div>
+</section>
+<section class="screen" id="bench" data-group="Ops" data-title="The bench">
+  <header>
+    <div class="eyebrow">Operations · staffing</div>
+    <h2>Keep the people, not the payroll</h2>
+    <p class="lead">Every verified contractor with a reusable test score, skills by evidence level, availability and past quality. Projects staff from here in days, and people return here at no cost when a batch ends.</p>
+    <div class="meta"><span class="chip">Persona <b>ops, TPM</b></span><span class="chip">Stage <b>1, identity step</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">Workforce / Bench</div><div class="right"><span class="env">yantra-prod</span><div class="avatar">OP</div></div></div><div class="appbody"><div class="side"><div class="g">Workforce</div><a class="on">Bench</a><a>Applicants</a><a>Agreements</a><div class="g">Market</div><a>Projects</a><a>Batches</a></div><div class="content">
+   <div class="row"><div class="input" style="flex:1 1 240px"><span class="ph">Search skill, language, city</span></div><div class="tags"><span class="tag on">Hindi transcription · verified</span><span class="tag on">15 h a week or more</span></div><span class="btn pri" style="margin-left:auto">Assign 12 to batch B-121</span></div>
+   <div class="banner info"><b>Staffing B-121:</b> 12 seats needed, 38 people match, 3.2 verified per seat.</div>
+   <div class="tablewrap"><table><thead><tr><th>Person</th><th>Skills (evidence)</th><th>Availability</th><th class="num">First pass</th><th>Status</th></tr></thead><tbody><tr><td><b>Priya N.</b><br><span class="sub">Pune</span></td><td><div class="tags"><span class="tag">Hindi · proven</span><span class="tag">Marathi · verified 78</span></div></td><td>20 h a week · 3 days ago</td><td class="num">91%</td><td><span class="pill p-ok">on bench, live</span></td></tr><tr><td><b>Arjun S.</b><br><span class="sub">Nagpur</span></td><td><div class="tags"><span class="tag">Hindi · proven</span><span class="tag">Python review · verified 82</span></div></td><td>30 h a week · yesterday</td><td class="num">88%</td><td><span class="pill p-neutral">on bench</span></td></tr><tr><td><b>Meera K.</b><br><span class="sub">Indore</span></td><td><div class="tags"><span class="tag">Hindi · verified 74</span></div></td><td><span style="color:var(--amber)">19 days ago, treated as unknown</span></td><td class="num">—</td><td><span class="pill p-warn">confirm availability</span></td></tr><tr><td><b>Dr. Sana R.</b><br><span class="sub">Hyderabad</span></td><td><div class="tags"><span class="tag">Medical QA · verified 88</span></div></td><td>8 h a week · 2 days ago</td><td class="num">94%</td><td><span class="pill p-neutral">on bench</span></td></tr></tbody></table></div>
+   <p class="sub">Skill evidence: <b>claimed</b> from the form, <b>verified</b> by a paper with its score, <b>proven</b> by accepted work. Never mixed in one field.</p></div></div></div>
+  <div class="notes"><div class="note"><h4>Bench rules</h4><ul><li>About three verified people per committed seat.</li><li>Availability older than two weeks is unknown, not yes.</li><li>Never recruit without signed demand.</li></ul></div><div class="note later"><h4>Stage 2</h4><p>Pool re-match on every new project. Performance scores drive the "proven" level and the rate tiers.</p></div></div>
+</section>
+<section class="screen" id="talent" data-group="Ops" data-title="Talent intake and screening">
+  <header>
+    <div class="eyebrow">Operations · recruiting</div>
+    <h2>Channels find, the form filters, the paper proves</h2>
+    <p class="lead">A sixty-second form with hard questions sits between every channel and a human. Every channel is measured on what it costs to produce one verified professional.</p>
+    <div class="meta"><span class="chip">Persona <b>recruiter, TPM</b></span><span class="chip">Stage <b>1 form · Stage 2 matching</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">Talent / Drive: Medical QA reviewers</div><div class="right"><span class="env">yantra-prod</span><div class="avatar">RC</div></div></div><div class="appbody plain"><div class="content">
+   <div class="grid g4">
+     <div class="kpi"><div class="l">Applied</div><div class="v">2,140</div><div class="d">three channels</div></div>
+     <div class="kpi"><div class="l">Passed the form</div><div class="v">184</div><div class="d">registration number and certificate</div></div>
+     <div class="kpi"><div class="l">Verified</div><div class="v">61</div><div class="d">paper passed, credential checked</div></div>
+     <div class="kpi good"><div class="l">Cost per verified</div><div class="v">₹1,340</div><div class="d">best channel ₹410</div></div>
+   </div>
+   <div class="split">
+     <div class="card"><h4>Channel funnel</h4><div class="tablewrap"><table><thead><tr><th>Channel</th><th class="num">Applied</th><th class="num">Verified</th><th class="num">Ratio</th></tr></thead><tbody><tr><td>Medical association WhatsApp</td><td class="num">310</td><td class="num">34</td><td class="num">11%</td></tr><tr><td>Referral, flat bonus</td><td class="num">210</td><td class="num">17</td><td class="num">8%</td></tr><tr><td>Instagram reel</td><td class="num">1,620</td><td class="num">10</td><td class="num">0.6%</td></tr></tbody></table></div>
+       <p class="sub">Social media finds residents and students. Senior professionals come through associations. The apply link is always on our own domain.</p></div>
+     <div class="card"><h4>Candidate · Dr. R. Iyer <span class="pill p-later">Stage 2 match</span></h4><dl class="kv"><dt>Form</dt><dd>MBBS, registered 2019 · 10 h a week</dd><dt>Match to SOP profile</dt><dd><b>82</b> · clinical QA, Hindi</dd><dt>Duplicates</dt><dd>none</dd><dt>Paper assigned</dt><dd>Medical QA v2, due 9 Nov</dd></dl>
+       <div class="row"><span class="btn ok">Advance</span><span class="btn">Human review</span><span class="btn danger">Reject, needs sign-off</span></div></div>
+   </div></div></div></div>
+  <div class="notes"><div class="note"><h4>Measure, not likes</h4><ul><li>Cost per verified professional, per channel.</li><li>Applied-to-verified ratio, per channel.</li><li>Verified-to-first-accepted-work ratio.</li></ul></div><div class="note later"><h4>Stage 2 and 3</h4><p>Resume parsing and explainable matching, credential checks against issuers, institution partnerships. AI interviews only in Stage 3.</p></div></div>
+</section>
+<section class="screen" id="quote" data-group="Ops" data-title="Project setup and quote">
+  <header>
+    <div class="eyebrow">Operations · economics</div>
+    <h2>Price = expected cost ÷ (1 − target margin)</h2>
+    <p class="lead">A project is a schema, a rubric with a version, a quality policy, a rate card for people and a price card for the client. A batch below its margin floor cannot publish without a recorded override.</p>
+    <div class="meta"><span class="chip">Persona <b>ops, finance</b></span><span class="chip">Stage <b>1 price card · Stage 2 tiers</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">Market / Projects / New: Marathi caption review</div><div class="right"><span class="env">yantra-prod</span><div class="avatar">OP</div></div></div><div class="appbody plain"><div class="content">
+   <div class="split">
+     <div class="card"><h4>Project</h4>
+       <div class="grid g2">
+         <div class="field"><label>Client</label><div class="input">Vendor A · export under LUT</div></div>
+         <div class="field"><label>Mode</label><div class="input"><span class="tag on">Assigned from bench</span><span class="tag">Open claim</span></div></div>
+         <div class="field"><label>Rubric</label><div class="input">Caption QA <b>v3</b>, stored on every unit</div></div>
+         <div class="field"><label>Quality policy</label><div class="input">single review + 10% audit</div></div>
+         <div class="field"><label>Certification gate</label><div class="input"><span class="tag on">Marathi transcription</span></div></div>
+         <div class="field"><label>Data rights</label><div class="input">client-owned · 180 days</div></div>
+       </div></div>
+     <div class="card"><h4>Quote per accepted unit</h4><div class="tablewrap"><table><thead><tr><th>Line</th><th class="num">₹</th></tr></thead><tbody><tr><td>Contributor pay</td><td class="num"><span class="money">28.00</span></td></tr><tr><td>Review ÷ first-pass acceptance</td><td class="num"><span class="money">7.14</span></td></tr><tr><td>Seeds, rail, referral, levy</td><td class="num"><span class="money">2.46</span></td></tr><tr><td><b>Expected cost</b></td><td class="num"><b class="money">37.60</b></td></tr><tr><td><b>Price at 40% target margin</b></td><td class="num"><b class="money">62.70</b></td></tr></tbody></table></div>
+       <div class="banner warn"><b>Client asked ₹60.</b> Margin 37%, above the 35% floor. At ₹55 this batch would need a recorded override.</div>
+       <div class="row"><span class="btn">Save draft</span><span class="btn pri" style="margin-left:auto">Publish batch, freeze pay and price</span></div></div>
+   </div></div></div></div>
+  <div class="notes"><div class="note"><h4>What this screen proves</h4><p>Margin is known before the batch goes live, not after delivery. Pay and price are frozen together at publish, so no profit lever can touch contributor pay.</p></div><div class="note q"><h4>Open question</h4><p>The target margin per client type, and whether the levy appears as a line item or inside the price. Tiers by quality and turnaround come in Stage 2.</p></div></div>
+</section>
+<section class="screen" id="work" data-group="Worker app" data-title="Worker tasks and runner">
+  <header>
+    <div class="eyebrow">Worker app · doing the work</div>
+    <h2>The task runner, with the rubric in view</h2>
+    <p class="lead">Assigned work appears as yours; open batches as a pool. The unit shows which rubric version it will be judged against, and the worker can say the rubric is unclear before submitting.</p>
+    <div class="meta"><span class="chip">Persona <b>worker</b></span><span class="chip">Stage <b>1, market core</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">My work</div><div class="right"><span class="chip"><b>₹6,384</b> this week</span><div class="avatar">PN</div></div></div><div class="appbody plain"><div class="content narrow">
+   <div class="tabs"><span class="on">Assigned to me · 22 left</span><span>Open pool · 2</span><span>Needs edits · 1</span></div>
+   <div class="card">
+     <div class="titlebar"><div><h4>CAP-0417 · Marathi caption review</h4><div class="sub">Rubric v3 · typical 4 minutes · due today 18:00</div></div><div style="text-align:right"><div class="money" style="font-size:24px;font-weight:600">₹28</div><div class="sub">per accepted unit</div></div></div>
+     <div class="split">
+       <div><div class="wave"></div><div class="row" style="margin-top:12px"><span class="btn sm">▶ 0:00 / 0:41</span><span class="sub">clip 12 of 22</span></div><div class="input area" style="margin-top:12px">Caption shown: "ऑर्डर उद्या पोहोचेल" (0:12 to 0:15)</div></div>
+       <div style="display:flex;flex-direction:column;gap:16px">
+         <div class="field"><label>Verdict on the caption</label><div class="input"><span class="tag on">Correct</span><span class="tag">Minor fix</span><span class="tag">Wrong</span></div></div>
+         <div class="field"><label>Rubric v3 says</label><div class="input area" style="min-height:72px">Timing within 200 ms. Spelling per the client glossary v2. Numbers as digits.</div></div>
+         <div class="row"><span class="btn sm">Rubric unclear for this unit</span><span class="btn pri" style="margin-left:auto">Submit</span></div>
+       </div>
+     </div>
+   </div></div></div></div>
+  <div class="notes"><div class="note"><h4>Guarantees carried from the loop</h4><ul><li>One live claim per worker; a retry never creates a second one.</li><li>Payloads come from a five-minute presigned link, never through Odoo.</li><li>The form renders from the batch schema; paste control per batch.</li></ul></div><div class="note"><h4>Why the rubric version matters</h4><p>When a client changes the rules, the quality history stays valid: every verdict knows which rubric judged it. Unclear-rubric flags reach the TPM within two days.</p></div></div>
+</section>
+<section class="screen" id="review" data-group="Reviewer" data-title="Review with reason codes">
+  <header>
+    <div class="eyebrow">Reviewer · quality</div>
+    <h2>Every rejection has a reason, and some are the client's</h2>
+    <p class="lead">Reason codes are mandatory. Client-caused rework is marked billable. The model pre-review is advisory and never decides.</p>
+    <div class="meta"><span class="chip">Persona <b>reviewer, quality lead</b></span><span class="chip">Stage <b>1 · pre-review in Stage 2</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">Review · B-121 · next</div><div class="right"><span class="chip">queue <b>88</b></span><div class="avatar">SR</div></div></div><div class="appbody plain"><div class="content">
+   <div class="split">
+     <div class="card"><h4>CAP-0417 · rubric v3</h4><div class="wave"></div><div class="row"><span class="btn sm">▶ 0:00 / 0:41</span><span class="sub">worker hidden · trusted tier</span></div>
+       <div class="banner info"><b>Model pre-review, advisory:</b> timing 180 ms, glossary term matches v2. Suggests accept. <span class="pill p-later">Stage 2</span></div>
+       <div><h4>Worker's verdict</h4><p class="sub">Correct, no fix.</p></div></div>
+     <div class="card"><h4>Your verdict</h4>
+       <div class="field"><label>Reason code, required on needs-edits and reject</label><div class="tags"><span class="tag">Timing</span><span class="tag">Spelling</span><span class="tag">Glossary</span><span class="tag">Missed error</span><span class="tag warn">Spec changed · client, billable</span><span class="tag warn">Spec ambiguous · client, billable</span></div></div>
+       <div class="field"><label>Note to worker</label><div class="input"><span class="ph">Shown on needs-edits and reject</span></div></div>
+       <div class="row"><span class="btn ok">Accept · ₹28 to worker, ₹6 to you</span><span class="btn">Needs edits</span><span class="btn danger">Reject</span></div>
+       <div class="row"><span class="btn sm">Flag: rubric v3 is unclear here</span><span class="sub">goes to the TPM</span></div></div>
+   </div>
+   <div class="tablewrap"><table><thead><tr><th>Rework this week · B-121</th><th class="num">Units</th><th>Effect</th></tr></thead><tbody><tr><td>Worker-caused</td><td class="num">31</td><td>paid once, on the accepted version</td></tr><tr><td>Client-caused</td><td class="num">14</td><td><span class="pill p-info">₹392 added to the invoice</span></td></tr><tr><td>Rubric unclear flags</td><td class="num">6</td><td>rubric v4 drafted 1 Nov</td></tr></tbody></table></div></div></div></div>
+  <div class="notes"><div class="note"><h4>Cost of quality</h4><ul><li>Trusted workers: model pre-review plus a random audit instead of full review.</li><li>Return for a fix before rejecting.</li><li>Fewer seed units for proven people.</li></ul></div><div class="note later"><h4>Stage 2</h4><p>Calibration exams, seeded gold, reviewer ranks, a dispute workflow and a trust score per domain.</p></div></div>
+</section>
+<section class="screen" id="performance" data-group="Worker app" data-title="My Performance">
+  <header>
+    <div class="eyebrow">Worker app · growth</div>
+    <h2>You see your own numbers first, and exactly what your lead sees</h2>
+    <p class="lead">Standard signals from events for every project: quality, output, reliability, earnings. Each project sets weights and targets as configuration. No spreadsheets, no per-project dashboard.</p>
+    <div class="meta"><span class="chip">Persona <b>worker · pod lead view</b></span><span class="chip">Stage <b>2</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">My Performance · last 4 weeks</div><div class="right"><span class="chip"><b>Me</b> · Pod · Project</span><div class="avatar">PN</div></div></div><div class="appbody plain"><div class="content narrow">
+   <div class="grid g3">
+     <div class="kpi good"><div class="l">Quality · first pass</div><div class="v">91%</div><div class="d">project median 84%</div></div>
+     <div class="kpi"><div class="l">Output · units an hour</div><div class="v">9.2</div><div class="d">target 8</div></div>
+     <div class="kpi"><div class="l">Reliability</div><div class="v">98%</div><div class="d">1 abandoned claim in 4 weeks</div></div>
+   </div>
+   <div class="split">
+     <div class="card"><h4>What to improve</h4><div class="check"><div class="ic wait">!</div><div class="t"><b>Speaker labels</b><span>4 of your 6 needs-edits in October. Open the three-minute guide.</span></div></div><div class="check"><div class="ic done">✓</div><div class="t"><b>Glossary</b><span>0 glossary errors since v2 shipped.</span></div></div></div>
+     <div class="card"><h4>Next step</h4><div class="check"><div class="ic todo"></div><div class="t"><b>Reviewer for Hindi transcription</b><span>Needs 90% first pass over 500 units and the calibration paper. Pays ₹8 per review.</span></div></div><span class="btn sm pri" style="align-self:flex-start">Take the paper</span><p class="sub">Earnings: ₹22,410 in 4 weeks · effective ₹168 an hour</p></div>
+   </div>
+   <div class="tablewrap"><table><thead><tr><th>Pod lead view · 14 people</th><th class="num">First pass</th><th class="num">Units an hour</th><th>This week</th></tr></thead><tbody><tr><td>Priya N.</td><td class="num">91%</td><td class="num">9.2</td><td><span class="pill p-ok">ready for harder work</span></td></tr><tr><td>worker ••40</td><td class="num">71%</td><td class="num">14.1</td><td><span class="pill p-bad">fast and wrong</span></td></tr><tr><td>worker ••9c</td><td class="num">83%</td><td class="num">6.0</td><td><span class="pill p-warn">slow, accurate</span></td></tr></tbody></table></div></div></div></div>
+  <div class="notes"><div class="note"><h4>What performance drives</h4><ul><li>Which work a person can claim.</li><li>Rate tiers and promotion to reviewer.</li><li>Coaching with evidence; bench reassignment.</li></ul></div><div class="note q"><h4>Guardrail</h4><p>Not surveillance. Self-view first, the same data as the lead, and tracking only where a contract requires it.</p></div></div>
+</section>
+<section class="screen" id="hub" data-group="Hub and factory" data-title="Hub: environment with quality gate">
+  <header>
+    <div class="eyebrow">Hub · the product</div>
+    <h2>The quality gate is the product</h2>
+    <p class="lead">Every artifact is a versioned entry with lineage to the units and people behind it, a rights field enforced in queries and gate evidence shipped with it. An exclusive sale is an entitlement with one member.</p>
+    <div class="meta"><span class="chip">Persona <b>research, sales, buyer</b></span><span class="chip">Stage <b>2 internal · Stage 3 external</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">Hub / Environments / odoo-accounting-close / v1.3.0</div><div class="right"><span class="env">registry</span><div class="avatar">RS</div></div></div><div class="appbody plain"><div class="content">
+   <div class="titlebar"><div><h3>odoo-accounting-close <span class="pill p-ok">signed, publishable</span></h3><div class="sub">Month-end close on Odoo 19 CE · 112 tasks · OpenEnv 0.4 · Ethara-funded</div></div><span class="btn pri">Reserve for exclusive sale</span></div>
+   <div class="evidence">
+     <div class="e ok"><b>Determinism replay</b>20 runs, identical observations and reward</div>
+     <div class="e ok"><b>Pass-rate band</b>4.6% to 31% across three reference models</div>
+     <div class="e ok"><b>Reward-hack audit</b>0 findings in 240 adversarial attempts</div>
+     <div class="e ok"><b>Provenance</b>31 contributors, IP assignment on file</div>
+   </div>
+   <div class="split">
+     <div class="card"><h4>Lineage</h4><dl class="kv"><dt>From</dt><dd>factory, finance vertical</dd><dt>Units</dt><dd>112 accepted of 131 authored</dd><dt>Reviewed by</dt><dd>4 reviewers, runner gate, human QA</dd><dt>Quality score</dt><dd>0.91, computed</dd></dl></div>
+     <div class="card"><h4>Rights and entitlements</h4><dl class="kv"><dt>Rights</dt><dd>Ethara-owned, licensable</dd><dt>Listing</dt><dd>reserved for an exclusive sale</dd><dt>Delivery</dt><dd>scoped pull token per entitlement</dd><dt>Free tier</dt><dd>v1.0.0 on Hugging Face Hub</dd></dl></div>
+   </div>
+   <div class="tablewrap"><table><thead><tr><th>Version</th><th>Gate</th><th>Status</th><th>Listed</th></tr></thead><tbody><tr><td><span class="mono">v1.3.0</span></td><td><span class="pill p-ok">passed</span></td><td>signed</td><td>reserved</td></tr><tr><td><span class="mono">v1.2.1</span></td><td><span class="pill p-bad">hackable: grader read a temp file</span></td><td>rejected</td><td>—</td></tr><tr><td><span class="mono">v1.0.0</span></td><td><span class="pill p-ok">passed</span></td><td>deprecated</td><td>Hugging Face, free</td></tr></tbody></table></div></div></div></div>
+  <div class="notes"><div class="note"><h4>Three checks before a human looks</h4><ul><li>Determinism replay.</li><li>Pass-rate calibration against a reference panel.</li><li>Reward-hackability audit; a finding is a hard fail.</li></ul></div><div class="note later"><h4>Stage 2 prototype</h4><p>Run the gate against twenty free public environments and publish the findings. The write-up earns the first vendor conversation.</p></div></div>
+</section>
+<section class="screen" id="client" data-group="Hub and factory" data-title="Client and vendor console">
+  <header>
+    <div class="eyebrow">Client · what buyers see</div>
+    <h2>What a vendor or lab sees</h2>
+    <p class="lead">Throughput against the SLA, first-pass acceptance, deliveries with manifests, invoices, and item-level feedback that flows back as review events.</p>
+    <div class="meta"><span class="chip">Persona <b>client ops, procurement</b></span><span class="chip">Stage <b>2</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">Vendor A · organisation SSO</div><div class="right"><span class="chip">SOC 2 Type 2 <b>in window</b></span><div class="avatar">VA</div></div></div><div class="appbody plain"><div class="content">
+   <div class="grid g4">
+     <div class="kpi"><div class="l">Throughput this week</div><div class="v">6,120</div><div class="d">SLA 5,000</div></div>
+     <div class="kpi good"><div class="l">First-pass acceptance</div><div class="v">86%</div><div class="d">your rubric, our reviewers</div></div>
+     <div class="kpi"><div class="l">Rework you caused</div><div class="v">14</div><div class="d">₹392 billed</div></div>
+     <div class="kpi"><div class="l">Open deliveries</div><div class="v">2</div><div class="d">due Friday and 9 Nov</div></div>
+   </div>
+   <div class="split">
+     <div class="card"><h4>Deliveries</h4><div class="tablewrap"><table><thead><tr><th>Batch</th><th class="num">Units</th><th>Invoice</th><th>Feedback</th></tr></thead><tbody><tr><td><span class="mono">B-109</span></td><td class="num">1,984</td><td>INV/0412 · paid</td><td>12 items → 12 review events</td></tr><tr><td><span class="mono">B-104</span></td><td class="num">2,000</td><td>INV/0398 · paid</td><td>none</td></tr></tbody></table></div></div>
+     <div class="card"><h4>Quality report · B-109</h4><dl class="kv"><dt>Reviewers</dt><dd>14, calibrated on your gold set</dd><dt>Audit sample</dt><dd>10%, 2 reversals</dd><dt>Dispute uphold</dt><dd>1 of 9</dd><dt>Pay reliability</dt><dd>6 of 6 windows on time</dd></dl><div class="row"><span class="btn sm">Request sample</span><span class="btn sm pri">New intake</span></div></div>
+   </div></div></div></div>
+  <div class="notes"><div class="note"><h4>Who the first customers are</h4><ul><li>Existing prime-vendor work in Stage 1.</li><li>One small environment vendor in Stage 2: shorter procurement than a lab.</li><li>A lab after SOC 2 Type 2 and the gate evidence.</li></ul></div><div class="note q"><h4>Open question</h4><p>Whether buyers get live unit-level views or a weekly report. Default: a weekly report until asked.</p></div></div>
+</section>
+<section class="screen" id="paytrust" data-group="Ops" data-title="Pay window, margin, trust">
+  <header>
+    <div class="eyebrow">Finance · money and integrity</div>
+    <h2>Money, margin and integrity on one finance screen</h2>
+    <p class="lead">The weekly pay window, margin drift alerts and the fraud stack. Holds happen before payout, never clawbacks after; changing a payout account needs step-up authentication.</p>
+    <div class="meta"><span class="chip">Persona <b>finance, trust and safety</b></span><span class="chip">Stage <b>1 · step-up in Stage 2</b></span></div>
+  </header>
+  <div class="frame"><div class="topbar"><div class="logo"><i></i>Yantra</div><div class="crumb">Payout / Window 25 Oct to 31 Oct</div><div class="right"><span class="env">yantra-prod</span><div class="avatar">FN</div></div></div><div class="appbody plain"><div class="content">
+   <div class="grid g4">
+     <div class="kpi"><div class="l">Net to pay</div><div class="v">₹10,69,092</div><div class="d">1,143 transfers</div></div>
+     <div class="kpi warn"><div class="l">Held before payout</div><div class="v">₹58,240</div><div class="d">71 first payouts, 4 flags</div></div>
+     <div class="kpi good"><div class="l">Reconciliation delta</div><div class="v">₹0.00</div><div class="d">rails + TDS = ledger</div></div>
+     <div class="kpi"><div class="l">Approvals</div><div class="v">1 of 2</div><div class="d">second approver pending</div></div>
+   </div>
+   <div class="split">
+     <div class="card"><h4>Margin drift this window</h4><div class="tablewrap"><table><thead><tr><th>Batch</th><th class="num">Quoted</th><th class="num">Actual</th><th>Why</th></tr></thead><tbody><tr><td><span class="mono">B-114</span></td><td class="num">42%</td><td class="num">45%</td><td>first pass better than assumed</td></tr><tr><td><span class="mono">B-118</span></td><td class="num">40%</td><td class="num"><span style="color:var(--bad)">29%</span></td><td>double-blind on all units <span class="pill p-bad">alert</span></td></tr><tr><td><span class="mono">B-120</span></td><td class="num">48%</td><td class="num">47%</td><td>—</td></tr></tbody></table></div><p class="sub">A live batch drifting more than five points below quote notifies the product owner.</p></div>
+     <div class="card"><h4>Integrity holds</h4>
+       <div class="check"><div class="ic fail">!</div><div class="t"><b>worker ••7d</b><span>bank name differs from PAN name</span></div><span class="pill p-warn">held</span></div>
+       <div class="check"><div class="ic fail">!</div><div class="t"><b>worker ••b2 and ••c8</b><span>same device, same UPI handle attempted</span></div><span class="pill p-warn">held</span></div>
+       <div class="check"><div class="ic wait">?</div><div class="t"><b>worker ••40</b><span>accepted units four times the batch median</span></div><span class="pill p-warn">audit</span></div>
+       <div class="check"><div class="ic wait">?</div><div class="t"><b>worker ••e1</b><span>payout account changed after recovery · 72-hour hold</span></div><span class="pill p-warn">held</span></div>
+     </div>
+   </div></div></div></div>
+  <div class="notes"><div class="note"><h4>Trust measures</h4><ul><li>Fraud per 1,000 accounts.</li><li>On-time payout, published to workers and clients.</li><li>Security incidents: zero.</li></ul></div><div class="note"><h4>Why holds, not clawbacks</h4><p>A hold before payout is a reconciliation line. A clawback after payout is a dispute and a worker-trust incident.</p></div></div>
+</section>
+<section class="screen" id="roadmap" data-group="Leadership" data-title="Roadmap and gates">
+  <header>
+    <div class="eyebrow">Leadership · the plan</div>
+    <h2>Every stage ends with measured evidence</h2>
+    <p class="lead">Six steps carry the loop in twelve weeks. Stage 2 runs as parallel pairs once the first paying pilot passes. Stage 3 starts only after two buyer conversations confirm the vertical.</p>
+    <div class="meta"><span class="chip">Persona <b>sponsor, product owner, tech lead</b></span></div>
+  </header>
+  <div class="frame"><div class="appbody plain"><div class="content">
+   <h3>Stage 1 · the working loop</h3>
+   <div class="tablewrap"><table><thead><tr><th>Weeks</th><th>Step</th><th>Gate</th></tr></thead><tbody><tr><td><span class="mono">1-2</span></td><td><b>Foundations</b><br><span class="sub">repository, CI, charts, NATS, Keycloak, Postgres per service, harness</span></td><td>an empty service deploys signed with a trace; harness at 1.5x, zero errors</td></tr><tr><td><span class="mono">3-4</span></td><td><b>Identity, bench, onboarding</b><br><span class="sub">gateway, worker record, agreements, bench, certification gate</span></td><td>20 synthetic applicants reach ELIGIBLE with no database edits</td></tr><tr><td><span class="mono">5-7</span></td><td><b>Market core and review</b><br><span class="sub">claims, price card, rubric version, reason codes, review console</span></td><td>500 workers on 2,000 units: zero double claims, p99 under 500 ms</td></tr><tr><td><span class="mono">8-9</span></td><td><b>Money and margin</b><br><span class="sub">earnings, pay window, vendor bills with TDS, RazorpayX, cost ledger</span></td><td>earnings = bills = payouts net + TDS, to the paisa</td></tr><tr><td><span class="mono">10</span></td><td><b>Delivery and dogfood</b><br><span class="sub">delivery gate, manifest, invoice, internal batch, the four numbers</span></td><td>gate holds a batch on one bad line; a real window paid</td></tr><tr><td><span class="mono">11-12</span></td><td><b>First paying pilot</b><br><span class="sub">first paying client project, on-call, people return to the bench</span></td><td>one batch delivered and invoiced; one pay cycle; zero deltas</td></tr></tbody></table></div>
+   <div class="grid g3">
+     <div class="ms s0"><b>Stage 0 · weeks 0-2</b><p>Lock decisions, baselines, five vendor and two lab interviews, counsel, SOC 2 window.</p><div class="gate">Three bottleneck statements; a baseline sheet.</div></div>
+     <div class="ms s2"><b>Stage 2 · weeks 13-30</b><p>Talent, Performance, internal Hub, quality depth, client console, runner prototype, mobile.</p><div class="gate">Three dashboards retired; one vendor paying; the gate rejects a hackable environment.</div></div>
+     <div class="ms s3"><b>Stage 3 · months 8-12 and on</b><p>One vertical, authoring tasks, runner gate, signed artifacts, entitlements, hubs as channels.</p><div class="gate">First environment passes a buyer's bar; first exclusive deal.</div></div>
+   </div></div></div></div>
+  <div class="notes"><div class="note"><h4>How this maps to the repository's ROADMAP.md</h4><p>Foundations is a thin slice of Phase 0; identity and bench are the contractor part of Phase 4; market, quality and payout are the core of Phase 5; Stage 2 is the rest of Phases 4 to 6. Phases 1 to 3 continue in parallel on the existing addons. The repository is the point of truth; this ordering is a proposal.</p></div><div class="note q"><h4>Stop signals</h4><ul><li>A failed gate.</li><li>A lock that picks hourly pay or an employee model.</li><li>Fewer than three vendor customers in two quarters.</li><li>The bench not faster and cheaper on the four numbers.</li></ul></div></div>
+</section>
+<p class="footer">Yantra unified plan, 2 November 2026. Figures on every screen are examples. Full text: the unified plan.</p>
+</div></main>
+</div>
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll('section.screen'));
+  var nav=document.getElementById('nav');
+  var groups={};
+  screens.forEach(function(s,i){
+    var g=s.dataset.group||'Screens';
+    if(!groups[g]){var h=document.createElement('div');h.className='group';h.textContent=g;nav.appendChild(h);groups[g]=true;}
+    var b=document.createElement('button');b.type='button';b.dataset.target=s.id;
+    b.innerHTML='<span class="n">'+String(i).padStart(2,'0')+'</span><span>'+s.dataset.title+'</span>';
+    b.addEventListener('click',function(){show(s.id,true);});
+    nav.appendChild(b);
+  });
+  function show(id,push){
+    if(!screens.some(function(s){return s.id===id;})){id=screens[0].id;}
+    screens.forEach(function(s){s.hidden=(s.id!==id);});
+    nav.querySelectorAll('button[data-target]').forEach(function(b){b.setAttribute('aria-current',b.dataset.target===id?'true':'false');});
+    if(push&&location.hash!=='#'+id){try{history.replaceState(null,'','#'+id);}catch(e){location.hash=id;}}
+    window.scrollTo({top:0});
+  }
+  function fromHash(){show((location.hash||'').replace('#',''),false);}
+  window.addEventListener('hashchange',fromHash);
+  document.addEventListener('keydown',function(e){
+    if(e.target&&/input|textarea/i.test(e.target.tagName))return;
+    var cur=screens.findIndex(function(s){return !s.hidden;});
+    if(e.key==='ArrowRight'&&cur<screens.length-1)show(screens[cur+1].id,true);
+    if(e.key==='ArrowLeft'&&cur>0)show(screens[cur-1].id,true);
+  });
+  fromHash();
+  // Theme toggle, mirroring the assessment app (etp.theme). A host-set data-theme wins until the viewer taps.
+  var root=document.documentElement, btn=document.createElement('button');
+  btn.type='button';btn.className='theme';btn.setAttribute('aria-label','Toggle light or dark theme');
+  function cur(){var t=root.getAttribute('data-theme');if(t)return t;return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
+  function paint(){btn.textContent=(cur()==='dark'?'☼  Switch to light mode':'☾  Switch to dark mode');}
+  try{var saved=localStorage.getItem('etp.theme');if(saved==='dark'||saved==='light')root.setAttribute('data-theme',saved);}catch(e){}
+  btn.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('etp.theme',n);}catch(e){}paint();});
+  paint();var legend=nav.querySelector('.stages');if(legend){legend.insertAdjacentElement('afterend',btn);}else{nav.appendChild(btn);}
+})();
+</script>
+</body>
+</html>

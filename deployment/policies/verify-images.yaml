@@ -1,0 +1,31 @@
+# Only images built and signed by this repository's CI on main run in the Yantra namespaces: keyless cosign
+# signatures from GitHub Actions OIDC, verified by Kyverno at admission; tags are rewritten to digests.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: yantra-verify-images
+  annotations:
+    policies.kyverno.io/title: Verify Yantra image signatures
+spec:
+  validationFailureAction: Enforce
+  background: false
+  webhookTimeoutSeconds: 30
+  rules:
+    - name: signed-by-yantra-ci
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces: [yantra-staging, yantra-prod]
+      verifyImages:
+        - imageReferences: ["ghcr.io/etharalabs/yantra/*"]
+          mutateDigest: true
+          verifyDigest: true
+          required: true
+          attestors:
+            - entries:
+                - keyless:
+                    subject: "https://github.com/EtharaLabs/yantra/.github/workflows/ci.yaml@refs/heads/main"
+                    issuer: "https://token.actions.githubusercontent.com"
+                    rekor:
+                      url: https://rekor.sigstore.dev

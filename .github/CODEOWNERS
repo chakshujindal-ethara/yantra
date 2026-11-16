@@ -1,0 +1,27 @@
+# CODEOWNERS for EtharaOrion/yantra
+# Teams only, never individuals. Team slugs below are placeholders:
+# replace with real EtharaOrion team slugs before relying on review routing.
+
+* @EtharaOrion/platform
+
+# Knowledge bundle concept docs
+/README.md @EtharaOrion/platform @EtharaOrion/architecture
+/ARCHITECTURE.md @EtharaOrion/architecture
+/DESIGN.md @EtharaOrion/architecture
+/MODULES.md @EtharaOrion/architecture @EtharaOrion/erp
+/REQUIREMENTS.md @EtharaOrion/product
+/INFRASTRUCTURE.md @EtharaOrion/devsecops
+/ROADMAP.md @EtharaOrion/platform @EtharaOrion/product
+/data/ @EtharaOrion/platform
+
+# Community spine
+/CONTRIBUTING.md @EtharaOrion/platform
+/SECURITY.md @EtharaOrion/devsecops
+/CODE_OF_CONDUCT.md @EtharaOrion/platform
+/.github/ @EtharaOrion/devsecops
+
+# Submodule pointers
+/.gitmodules @EtharaOrion/platform
+/app @EtharaOrion/mobile
+/services/ @EtharaOrion/platform
+/deployment @EtharaOrion/devsecops

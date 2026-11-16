@@ -1,0 +1,13 @@
+[project]
+name = "yantra-claim-storm"
+version = "0.1.0"
+description = "The claim-storm harness: N workers claim M units through HTTP; reports double claims and p99 latency."
+requires-python = ">=3.12,<3.13"
+dependencies = ["httpx==0.27.2"]
+
+[build-system]
+requires = ["hatchling==1.26.3"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["claim_storm"]

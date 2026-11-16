@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="assessments_be_delete_wizard_form" model="ir.ui.view">
+        <field name="name">assessments.be.delete.wizard.form</field>
+        <field name="model">assessments.be.delete.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="assessment_id" invisible="1"/>
+                <h4>Delete <field name="name" readonly="1" nolabel="1"
+                                 class="oe_inline"/>?</h4>
+                <div class="alert alert-danger" role="alert"
+                     invisible="live_count == 0">
+                    <b><field name="live_count" readonly="1" nolabel="1"
+                              class="oe_inline"/> candidate(s) are sitting this
+                    right now.</b> Deleting ends their exam.
+                </div>
+                <div class="alert alert-warning" role="alert">
+                    <b>This cannot be undone.</b> To only hide it, use Archive.
+                </div>
+                <group>
+                    <group string="Destroyed">
+                        <field name="candidate_count" string="Candidates"/>
+                        <field name="response_count" string="Responses"/>
+                    </group>
+                    <group string="Kept">
+                        <field name="ledger_kept" string="LLM spend rows"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Delete Permanently" type="object"
+                            name="action_destroy" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- IN THE COG MENU, which is where Odoo has trained everyone to look for
+         Delete. The built-in one is switched off on the form and list
+         (`delete="0"`) so there is exactly one way to delete an assessment and
+         it is the one that confirms. -->
+    <record id="action_assessments_be_delete" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="model_assessments_be"/>
+        <field name="binding_model_id" ref="model_assessments_be"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = {
+    "type": "ir.actions.act_window",
+    "name": "Delete",
+    "res_model": "assessments.be.delete.wizard",
+    "view_mode": "form",
+    "target": "new",
+    "context": {"active_id": records[:1].id, "active_ids": records.ids},
+}</field>
+    </record>
+</odoo>

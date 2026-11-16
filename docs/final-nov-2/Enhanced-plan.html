@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Yantra: the enhanced plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f8f9fa;--surface:#ffffff;--surface2:#f3f3f5;--fg:#030213;--muted:#717182;--line:#e0e0e4;--accent:#b800b8;--accent-soft:#fbdaf7;--ring:#b800b8;--code:#f3f3f5;
+ --body:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;--mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 var(--body)}
+.shell{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);background:var(--surface);padding:28px 20px 40px max(20px,env(safe-area-inset-left,0px))}
+nav.toc .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+nav.toc .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+nav.toc .brand b{display:block;font-size:16px}
+nav.toc .brand small{display:block;color:var(--muted);font-size:12.5px}
+nav.toc .set{margin:18px 0 8px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+nav.toc a{display:block;color:var(--fg);text-decoration:none;font-size:14.5px;padding:7px 10px;border-radius:8px;line-height:1.4}
+nav.toc a:hover{background:var(--surface2)}
+nav.toc a.h3{padding-left:24px;color:var(--muted);font-size:13.5px}
+nav.toc a.doc{color:var(--muted)}
+nav.toc a.doc.on{background:var(--accent-soft);color:var(--fg);font-weight:600}
+.theme{margin:14px 0 4px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);font:500 13.5px var(--body);padding:8px 12px;border-radius:8px;cursor:pointer}
+.theme:focus-visible,nav.toc a:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+main{padding:56px max(24px,env(safe-area-inset-right,0px)) 96px max(24px,env(safe-area-inset-left,0px));min-width:0}
+article{max-width:880px;margin:0 auto}
+article h1{font-size:40px;line-height:1.15;letter-spacing:-.01em;margin:0 0 24px;text-wrap:balance}
+article h2{font-size:28px;line-height:1.25;margin:64px 0 20px;padding-top:24px;border-top:1px solid var(--line);text-wrap:balance}
+article h3{font-size:21px;margin:40px 0 14px;text-wrap:balance}
+article p{margin:0 0 18px;max-width:72ch}
+article ul,article ol{padding-left:26px;margin:0 0 20px}
+article li{margin:6px 0;max-width:70ch}
+article li p{margin:0}
+article a{color:var(--accent)}
+article strong{font-weight:600}
+article hr{display:none}
+article code{font:14.5px var(--mono);background:var(--code);padding:2px 6px;border-radius:5px}
+article pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow:auto;font:14px/1.55 var(--mono);margin:0 0 24px}
+article pre code{background:none;padding:0;font-size:inherit}
+.tablewrap{overflow-x:auto;margin:0 0 28px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+article table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.5}
+article th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2);padding:14px 16px;border-bottom:1px solid var(--line)}
+article td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+article tr:last-child td{border-bottom:0}
+article td:first-child{font-weight:600;white-space:normal;min-width:140px}
+figure.diagram{margin:8px 0 36px;background:#ffffff;border:1px solid var(--line);border-radius:14px;padding:12px;overflow-x:auto}
+figure.diagram svg{display:block;max-width:100%;height:auto}
+figure.diagram figcaption{font-size:13.5px;color:var(--muted);padding:10px 8px 2px}
+blockquote{margin:0 0 20px;padding:14px 20px;border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0}
+.foot{margin-top:72px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:980px){.shell{grid-template-columns:1fr}nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding-top:32px}article h1{font-size:32px}article h2{font-size:24px;margin-top:44px}}
+
+section.doc{padding-top:8px}
+section.doc + section.doc{margin-top:96px;border-top:3px solid var(--line);padding-top:48px}
+.doc-eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px}
+nav.toc details{margin:2px 0}
+nav.toc summary{cursor:pointer;list-style:none;color:var(--fg);font-size:14.5px;padding:7px 10px;border-radius:8px;font-weight:600}
+nav.toc summary::-webkit-details-marker{display:none}
+nav.toc summary:hover{background:var(--surface2)}
+nav.toc details[open] summary{background:var(--accent-soft)}
+.screens{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);margin:8px 0 28px;width:min(1240px,calc(100vw - 396px));margin-left:calc((min(100%,880px) - min(1240px,calc(100vw - 396px))) / 2)}
+.screens iframe{display:block;width:100%;height:1000px;border:0;background:var(--bg)}
+@media (max-width:980px){.screens{width:100%;margin-left:0}.screens iframe{height:860px}}
+.intro{font-size:19px;line-height:1.6;color:var(--muted);max-width:66ch;margin:0 0 28px}
+</style></head>
+<body id="top"><div class="shell">
+<nav class="toc" aria-label="Contents">
+  <div class="brand"><div class="mark">Y</div><div><b>Yantra</b><small>a second option next to the unified plan, 2 November 2026</small></div></div>
+  <button type="button" class="theme" id="theme" aria-label="Toggle light or dark theme"></button>
+  <div class="set">Contents</div><a class="h2" href="#c-1-what-this-version-changes-in-one-table">1. What this version changes, in one table</a><a class="h2" href="#c-2-architecture-four-deployables-in-stage-1-ten-services-in-the-code">2. Architecture: four deployables in Stage 1, ten services in the code</a><a class="h2" href="#c-3-moving-the-current-platform-over-the-strangler-path">3. Moving the current platform over: the strangler path</a><a class="h2" href="#c-4-stage-1-in-sixteen-weeks">4. Stage 1 in sixteen weeks</a><a class="h2" href="#c-5-what-it-costs-to-run">5. What it costs to run</a><a class="h2" href="#c-6-recovery-and-availability-targets">6. Recovery and availability targets</a><a class="h2" href="#c-7-testing-strategy">7. Testing strategy</a><a class="h2" href="#c-8-api-and-event-versioning">8. API and event versioning</a><a class="h2" href="#c-9-service-levels-and-error-budgets">9. Service levels and error budgets</a><a class="h2" href="#c-10-security-and-compliance-calendar">10. Security and compliance calendar</a><a class="h2" href="#c-11-data-residency">11. Data residency</a><a class="h2" href="#c-12-decisions-this-version-adds">12. Decisions this version adds</a><a class="h2" href="#c-13-side-by-side-the-unified-plan-and-the-enhanced-plan">13. Side by side: the unified plan and the enhanced plan</a><a class="h2" href="#c-14-what-did-not-change">14. What did not change</a>
+</nav>
+<main><article>
+<p class="doc-eyebrow">Yantra</p>
+<h1>The enhanced plan</h1>
+
+<ul>
+<li><strong>Status:</strong> proposal, 2 November 2026. A second option next to the unified plan, for leadership to compare.</li>
+<li><strong>What it is:</strong> the unified plan with its known gaps filled. Same business, same stages, same gates, same service contracts, same repository rules. What changes: how many things run in year one, how long Stage 1 takes, how the current platform moves over, and what was missing (cost, recovery targets, testing, versioning, service levels, a security calendar, data residency).</li>
+<li><strong>Base:</strong> the Yantra repository documents stay the point of truth, as in the unified plan. Every change in this page is marked as a proposal.</li>
+<li><strong>Evidence tags:</strong> <strong>[D]</strong> disclosed by the company named, <strong>[R]</strong> reported, <strong>[E]</strong> estimate, <strong>[L]</strong> read from Ethara&#39;s own repositories, <strong>(assumption)</strong> to confirm.</li>
+</ul>
+
+<hr>
+<h2 id="c-1-what-this-version-changes-in-one-table">1. What this version changes, in one table</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Gap in the unified plan</th>
+<th>What the enhanced plan does</th>
+<th>Why it is better</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ten services running from day one for five to seven engineers and 500 concurrent workers</td>
+<td>four deployables in Stage 1 (gateway, work, money, odoo); the ten services stay as separate code modules with their own schemas, contracts and outboxes</td>
+<td>half the operational surface, the same boundaries; a split later is a chart change, not a rewrite</td>
+</tr>
+<tr>
+<td>Twelve weeks for the whole loop</td>
+<td>sixteen weeks, with a hardening week (penetration test, recovery drill, load test) before the paying pilot</td>
+<td>the twelve-week version had no slack and no security test before real money</td>
+</tr>
+<tr>
+<td>No path from the current platform (113 addons, about 25 task apps, 29 dashboards) to Yantra</td>
+<td>a strangler path in four moves with a gate each: connect, read models, new projects on the engine, port at renewal</td>
+<td>nothing live is rewritten; the old and new run side by side until a project renews</td>
+</tr>
+<tr>
+<td>No running-cost estimate</td>
+<td>a monthly cloud estimate per line, an AI budget per unit with a quota guard, third-party fees</td>
+<td>leadership can approve a number, not a direction</td>
+</tr>
+<tr>
+<td>No recovery targets</td>
+<td>recovery point 15 minutes, recovery time 4 hours in Stage 1 and 1 hour in Stage 2; a restore drill every month; a game day in the hardening week</td>
+<td>a pay window that cannot be restored is a trust failure, not an outage</td>
+</tr>
+<tr>
+<td>Testing described as a harness and gates</td>
+<td>a test pyramid per deployable with a coverage bar, contract tests, record-rule tests, the claim-storm harness and an end-to-end script per flow</td>
+<td>every gate is a test that runs in CI, not a demo</td>
+</tr>
+<tr>
+<td>No rule for changing an API or an event</td>
+<td>additive-only changes, a version in the path, a 90-day deprecation window, versioned event schemas with a consumer registry</td>
+<td>the app and the services can ship on different days</td>
+</tr>
+<tr>
+<td>No service levels</td>
+<td>availability 99.5% in Stage 1 and 99.9% from Stage 2, p99 claim under 500 ms, pay window closed on time 100%, an error budget that pauses features</td>
+<td>&quot;it is fast enough&quot; becomes a number that is measured</td>
+</tr>
+<tr>
+<td>No security calendar</td>
+<td>one dated list: secrets rotation, dependency scans, record-rule tests, a penetration test before the pilot and every quarter, the SOC 2 window</td>
+<td>security stops being a workstream and becomes a calendar</td>
+</tr>
+<tr>
+<td>Region and data residency unstated</td>
+<td>one region in India, worker and client data never leave it, backups copied inside the country</td>
+<td>the data protection law and client contracts both ask for this</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-2-architecture-four-deployables-in-stage-1-ten-services-in-the-code">2. Architecture: four deployables in Stage 1, ten services in the code</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1290" height="964" viewBox="0 0 1290 964" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1290" height="964" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Enhanced plan: four deployables in Stage 1, ten services in the code</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Each module keeps its own schema, contract and outbox. The deployment composes them; a split later is a chart change.</text>
+<rect x="70" y="100" width="1180" height="120" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="116.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">CLIENTS</text>
+<rect x="70" y="380" width="560" height="240" rx="10" fill="#F5F8FF" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="396.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">DEPLOYABLE 2: WORK (ONE PROCESS, THREE SCHEMAS)</text>
+<rect x="650" y="380" width="400" height="240" rx="10" fill="#FFF9F3" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="662.0" y="396.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">DEPLOYABLE 3: MONEY</text>
+<rect x="70" y="780" width="1180" height="110" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="796.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">SHARED PLATFORM, ONE REGION IN INDIA</text>
+<rect x="90" y="135" width="300" height="65" rx="10" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="240.0" y="151.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Flutter app</text>
+<text x="240.0" y="170.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">workers, reviewers, candidates, ops on mobile</text>
+<text x="240.0" y="186.2" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">app/</text>
+<rect x="930" y="135" width="300" height="65" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="1080.0" y="158.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Odoo backend UI</text>
+<text x="1080.0" y="177.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">ops, finance, HR</text>
+<rect x="90" y="270" width="300" height="70" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="240.0" y="282.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">gateway</text>
+<text x="240.0" y="300.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">deployable 1: JWT, rate limits, idempotency,</text>
+<text x="240.0" y="314.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">public OpenAPI</text>
+<text x="240.0" y="330.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services/gateway</text>
+<rect x="90" y="420" width="160" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="170.0" y="430.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">market</text>
+<text x="170.0" y="449.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">projects, batches,</text>
+<text x="170.0" y="462.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">units, claims, price</text>
+<text x="170.0" y="476.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">cards, delivery gate</text>
+<text x="170.0" y="492.4" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema market</text>
+<rect x="270" y="420" width="160" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="350.0" y="430.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality</text>
+<text x="350.0" y="449.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">review claims,</text>
+<text x="350.0" y="462.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">verdicts, audit, reason</text>
+<text x="350.0" y="476.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">codes</text>
+<text x="350.0" y="492.4" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema quality</text>
+<rect x="450" y="420" width="160" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="530.0" y="444.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">notify</text>
+<text x="530.0" y="462.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">email, push, WhatsApp</text>
+<text x="530.0" y="478.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema notify</text>
+<text x="90.0" y="532.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Module rules</text>
+<text x="90.0" y="543.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">a module imports only packages/*; its own database role; events out through its</text>
+<text x="90.0" y="556.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">outbox, even to a sibling; one migration job per module</text>
+<rect x="670" y="420" width="360" height="80" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="850.0" y="437.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout</text>
+<text x="850.0" y="455.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">earnings, pay windows, holds, cost ledger, rail</text>
+<text x="850.0" y="469.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">adapters; its own release train and deploy freeze</text>
+<text x="850.0" y="485.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema payout</text>
+<rect x="670" y="520" width="360" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="850.0" y="539.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">hub, runner, tracker, analytics</text>
+<text x="850.0" y="557.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">directories with a contract and a health endpoint; not</text>
+<text x="850.0" y="571.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">deployed in Stage 1</text>
+<rect x="1070" y="420" width="160" height="170" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="1150.0" y="482.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">NATS JetStream</text>
+<text x="1150.0" y="501.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">every module publishes</text>
+<text x="1150.0" y="514.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">from its outbox;</text>
+<text x="1150.0" y="528.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">CloudEvents; replay</text>
+<rect x="370" y="660" width="580" height="80" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="660.0" y="677.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo: deployable 4, the system of record</text>
+<text x="660.0" y="695.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">worker record, bench, accounting, vendor bills with TDS, client invoices; the Assessment v2</text>
+<text x="660.0" y="709.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">engine behind the assess contract</text>
+<text x="660.0" y="725.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services/odoo, ethara_* addons</text>
+<rect x="90" y="810" width="200" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="190.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Keycloak</text>
+<text x="190.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">OIDC staff, JWT workers and</text>
+<text x="190.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services</text>
+<rect x="320" y="810" width="260" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="450.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">PostgreSQL</text>
+<text x="450.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one schema and one role per module,</text>
+<text x="450.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">PgBouncer, PITR</text>
+<rect x="610" y="810" width="180" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="700.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Redis</text>
+<text x="700.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">idempotency, sessions,</text>
+<text x="700.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">cache</text>
+<rect x="820" y="810" width="180" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="910.0" y="817.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">S3</text>
+<text x="910.0" y="836.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">payloads, documents,</text>
+<text x="910.0" y="849.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">deliveries, backups in</text>
+<text x="910.0" y="863.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">country</text>
+<rect x="1030" y="810" width="200" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1130.0" y="823.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">RazorpayX, Gemini, SMTP,</text>
+<text x="1130.0" y="838.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">FCM</text>
+<text x="1130.0" y="857.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">external providers</text>
+<path d="M240.0,200.0 L240.0,270.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="204.8" y="226.0" width="70.5" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="240.0" y="235.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">HTTPS, JWT</text>
+<path d="M1080.0,200.0 L1080.0,210.0 L1080.0,640.0 L770.0,640.0 L770.0,660.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L170.0,360.0 L170.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L350.0,360.0 L350.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L530.0,360.0 L530.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L850.0,360.0 L850.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M90.0,305.0 L40.0,305.0 L40.0,700.0 L370.0,700.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="133.4" y="691.0" width="143.1" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="205.0" y="700.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">ethara_api controllers</text>
+<path d="M1030.0,486.0 L1050.0,486.0 L1050.0,460.0 L1070.0,460.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arr)"/>
+<path d="M1150.0,590.0 L1150.0,720.0 L950.0,720.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="1105.7" y="646.0" width="88.7" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="1150.0" y="655.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">outbox bridge</text>
+<path d="M1030.0,486.0 L1060.0,486.0 L1060.0,760.0 L1130.0,760.0 L1130.0,810.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="1068.8" y="751.0" width="52.4" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="1095.0" y="760.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payouts</text>
+<rect x="40" y="927.0" width="22" height="14" rx="4" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="68.0" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Client app</text>
+<rect x="152.5" y="927.0" width="22" height="14" rx="4" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="180.5" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Service (own deployable, own database)</text>
+<rect x="434.4" y="927.0" width="22" height="14" rx="4" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="462.4" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Odoo: system of record</text>
+<rect x="619.5" y="927.0" width="22" height="14" rx="4" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="647.5" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Shared platform</text>
+<rect x="762.25" y="927.0" width="22" height="14" rx="4" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="790.2" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">External provider</text>
+<rect x="917.1" y="927.0" width="22" height="14" rx="4" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="945.1" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Stage 2 or 3</text>
+</svg><figcaption>Stage 1 topology: four deployables</figcaption></figure>
+<h3 id="c-2-1-the-idea">2.1 The idea</h3>
+<p>The unified plan&#39;s service boundaries are right. Its deployable count is a cost paid before it earns anything. Year one runs at about 500 concurrent workers; the repository&#39;s own capacity model says the marketplace hot path at that size is one short transaction per claim. Nothing at that size needs ten processes to scale independently.</p>
+<p>So the code keeps ten services as separate directories, each with its own schema, migrations, OpenAPI contract, outbox and tests, exactly as the unified plan lays them out. The deployment composes them into four running things:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Deployable</th>
+<th>Contains</th>
+<th>Why it is its own process</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gateway</code></td>
+<td>the gateway service</td>
+<td>the edge: rate limits, JWT validation, idempotency; scales on request count, never on database load</td>
+</tr>
+<tr>
+<td><code>work</code></td>
+<td>the <code>market</code>, <code>quality</code> and <code>notify</code> modules, each on its own schema, in one FastAPI process</td>
+<td>the claim, review and notification paths share one request budget; splitting them buys nothing at 500 workers</td>
+</tr>
+<tr>
+<td><code>money</code></td>
+<td>the <code>payout</code> module</td>
+<td>money code ships on its own release train and has its own approvals, caps and audit; the one module that must never be redeployed by accident</td>
+</tr>
+<tr>
+<td><code>odoo</code></td>
+<td>Odoo 19 CE, the <code>ethara_*</code> addons, and the Assessment v2 engine behind the <code>assess</code> contract</td>
+<td>the system of record, as in the repository</td>
+</tr>
+</tbody></table></div>
+<p><code>hub</code>, <code>runner</code>, <code>tracker</code> and <code>analytics</code> are directories with a contract and a health endpoint, as before. NATS, Keycloak, PostgreSQL, Redis and S3 are unchanged.</p>
+<h3 id="c-2-2-the-rules-that-keep-the-modules-separate-inside-one-process">2.2 The rules that keep the modules separate inside one process</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>How it is enforced</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A module imports only <code>packages/*</code> and its own code, never another module</td>
+<td>an import-linter contract in CI; the build fails on a cross-module import</td>
+</tr>
+<tr>
+<td>A module owns its schema; no cross-schema query</td>
+<td>a separate database role per module with grants on its own schema only; the test suite runs each module against a database where the other schemas do not exist</td>
+</tr>
+<tr>
+<td>Modules talk through events and contracts, never function calls</td>
+<td>the outbox relay publishes to NATS even when the consumer runs in the same process; a consumer that calls a sibling&#39;s function fails the import-linter</td>
+</tr>
+<tr>
+<td>Each module has its own migrations, run by its own one-shot job</td>
+<td>one Alembic environment per module; the <code>work</code> chart runs three migration jobs in order</td>
+</tr>
+<tr>
+<td>Splitting is a chart change</td>
+<td>a second Helm values file runs <code>quality</code> alone; the split is rehearsed in staging in the hardening week so that it is known to work before it is needed</td>
+</tr>
+</tbody></table></div>
+<h3 id="c-2-3-when-a-module-leaves-the-process">2.3 When a module leaves the process</h3>
+<p>The unified plan&#39;s triggers stay: more than about 3,000 concurrently active workers, p99 claim over 1 second at the load target, review contention with claims, a second rail or country. One trigger is added: a module that needs a different release cadence from its neighbours (the reason <code>payout</code> is separate from day one).</p>
+<h3 id="c-2-4-what-this-costs">2.4 What this costs</h3>
+<p>Three things, each small: the import-linter and the per-module database roles (two days), the rehearsed split in staging (one day in the hardening week), and the discipline not to take the shortcut of a function call across modules (a review rule). Against that, the Stage 1 team runs four charts, four on-call surfaces and four dashboards instead of ten.</p>
+<h3 id="c-2-5-events-nats-stays">2.5 Events: NATS stays</h3>
+<p>An alternative was weighed: a Postgres outbox with polling consumers and no broker in year one. It was rejected. The Odoo consumer runs in a different process from day one, read models need replay, and the repository ratified NATS JetStream for good reasons. A three-pod NATS cluster is a modest surface; the relay and the idempotent consumer live once in <code>packages/py-common</code>.</p>
+<hr>
+<h2 id="c-3-moving-the-current-platform-over-the-strangler-path">3. Moving the current platform over: the strangler path</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1240" height="402" viewBox="0 0 1240 402" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1240" height="402" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Moving the current platform over: the strangler path</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Nothing live is rewritten. A project moves at its own renewal; a project that is ending never moves.</text>
+<rect x="40" y="100" width="200" height="96" rx="48.0" fill="#030213" stroke="#030213" stroke-width="1.5"/>
+<text x="140.0" y="125.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Today</text>
+<text x="140.0" y="144.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">113 addons, about 25 task</text>
+<text x="140.0" y="157.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">apps, 29 dashboards on the</text>
+<text x="140.0" y="171.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">current platform</text>
+<rect x="280" y="100" width="200" height="96" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="380.0" y="118.5" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">1. Connect</text>
+<text x="380.0" y="137.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Keycloak in front of both; one</text>
+<text x="380.0" y="150.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">person id; an outbox addon</text>
+<text x="380.0" y="164.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">emits events from existing</text>
+<text x="380.0" y="178.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">projects</text>
+<rect x="520" y="100" width="200" height="96" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="620.0" y="125.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Gate</text>
+<text x="620.0" y="144.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">a current project&#x27;s accept</text>
+<text x="620.0" y="157.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">events on the bus within a</text>
+<text x="620.0" y="171.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">minute; no screen changed</text>
+<rect x="760" y="100" width="200" height="96" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="860.0" y="125.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">2. Read models first</text>
+<text x="860.0" y="144.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Performance views and the</text>
+<text x="860.0" y="157.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">margin report built on events;</text>
+<text x="860.0" y="171.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">old projects untouched</text>
+<rect x="1000" y="100" width="200" height="96" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="1100.0" y="125.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Gate</text>
+<text x="1100.0" y="144.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">three per-project dashboards</text>
+<text x="1100.0" y="157.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">retired; same numbers on the</text>
+<text x="1100.0" y="171.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">same weeks</text>
+<rect x="1000" y="266" width="200" height="96" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="1100.0" y="283.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">3. New projects on the</text>
+<text x="1100.0" y="299.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">engine</text>
+<text x="1100.0" y="317.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">every project after the pilot</text>
+<text x="1100.0" y="331.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">is a schema and a rubric in</text>
+<text x="1100.0" y="345.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">market, not an addon</text>
+<rect x="760" y="266" width="200" height="96" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="860.0" y="291.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Gate</text>
+<text x="860.0" y="310.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">a new project type stands up</text>
+<text x="860.0" y="323.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">in under a week with no new</text>
+<text x="860.0" y="337.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">addon</text>
+<rect x="520" y="266" width="200" height="96" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="620.0" y="277.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">4. Port at renewal</text>
+<text x="620.0" y="296.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">units imported with a dry run;</text>
+<text x="620.0" y="310.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">reviewers on the bench; the</text>
+<text x="620.0" y="323.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">addon retired; an ending</text>
+<text x="620.0" y="337.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">project is archived, not</text>
+<text x="620.0" y="351.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">ported</text>
+<rect x="280" y="266" width="200" height="96" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="380.0" y="291.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Gate</text>
+<text x="380.0" y="310.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">a full pay window on Yantra</text>
+<text x="380.0" y="323.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">with zero delta; the old addon</text>
+<text x="380.0" y="337.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">removed from the image</text>
+<rect x="40" y="266" width="200" height="96" rx="48.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="140.0" y="290.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Half of all units on</text>
+<text x="140.0" y="306.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">market</text>
+<text x="140.0" y="324.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">within six months of the pilot</text>
+<text x="140.0" y="338.5" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">(assumption)</text>
+<path d="M240.0,148.0 L280.0,148.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M480.0,148.0 L520.0,148.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M720.0,148.0 L760.0,148.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M960.0,148.0 L1000.0,148.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1100.0,196.0 L1100.0,231.0 L1100.0,231.0 L1100.0,266.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1000.0,314.0 L960.0,314.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M760.0,314.0 L720.0,314.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,314.0 L480.0,314.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M280.0,314.0 L240.0,314.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg><figcaption>The strangler path</figcaption></figure>
+<p>The current platform runs on Odoo 19 with 113 addons, about 25 per-project task or pipeline applications and 29 per-project dashboards [L]. The unified plan reuses pieces of it (Assessment v2, the claim pattern, the Flutter client, Razorpay) but never says how a live project moves. This section does, in four moves. Nothing live is rewritten; a project that is ending is never ported.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Move</th>
+<th>What happens</th>
+<th>Touches live projects?</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. Connect</td>
+<td>Keycloak in front of the current platform and Yantra; one person id across both; the existing addons start writing to an outbox table, drained to NATS by the same relay Yantra uses</td>
+<td>no code change inside the task apps; one addon adds the outbox</td>
+<td>a current project&#39;s accept events appear on the bus within a minute, with no change to that project&#39;s screens</td>
+</tr>
+<tr>
+<td>2. Read models first</td>
+<td>the Performance views and the margin report are built on those events; they work for old projects without touching their code; the four numbers are reported for old and new projects alike</td>
+<td>no</td>
+<td>three per-project dashboards retired because the read model shows the same numbers on the same weeks</td>
+</tr>
+<tr>
+<td>3. New projects on the engine</td>
+<td>every project that starts after the Stage 1 pilot uses <code>market</code> and <code>quality</code>; its task app is a schema and a rubric, not an addon</td>
+<td>no</td>
+<td>the first new project type stands up in under a week with no new addon</td>
+</tr>
+<tr>
+<td>4. Port at renewal</td>
+<td>when an old project renews, its units are imported into <code>market</code> with a dry run, its reviewers are on the bench, and its addon is retired; a project that ends is archived, not ported</td>
+<td>yes, one project at a time, at its own renewal date</td>
+<td>the renewed project runs a full pay window on Yantra with zero reconciliation delta; the old addon is removed from the image</td>
+</tr>
+</tbody></table></div>
+<p>The ERP track (attendance, payroll, HR on the existing addons) does not move; it is already on the same system of record.</p>
+<p>Timing: move 1 lands in the Stage 1 foundations step, move 2 in Stage 2 Performance, move 3 from the first paying pilot onward, move 4 as renewals fall due. The measure is the share of accepted units flowing through <code>market</code>, reported monthly; the target is half of all units within six months of the pilot (assumption).</p>
+<hr>
+<h2 id="c-4-stage-1-in-sixteen-weeks">4. Stage 1 in sixteen weeks</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1622" height="702" viewBox="0 0 1622 702" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1622" height="702" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">The enhanced plan on a timeline: sixteen weeks and a hardening week</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Left: the step and the number its gate must show. Right: when it runs, in weeks.</text>
+<text x="450.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W0</text>
+<text x="518.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W2</text>
+<text x="586.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W4</text>
+<text x="654.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W6</text>
+<text x="722.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W8</text>
+<text x="790.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W10</text>
+<text x="858.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W12</text>
+<text x="926.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W14</text>
+<text x="994.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W16</text>
+<text x="1062.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W18</text>
+<text x="1130.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W20</text>
+<text x="1198.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W22</text>
+<text x="1266.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W24</text>
+<text x="1334.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W26</text>
+<text x="1402.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W28</text>
+<text x="1470.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W30</text>
+<text x="1538.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W32</text>
+<text x="40.0" y="152.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Stage 0: lock and validate</text>
+<text x="40.0" y="170.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">3 bottleneck statements; baseline sheet</text>
+<rect x="460" y="144" width="102" height="36" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="511.0" y="162.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="210.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Foundations + strangler move 1</text>
+<text x="40.0" y="228.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">empty work deployable ships signed; events on the bus</text>
+<rect x="494" y="202" width="68" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="528.0" y="220.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="268.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Identity, bench, onboarding</text>
+<text x="40.0" y="286.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">20 synthetic applicants ELIGIBLE, no DB edits</text>
+<rect x="562" y="260" width="102" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="613.0" y="278.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="326.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Market core and review</text>
+<text x="40.0" y="344.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">500 workers, 2,000 units: 0 double claims, p99 &lt; 500 ms</text>
+<rect x="664" y="318" width="136" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="732.0" y="336.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="384.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Money and margin</text>
+<text x="40.0" y="402.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">earnings = bills = payouts net + TDS, to the paisa</text>
+<rect x="800" y="376" width="68" height="36" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="834.0" y="394.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="442.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Delivery and dogfood</text>
+<text x="40.0" y="460.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">gate holds on one bad line; a real window paid</text>
+<rect x="868" y="434" width="68" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="902.0" y="452.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="500.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Hardening</text>
+<text x="40.0" y="518.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">pen test fixed; restore within targets; split rehearsed</text>
+<rect x="936" y="492" width="34" height="36" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="953.0" y="510.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="558.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">First paying pilot</text>
+<text x="40.0" y="576.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">one batch invoiced; one pay cycle; zero deltas</text>
+<rect x="970" y="550" width="68" height="36" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="1004.0" y="568.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="616.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Stage 2: Talent, Performance, Hub</text>
+<text x="40.0" y="634.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">3 dashboards retired; one vendor paying</text>
+<rect x="1038" y="608" width="544" height="36" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1310.0" y="626.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle"></text>
+<path d="M460.0,124.0 L460.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M528.0,124.0 L528.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M596.0,124.0 L596.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M664.0,124.0 L664.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M732.0,124.0 L732.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M800.0,124.0 L800.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M868.0,124.0 L868.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M936.0,124.0 L936.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1004.0,124.0 L1004.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1072.0,124.0 L1072.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1140.0,124.0 L1140.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1208.0,124.0 L1208.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1276.0,124.0 L1276.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1344.0,124.0 L1344.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1412.0,124.0 L1412.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1480.0,124.0 L1480.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1548.0,124.0 L1548.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+</svg><figcaption>The enhanced timeline</figcaption></figure>
+<p>The unified plan&#39;s six steps and their gates are kept. Three things change: identity and the bench get a third week, market and review get a fourth, and a hardening week is added before the paying pilot. The pilot itself keeps two weeks.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Weeks</th>
+<th>Delivers</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Foundations</td>
+<td>1-2</td>
+<td>the repository folded in; CI with path filters, signed images, SBOM; four Helm charts and Argo CD applications; NATS; the Keycloak realm; a dedicated Postgres with one schema per module and a role per module; Redis; S3 prefixes; <code>packages/contracts</code> and <code>packages/py-common</code> with the outbox relay, idempotency and the import-linter; the claim-storm harness; alerts; the egress allow-list; the outbox addon on the current platform (strangler move 1)</td>
+<td>an empty <code>work</code> deployable ships to staging signed, with health checks and a trace; the harness runs at 1.5x the largest cohort with zero errors; the database stays under 100 connections at rest; a current project&#39;s events appear on the bus</td>
+</tr>
+<tr>
+<td>Identity, bench, onboarding</td>
+<td>3-5</td>
+<td>the gateway in full; worker record, agreements, DPDP consent, documents and the bench record in <code>odoo</code>; <code>worker.eligible</code> and the worker read model; Assessment v2 events behind the <code>assess</code> contract; identity bound to the payout account; the apply form; payout setup in the app</td>
+<td>20 synthetic applicants reach ELIGIBLE with no database edits; zero cross-worker reads in the record-rule tests; worker tokens expire within 24 hours</td>
+</tr>
+<tr>
+<td>Market core and review</td>
+<td>6-9</td>
+<td><code>market</code> and <code>quality</code> modules in <code>work</code>: projects, batches, units, dry-run import, publish with frozen pay and price, claim with <code>SKIP LOCKED</code> and TTL, submit, assigned mode, rubric version; review claims, verdicts, the 10% audit sample, reason codes, the rubric-unclear flag, billable rework; the Flutter task list, runner and review console; the margin floor with approval</td>
+<td>500 simulated workers on 2,000 units through the gateway: zero double claims, p99 under 500 ms; reviewers never draw their own work; a batch below its floor cannot publish without approval</td>
+</tr>
+<tr>
+<td>Money and margin</td>
+<td>10-11</td>
+<td><code>money</code>: earnings on the verdict, the pay window, holds, cost fields, statements; <code>odoo</code>: vendor bills with TDS, two-person approval, RazorpayX sandbox, bank-file fallback, reconciliation; the margin report</td>
+<td>50 workers and 1,000 units: earnings equal bills equal payouts net plus TDS to the paisa; the margin report equals the invoice minus every cost line</td>
+</tr>
+<tr>
+<td>Delivery and dogfood</td>
+<td>12-13</td>
+<td>the delivery gate and manifest, the client invoice, the retention purge; an internal batch of 300 to 500 units worked by existing taskers; the four numbers on the ops dashboard; a runbook per deployable</td>
+<td>the gate holds a batch on one bad line; a real pay window paid; the invoice equals accepted units times rate</td>
+</tr>
+<tr>
+<td>Hardening</td>
+<td>14</td>
+<td>an external penetration test on the gateway and the record rules; the restore drill from backup to a point in time; the recovery game day (lose the primary database, lose a node, lose NATS); the load test at 1.5x the pilot cohort; the rehearsed module split in staging; on-call rota and escalation tested with a drill page</td>
+<td>every finding of medium or higher fixed or accepted in writing; the restore meets the recovery targets in section 6; the split works</td>
+</tr>
+<tr>
+<td>First paying pilot and go/no-go</td>
+<td>15-16</td>
+<td>the first paying client project; people return to the bench; the next batch staffed from the bench</td>
+<td>one real batch delivered and invoiced; one real pay cycle; zero double claims and zero reconciliation deltas; days to staff the second batch under the baseline</td>
+</tr>
+</tbody></table></div>
+<p>Stage 0 runs in weeks 0 to 2 as before. Stage 2 starts at week 17 instead of 13; its content and gates are unchanged.</p>
+<hr>
+<h2 id="c-5-what-it-costs-to-run">5. What it costs to run</h2>
+<p>Nothing in the unified plan or the repository puts a number on running cost. These are estimates for one production environment and one staging environment on the existing Kubernetes platform in the Mumbai region, Stage 1 scale, in US dollars per month. Every figure is <strong>[E]</strong> and should be replaced by the cloud bill after the foundations step.</p>
+<h3 id="c-5-1-cloud-per-month">5.1 Cloud, per month</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Line</th>
+<th>Sizing</th>
+<th>Estimate per month</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Kubernetes nodes, production</td>
+<td>6 general-purpose nodes of 2 vCPU and 8 GB for the four deployables, NATS, Keycloak, Harbor and observability</td>
+<td>450</td>
+</tr>
+<tr>
+<td>Kubernetes nodes, staging</td>
+<td>3 of the same, scaled to zero at night</td>
+<td>120</td>
+</tr>
+<tr>
+<td>Managed PostgreSQL, production</td>
+<td>one instance of 2 vCPU and 8 GB, high availability, 200 GB storage, point-in-time recovery retained 14 days</td>
+<td>350</td>
+</tr>
+<tr>
+<td>Managed PostgreSQL, staging</td>
+<td>one smaller instance, no high availability</td>
+<td>80</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>one small cache node</td>
+<td>50</td>
+</tr>
+<tr>
+<td>Object storage</td>
+<td>1 TB of payloads, documents and deliveries, plus requests</td>
+<td>40</td>
+</tr>
+<tr>
+<td>Load balancer, NAT, egress</td>
+<td>one ingress, one NAT gateway, 500 GB egress</td>
+<td>130</td>
+</tr>
+<tr>
+<td>Backups copied to a second bucket in the same country</td>
+<td>200 GB</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>self-hosted Prometheus, Grafana and Loki on the nodes; Sentry on the free tier until Stage 2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Container registry and scanning</td>
+<td>Harbor on the nodes, 100 GB storage</td>
+<td>10</td>
+</tr>
+<tr>
+<td><strong>Total cloud</strong></td>
+<td></td>
+<td><strong>about 1,250 per month, 15,000 per year</strong></td>
+</tr>
+</tbody></table></div>
+<p>For scale: the repository&#39;s capacity model for the 20K-staff ERP is 40 to 85 Odoo pods and 50 to 100 GB of RAM for Odoo alone; that is the ceiling, not year one.</p>
+<h3 id="c-5-2-ai-per-unit">5.2 AI, per unit</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Use</th>
+<th>When</th>
+<th>Budget</th>
+<th>Guard</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Paper generation from the project SOP</td>
+<td>once per paper version</td>
+<td>under 5 rupees per paper (assumption)</td>
+<td>the one AI client records every call with its cost against the project</td>
+</tr>
+<tr>
+<td>Proctoring and integrity signals</td>
+<td>per sitting</td>
+<td>under 1 rupee per sitting (assumption)</td>
+<td>same ledger</td>
+</tr>
+<tr>
+<td>Advisory pre-review (Stage 2)</td>
+<td>per submission, advisory only</td>
+<td>under 0.50 rupee per unit (assumption)</td>
+<td>a per-project monthly quota; at 100% the pre-review turns off and reviewers continue without it</td>
+</tr>
+<tr>
+<td>Alert</td>
+<td>any time</td>
+<td></td>
+<td>a Slack alert at 80% of a project&#39;s monthly AI budget; a hard stop at 120%</td>
+</tr>
+</tbody></table></div>
+<p>AI cost is a cost line on the unit like review and audit, so it appears in the margin report.</p>
+<h3 id="c-5-3-third-parties-per-month-or-per-event">5.3 Third parties, per month or per event</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Estimate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Payout rail fees</td>
+<td>per transfer, a few rupees per payout; a cost line per unit</td>
+</tr>
+<tr>
+<td>Penny-drop bank verification</td>
+<td>per worker, once; a few rupees</td>
+</tr>
+<tr>
+<td>SOC 2 Type 2</td>
+<td>the auditor&#39;s fee is a one-time engagement of several thousand dollars, decided in Stage 0</td>
+</tr>
+<tr>
+<td>Penetration test</td>
+<td>one external test before the pilot and one per quarter; a few thousand dollars each (assumption)</td>
+</tr>
+<tr>
+<td>Domain, certificates, email delivery</td>
+<td>under 50 per month</td>
+</tr>
+</tbody></table></div>
+<p>People are the dominant cost. The team is the unified plan&#39;s squad of five to seven for Stage 1; this version does not change it. Headcount, not salary, is the number this page carries.</p>
+<hr>
+<h2 id="c-6-recovery-and-availability-targets">6. Recovery and availability targets</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Stage 1</th>
+<th>Stage 2 on</th>
+<th>How it is met</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Recovery point (data lost at worst)</td>
+<td>15 minutes</td>
+<td>5 minutes</td>
+<td>point-in-time recovery on every database; the outbox is in the same database as the data, so events and state recover together</td>
+</tr>
+<tr>
+<td>Recovery time (back in service)</td>
+<td>4 hours</td>
+<td>1 hour</td>
+<td>managed database failover; Argo CD redeploys every chart from git; S3 is regional and replicated</td>
+</tr>
+<tr>
+<td>Backup restore drill</td>
+<td>monthly, into staging</td>
+<td>monthly</td>
+<td>a restore that is not drilled is not a backup</td>
+</tr>
+<tr>
+<td>Game day</td>
+<td>once, in the hardening week</td>
+<td>quarterly</td>
+<td>lose the primary, lose a node, lose NATS, lose the gateway; measure the recovery time each</td>
+</tr>
+<tr>
+<td>Pay window protection</td>
+<td>the window is closed and reconciled before any deploy of <code>money</code></td>
+<td>same</td>
+<td>a deploy freeze from Friday noon to Saturday noon IST</td>
+</tr>
+<tr>
+<td>Single region</td>
+<td>one region in India</td>
+<td>one region plus a cross-region backup copy</td>
+<td>a second active region is a Stage 3 decision</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-7-testing-strategy">7. Testing strategy</h2>
+<p>Every gate in section 4 is a test in CI. The pyramid, per deployable:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What it covers</th>
+<th>Where it runs</th>
+<th>Bar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Unit</td>
+<td>pure logic: claim eligibility, price card maths, holds, reason-code rules, the margin floor</td>
+<td>every pull request, per module</td>
+<td>changed lines 97% covered; a failing test seen first for every new behaviour</td>
+</tr>
+<tr>
+<td>Module against a fresh database</td>
+<td>migrations, schema, the outbox, idempotent consumers, the record rules</td>
+<td>every pull request, one throwaway database per module</td>
+<td>the module passes with the other schemas absent</td>
+</tr>
+<tr>
+<td>Contract</td>
+<td>the OpenAPI of each service against its generated clients; the event schemas against every registered consumer</td>
+<td>every pull request that touches <code>packages/contracts</code></td>
+<td>a stale consumer fails the build</td>
+</tr>
+<tr>
+<td>End to end</td>
+<td>one script per user flow: worker, reviewer, project, pay window, delivery; the Flutter app driven in a browser</td>
+<td>nightly in staging and before every release</td>
+<td>every flow green before a release train leaves</td>
+</tr>
+<tr>
+<td>Load</td>
+<td>the claim-storm harness at 1.5x the largest cohort; the review queue under claim load; the pay window at 3,000 workers</td>
+<td>before every stage gate and before the pilot</td>
+<td>zero double claims; p99 under 500 ms; the window closes under 30 minutes</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>record-rule penetration tests (worker A reads worker B), token expiry, idempotency replay, webhook signature replay</td>
+<td>every release and quarterly by an external tester</td>
+<td>zero findings of medium or higher open at release</td>
+</tr>
+<tr>
+<td>Recovery</td>
+<td>the restore drill and the game day</td>
+<td>monthly and quarterly</td>
+<td>within the targets in section 6</td>
+</tr>
+</tbody></table></div>
+<p>Odoo addons use the Odoo test framework on a fresh database per run, the same as the modules.</p>
+<hr>
+<h2 id="c-8-api-and-event-versioning">8. API and event versioning</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Additive only within a version</td>
+<td>a new field or a new endpoint never breaks a client; removing or renaming a field is a new version</td>
+</tr>
+<tr>
+<td>Version in the path</td>
+<td><code>/v1/...</code>; two versions may run at once; the gateway routes both</td>
+</tr>
+<tr>
+<td>90-day deprecation window</td>
+<td>a version is announced as deprecated with a date, the app is released against the new one, the old one is removed after 90 days or when the last client is off it, whichever is later</td>
+</tr>
+<tr>
+<td>Event schemas are versioned</td>
+<td>the CloudEvents <code>type</code> carries the version (<code>quality.verdict.accepted.v1</code>); a consumer registers which versions it reads; a producer may not drop a version with registered consumers</td>
+</tr>
+<tr>
+<td>The app pins a contract version</td>
+<td>the Flutter app ships with the generated client of one version; a server change never forces a mobile release the same day</td>
+</tr>
+<tr>
+<td>Odoo controllers follow the same rule</td>
+<td><code>ethara_api</code> routes are versioned the same way</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-9-service-levels-and-error-budgets">9. Service levels and error budgets</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Service level</th>
+<th>Stage 1</th>
+<th>Stage 2 on</th>
+<th>Measured how</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Availability of the gateway and <code>work</code></td>
+<td>99.5% monthly (about 3.6 hours down)</td>
+<td>99.9% (about 44 minutes)</td>
+<td>synthetic probe every minute from outside the cluster</td>
+</tr>
+<tr>
+<td>Claim latency</td>
+<td>p99 under 500 ms at 500 concurrent</td>
+<td>p99 under 500 ms at the Stage 2 cohort</td>
+<td>gateway traces</td>
+</tr>
+<tr>
+<td>Review queue age</td>
+<td>under 48 hours for 95% of submissions</td>
+<td>under 24 hours</td>
+<td><code>quality</code> metric</td>
+</tr>
+<tr>
+<td>Pay window closed on time</td>
+<td>100%</td>
+<td>100%</td>
+<td><code>money</code> metric; a late window is an incident</td>
+</tr>
+<tr>
+<td>Reconciliation delta</td>
+<td>zero, every window</td>
+<td>zero</td>
+<td>the nightly job</td>
+</tr>
+<tr>
+<td>Double claims</td>
+<td>zero</td>
+<td>zero</td>
+<td>the harness and a production counter</td>
+</tr>
+<tr>
+<td>Exam sittings disturbed by platform work</td>
+<td>zero</td>
+<td>zero</td>
+<td>the assessment calendar is a deploy freeze</td>
+</tr>
+</tbody></table></div>
+<p>The error budget is the allowed downtime. When a month&#39;s budget is spent, the next release train carries only fixes until the budget recovers. This is the rule that stops features from outrunning reliability.</p>
+<hr>
+<h2 id="c-10-security-and-compliance-calendar">10. Security and compliance calendar</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>When</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Every pull request</td>
+<td>dependency and image scan; secret scan; licence audit (no Enterprise code); the record-rule tests</td>
+</tr>
+<tr>
+<td>Every release</td>
+<td>the end-to-end security script (token expiry, cross-worker read, idempotency replay, webhook replay)</td>
+</tr>
+<tr>
+<td>Week 14</td>
+<td>the external penetration test; findings fixed or accepted in writing before the pilot</td>
+</tr>
+<tr>
+<td>Monthly</td>
+<td>the restore drill; a review of access to production and to the payout account</td>
+</tr>
+<tr>
+<td>Quarterly</td>
+<td>an external penetration test; secrets rotation (database roles, rail keys, signing keys); a game day; a review of the egress allow-list</td>
+</tr>
+<tr>
+<td>Stage 0 onward</td>
+<td>the SOC 2 Type 2 observation window; evidence collected from CI and the calendar above, not by hand</td>
+</tr>
+<tr>
+<td>Per project</td>
+<td>the DPDP consent record for every worker on it; the retention purge on its agreed date; a data map of what the project stored and where</td>
+</tr>
+<tr>
+<td>Per rail or country</td>
+<td>counsel review before any foreign supply or a second rail</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-11-data-residency">11. Data residency</h2>
+<ul>
+<li>One region, in India. Worker records, payloads, documents, deliveries, backups and logs stay there.</li>
+<li>Backups are copied to a second bucket in the same country, never abroad.</li>
+<li>The AI provider endpoint is the Indian region of the provider; a project whose client forbids AI use runs with the AI flag off, which the margin report shows as a cost difference.</li>
+<li>A client who needs data in another country is a Stage 3 decision with a second region, not an exception in Stage 1.</li>
+</ul>
+<hr>
+<h2 id="c-12-decisions-this-version-adds">12. Decisions this version adds</h2>
+<p>Each has a default so the build can start before the meeting.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Deployables in Stage 1</td>
+<td>four: gateway, work, money, odoo; ten services in the code</td>
+</tr>
+<tr>
+<td>Stage 1 length</td>
+<td>sixteen weeks with a hardening week; Stage 2 from week 17</td>
+</tr>
+<tr>
+<td>Current platform</td>
+<td>the strangler path; port at renewal only; the share of units on <code>market</code> reported monthly</td>
+</tr>
+<tr>
+<td>Event bus</td>
+<td>NATS JetStream from day one, as the repository ratified</td>
+</tr>
+<tr>
+<td>Running-cost ceiling for Stage 1</td>
+<td>about 1,250 dollars per month of cloud [E], to be replaced by the bill after week 2; AI under 5 rupees per paper and 0.50 rupee per unit</td>
+</tr>
+<tr>
+<td>Recovery targets</td>
+<td>recovery point 15 minutes, recovery time 4 hours; monthly restore drill</td>
+</tr>
+<tr>
+<td>Service level</td>
+<td>99.5% in Stage 1, 99.9% from Stage 2; the error budget pauses features</td>
+</tr>
+<tr>
+<td>API change rule</td>
+<td>additive only, a version in the path, a 90-day deprecation window, versioned events</td>
+</tr>
+<tr>
+<td>Security cadence</td>
+<td>the calendar in section 10; an external test before the pilot and quarterly</td>
+</tr>
+<tr>
+<td>Region</td>
+<td>one region in India; backups in the country; a second region is a Stage 3 decision</td>
+</tr>
+<tr>
+<td>Deploy freezes</td>
+<td>the pay window close and every exam sitting</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-13-side-by-side-the-unified-plan-and-the-enhanced-plan">13. Side by side: the unified plan and the enhanced plan</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>The unified plan</th>
+<th>The enhanced plan</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Business, stages, gates, decisions, measures, risks</td>
+<td>as written</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td>Services in the code</td>
+<td>ten</td>
+<td>ten, unchanged</td>
+</tr>
+<tr>
+<td>Running deployables in Stage 1</td>
+<td>ten</td>
+<td>four</td>
+</tr>
+<tr>
+<td>Stage 1 length</td>
+<td>12 weeks</td>
+<td>16 weeks, including a hardening week</td>
+</tr>
+<tr>
+<td>Security test before real money</td>
+<td>not scheduled</td>
+<td>week 14, external</td>
+</tr>
+<tr>
+<td>Path for the current platform</td>
+<td>reuse of components</td>
+<td>four-move strangler path with gates; port at renewal</td>
+</tr>
+<tr>
+<td>Running cost</td>
+<td>not stated</td>
+<td>about 1,250 dollars per month of cloud [E]; AI budget per unit</td>
+</tr>
+<tr>
+<td>Recovery targets</td>
+<td>not stated</td>
+<td>recovery point 15 minutes, recovery time 4 hours; drills</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>harness and gates</td>
+<td>a seven-layer pyramid with a coverage bar</td>
+</tr>
+<tr>
+<td>API and event changes</td>
+<td>contracts in one pull request</td>
+<td>plus versioning and a deprecation window</td>
+</tr>
+<tr>
+<td>Service levels</td>
+<td>p99 claim under 500 ms</td>
+<td>plus availability, queue age, on-time windows, an error budget</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>risks and safeguards</td>
+<td>plus a dated calendar</td>
+</tr>
+<tr>
+<td>Data residency</td>
+<td>not stated</td>
+<td>one region in India; backups in the country</td>
+</tr>
+<tr>
+<td>First paying pilot</td>
+<td>week 11-12</td>
+<td>week 15-16</td>
+</tr>
+<tr>
+<td>Stage 2 start</td>
+<td>week 13</td>
+<td>week 17</td>
+</tr>
+</tbody></table></div>
+<p>The trade: four more weeks before the first paying pilot, in exchange for a hardening week, a smaller operational surface, and a plan that states what it costs, how it recovers and how the current platform moves. If the pilot date is the constraint, the hardening week is the one thing not to cut.</p>
+<hr>
+<h2 id="c-14-what-did-not-change">14. What did not change</h2>
+<p>The business (what is sold, to whom, in what order), the ten principles, the stage structure and every gate&#39;s number, the 27 leadership decisions and their defaults, the four business numbers, the kill criteria, the risks, the five proposals against the repository, the data model additions (price, cost fields, rubric version, reason code), the service contracts, the repository layout and its rules, the team shape. This page is a layer on the unified plan, not a replacement; the unified plan remains the shorter read.</p>
+
+
+<p class="foot">Yantra, 2 November 2026. Evidence tags: [D] disclosed by the company named, [R] reported, [E] estimate, [L] read from the company&#x27;s own repositories, (assumption) to confirm. Every diagram can be edited in draw.io.</p>
+</article></main></div>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme');
+function cur(){var t=r.getAttribute('data-theme');if(t)return t;return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
+function paint(){b.textContent=cur()==='dark'?'\u263C Light mode':'\u263E Dark mode';}
+try{var s=localStorage.getItem('etp.theme');if(s==='dark'||s==='light')r.setAttribute('data-theme',s);}catch(e){}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('etp.theme',n);}catch(e){}paint();});paint();
+})();
+</script>
+</body></html>

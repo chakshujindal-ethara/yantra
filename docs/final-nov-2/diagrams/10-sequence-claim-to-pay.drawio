@@ -1,0 +1,63 @@
+<mxfile host="app.diagrams.net" agent="yantra final-nov-2 build_diagrams.py" version="24.0.0">
+  <diagram id="10-sequence-claim-to-pay" name="Sequence: one task from claim to pay, system view">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Sequence: one task from claim to pay, system view" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-60" width="900" height="30" as="geometry"/></mxCell>
+        <mxCell id="subtitle" value="Solid arrows are synchronous calls through the gateway; dashed arrows are events on NATS." style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#717182;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-34" width="1200" height="24" as="geometry"/></mxCell>
+        <mxCell id="app" value="Flutter app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FBDAF7;strokeColor=#B800B8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="0" width="140" height="44" as="geometry"/></mxCell>
+        <mxCell id="gw" value="gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="170" y="0" width="140" height="44" as="geometry"/></mxCell>
+        <mxCell id="market" value="market" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="340" y="0" width="140" height="44" as="geometry"/></mxCell>
+        <mxCell id="quality" value="quality" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="510" y="0" width="140" height="44" as="geometry"/></mxCell>
+        <mxCell id="payout" value="payout" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="680" y="0" width="140" height="44" as="geometry"/></mxCell>
+        <mxCell id="bus" value="NATS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="850" y="0" width="140" height="44" as="geometry"/></mxCell>
+        <mxCell id="odoo" value="odoo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#047857;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="1020" y="0" width="140" height="44" as="geometry"/></mxCell>
+        <mxCell id="e0" value="" style="edgeStyle=none;rounded=1;html=1;strokeColor=#C9C9D2;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="70" y="44" as="sourcePoint"/><mxPoint x="70" y="730" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=none;rounded=1;html=1;strokeColor=#C9C9D2;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="240" y="44" as="sourcePoint"/><mxPoint x="240" y="730" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=none;rounded=1;html=1;strokeColor=#C9C9D2;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="410" y="44" as="sourcePoint"/><mxPoint x="410" y="730" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=none;rounded=1;html=1;strokeColor=#C9C9D2;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="580" y="44" as="sourcePoint"/><mxPoint x="580" y="730" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=none;rounded=1;html=1;strokeColor=#C9C9D2;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="750" y="44" as="sourcePoint"/><mxPoint x="750" y="730" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=none;rounded=1;html=1;strokeColor=#C9C9D2;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="920" y="44" as="sourcePoint"/><mxPoint x="920" y="730" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=none;rounded=1;html=1;strokeColor=#C9C9D2;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=none;dashed=1;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1090" y="44" as="sourcePoint"/><mxPoint x="1090" y="730" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e7" value="POST /claims (Idempotency-Key)" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="70" y="90" as="sourcePoint"/><mxPoint x="240" y="90" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e8" value="claim: SKIP LOCKED, TTL" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="240" y="125" as="sourcePoint"/><mxPoint x="410" y="125" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e9" value="unit + presigned payload URL" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="410" y="160" as="sourcePoint"/><mxPoint x="240" y="160" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e10" value="200, one live claim" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="240" y="195" as="sourcePoint"/><mxPoint x="70" y="195" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e11" value="POST /submissions" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="70" y="250" as="sourcePoint"/><mxPoint x="240" y="250" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e12" value="store answer, close claim" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="240" y="285" as="sourcePoint"/><mxPoint x="410" y="285" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e13" value="work.unit.submitted" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;dashed=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="410" y="320" as="sourcePoint"/><mxPoint x="920" y="320" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e14" value="review task created" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;dashed=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="920" y="355" as="sourcePoint"/><mxPoint x="580" y="355" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e15" value="quality.verdict.accepted (canonical)" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;dashed=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="580" y="430" as="sourcePoint"/><mxPoint x="920" y="430" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e16" value="earning recorded" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;dashed=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="920" y="465" as="sourcePoint"/><mxPoint x="750" y="465" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e17" value="unit accepted, delivery count" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;dashed=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="920" y="500" as="sourcePoint"/><mxPoint x="410" y="500" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e18" value="payout.window.closed (weekly)" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;dashed=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="750" y="560" as="sourcePoint"/><mxPoint x="920" y="560" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e19" value="vendor bill with TDS; two approvals" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;dashed=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="920" y="595" as="sourcePoint"/><mxPoint x="1090" y="595" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e20" value="payout.paid (RazorpayX webhook)" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;dashed=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1090" y="650" as="sourcePoint"/><mxPoint x="920" y="650" as="targetPoint"/>
+        </mxGeometry></mxCell>
+        <mxCell id="e21" value="statement updated" style="edgeStyle=none;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;dashed=1;verticalAlign=bottom;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="920" y="685" as="sourcePoint"/><mxPoint x="70" y="685" as="targetPoint"/>
+        </mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

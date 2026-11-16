@@ -1,0 +1,16 @@
+[project]
+name = "yantra-cli"
+version = "0.1.0"
+description = "yantra: the command line for the local rig. Logs in at Keycloak, talks to the gateway, runs the smoke test."
+requires-python = ">=3.12,<3.13"
+dependencies = ["httpx==0.27.2"]
+
+[project.scripts]
+yantra = "yantra_cli.__main__:main"
+
+[build-system]
+requires = ["hatchling==1.26.3"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["yantra_cli"]

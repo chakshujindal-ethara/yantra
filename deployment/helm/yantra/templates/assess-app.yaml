@@ -1,0 +1,114 @@
+{{- /*
+The exam app (Assessment v2's Flutter front end) on assess.<domain>: nginx serves the bundle and proxies /api/,
+/assessments_be/ and /web/content/ to Odoo on the same origin (services/assess-app). Odoo must be on.
+*/ -}}
+{{- if .Values.assess.enabled }}
+{{- if not .Values.odoo.enabled }}{{ fail "assess.enabled needs odoo.enabled: Assessment v2 runs inside Odoo" }}{{ end }}
+{{- if not .Values.assess.keycloakIssuer }}{{ fail "assess.keycloakIssuer is required (https://<keycloak>/realms/yantra)" }}{{ end }}
+{{- $full := include "yantra.fullname" . }}
+{{- $sel := dict "root" . "component" "assess-app" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $full }}-assess-app
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+    app.kubernetes.io/component: assess-app
+spec:
+  replicas: {{ .Values.assess.replicas }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      {{- include "yantra.selector" $sel | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "yantra.baseLabels" . | nindent 8 }}
+        {{- include "yantra.selector" $sel | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.assess.podSecurityContext | nindent 8 }}
+      containers:
+        - name: assess-app
+          image: {{ include "yantra.image" (dict "img" .Values.image.assessApp) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.assess.port }}
+          env:
+            # outside local the entrypoint refuses to start without STORAGE_URL and ODOO_UPSTREAM
+            - {name: YANTRA_ENV, value: {{ .Values.env | quote }}}
+            - {name: ODOO_UPSTREAM, value: {{ printf "%s-odoo:%v" $full .Values.odoo.port | quote }}}
+            - name: STORAGE_URL
+              value: {{ .Values.assess.s3.publicEndpoint | default .Values.config.YANTRA_S3_PUBLIC_ENDPOINT | default "" | quote }}
+          livenessProbe:
+            httpGet: {path: /index.html, port: http}
+            periodSeconds: 20
+          readinessProbe:
+            httpGet: {path: /index.html, port: http}
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.assess.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            # the rendered server block, the security headers, nginx's pid and caches (read-only root filesystem)
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $full }}-assess-app
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+    app.kubernetes.io/component: assess-app
+spec:
+  selector:
+    {{- include "yantra.selector" $sel | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.assess.port }}
+      targetPort: http
+{{- if .Values.ingress.enabled }}
+---
+{{- /* its own Ingress: CSV and form imports through the proxy take bodies up to 50 MB (nginx.conf's cap) */}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $full }}-assess
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    {{- with .Values.ingress.clusterIssuer }}
+    cert-manager.io/cluster-issuer: {{ . }}
+    {{- end }}
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  tls:
+    - secretName: {{ .Values.ingress.tlsSecretName }}-assess
+      hosts:
+        - {{ include "yantra.assessHost" . }}
+  rules:
+    - host: {{ include "yantra.assessHost" . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $full }}-assess-app
+                port: {name: http}
+{{- end }}
+{{- end }}

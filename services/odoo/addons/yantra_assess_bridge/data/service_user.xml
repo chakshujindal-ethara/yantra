@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The account Yantra's assess adapter acts as when it drives Assessment v2's admin API (create, assign,
+         launch, release, read attempts). It has no password: the only way in is a short-lived token minted by
+         /api/v1/yantra/service/token for a caller holding the Keycloak service client's token. -->
+    <record id="user_assess_service" model="res.users">
+        <field name="name">Yantra assess service</field>
+        <field name="login">yantra_assess_service</field>
+        <field name="group_ids" eval="[(6, 0, [ref('base.group_user'), ref('assessments_be_v2.group_assessment_manager')])]"/>
+    </record>
+</odoo>

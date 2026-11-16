@@ -1,0 +1,56 @@
+# promtool unit tests for the alert rules that are easy to get wrong (deployment/scripts/helm-check.sh runs them):
+#   promtool test rules deployment/observability/alerts.test.yaml
+rule_files: [alerts.yaml]
+evaluation_interval: 1m
+
+tests:
+  - name: the rail is away
+    interval: 1m
+    input_series:
+      - series: 'yantra_rail_calls_total{rail="razorpayx",outcome="ok"}'
+        values: '0+1x10 10x30'
+      - series: 'yantra_rail_calls_total{rail="razorpayx",outcome="unreachable"}'
+        values: '0x10 0+3x30'
+    alert_rule_test:
+      - {eval_time: 10m, alertname: RailUnreachable, exp_alerts: []}
+      - eval_time: 30m
+        alertname: RailUnreachable
+        exp_alerts:
+          - exp_labels: {severity: page, rail: razorpayx}
+            exp_annotations:
+              summary: "More than half of the calls to rail razorpayx fail to reach it (10 minutes)"
+              runbook: "deployment/RUNBOOKS.md#rail-outage"
+
+  - name: lines stuck in flight
+    interval: 1m
+    input_series:
+      - series: 'yantra_window_lines{status="queued"}'
+        values: '4x40'
+      - series: 'yantra_window_lines{status="processing"}'
+        values: '0x40'
+    alert_rule_test:
+      - {eval_time: 20m, alertname: PayoutLinesStuck, exp_alerts: []}
+      - eval_time: 35m
+        alertname: PayoutLinesStuck
+        exp_alerts:
+          - exp_labels: {severity: page}
+            exp_annotations:
+              summary: "Payout lines have sat in queued or processing for 30 minutes"
+              runbook: "deployment/RUNBOOKS.md#rail-outage"
+
+  - name: a job whose failure counter is born at 2
+    interval: 1m
+    input_series:
+      - series: 'yantra_job_failures_total{job="payout_rail_poll"}'
+        values: '_x20 2x20'
+      - series: 'yantra_job_failures_total{job="market_claim_expiry"}'
+        values: '1x40'
+    alert_rule_test:
+      - {eval_time: 19m, alertname: JobFailing, exp_alerts: []}
+      - eval_time: 25m
+        alertname: JobFailing
+        exp_alerts:
+          - exp_labels: {severity: ticket, job: payout_rail_poll}
+            exp_annotations:
+              summary: "Scheduled job payout_rail_poll keeps failing (more failures in the last 15 minutes)"
+              runbook: "deployment/RUNBOOKS.md#dead-letters"

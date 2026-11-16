@@ -1,0 +1,123 @@
+{
+    "ok": true,
+    "data": {
+        "outcome": "question",
+        "assessment": {
+            "id": 1,
+            "name": "Transcription basics (Yantra)",
+            "state": "in_progress",
+            "duration_minutes": 15,
+            "rules": {
+                "tab_switch": true,
+                "copy_paste": true,
+                "right_click": true,
+                "devtools": true,
+                "fullscreen": true,
+                "webcam": false,
+                "ai_proctor": false,
+                "gaze_review": false,
+                "seb": false,
+                "watermark": true,
+                "watermark_label": "Fixture Worker  fixture.worker@yantra.local",
+                "max_violations": 5,
+                "violation_action": "log_only",
+                "violation_count": 0,
+                "ai_max_violations": 5,
+                "ai_violation_action": "log_only",
+                "ai_violation_count": 0
+            },
+            "max_violations": 5,
+            "violation_action": "log_only",
+            "ai_max_violations": 5,
+            "ai_violation_action": "log_only",
+            "pass_threshold": 75.0
+        },
+        "attempt": {
+            "id": 1,
+            "state": "in_progress",
+            "is_locked": false,
+            "started_at": "2026-11-12T11:29:40Z",
+            "deadline": "2026-11-12T11:44:40Z",
+            "server_now": "2026-11-12T11:29:40Z",
+            "submitted_at": null,
+            "total_questions": 2,
+            "answered_count": 0,
+            "results_released": false,
+            "violation_count": 0,
+            "violation_limit_breached": false,
+            "ai_violation_count": 0,
+            "ai_violation_limit_breached": false,
+            "violation_reason": "",
+            "is_violated": false,
+            "auto_submitted": false,
+            "auto_submit_reason": ""
+        },
+        "rules": {
+            "tab_switch": true,
+            "copy_paste": true,
+            "right_click": true,
+            "devtools": true,
+            "fullscreen": true,
+            "webcam": false,
+            "ai_proctor": false,
+            "gaze_review": false,
+            "seb": false,
+            "watermark": true,
+            "watermark_label": "Fixture Worker  fixture.worker@yantra.local",
+            "max_violations": 5,
+            "violation_action": "log_only",
+            "violation_count": 0,
+            "ai_max_violations": 5,
+            "ai_violation_action": "log_only",
+            "ai_violation_count": 0
+        },
+        "preview": false,
+        "question": {
+            "id": 1,
+            "index": 1,
+            "total": 2,
+            "name": "Numbers in Hindi",
+            "prompt": "A speaker says a number in Hindi. How do you write it?",
+            "description": "",
+            "section_title": "",
+            "question_type": "mcq",
+            "time_minutes": 1,
+            "requires_justification": false,
+            "dimensions": [
+                {
+                    "id": 1,
+                    "name": "A speaker says a number in Hindi. How do you write it?",
+                    "sequence": 10,
+                    "input_kind": "",
+                    "options": [
+                        {
+                            "id": 1,
+                            "name": "As digits"
+                        },
+                        {
+                            "id": 2,
+                            "name": "As the word, as spoken"
+                        },
+                        {
+                            "id": 3,
+                            "name": "Skip it"
+                        }
+                    ]
+                }
+            ],
+            "images": [],
+            "videos": [],
+            "label_boxes": [],
+            "answer": {
+                "answered": false,
+                "selected_option_ids": [],
+                "justification": "",
+                "label_answers": {}
+            }
+        },
+        "answered_question_ids": [],
+        "progress_percent": 0,
+        "answers_batch": true,
+        "answers_flush_seconds": 60
+    }
+}

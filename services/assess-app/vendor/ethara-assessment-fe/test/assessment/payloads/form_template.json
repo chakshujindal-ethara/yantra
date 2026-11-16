@@ -1,0 +1,242 @@
+{
+ "title": "Form import template",
+ "internal_name": "Template - every question kind",
+ "description": "One empty item of every kind Form Studio can author. Fill in the titles, the options and the golden answers, delete what you do not need, then import it. Publishing an unfilled template is refused, and the refusal names every slot still blank.",
+ "shuffle_questions": false,
+ "sections": [
+  {
+   "title": "1. Instructions, and the written answers",
+   "description": "A text block carries prose and never becomes a question - it folds into the question below it, across section boundaries. The two written kinds are marked by a judge against the golden answer you write.",
+   "items": [
+    {
+     "kind": "textBlock",
+     "_note": "Instructions only. The heading and body ride along on the next question, so a block at the end of a section attaches to that section's last question.",
+     "title": "",
+     "help": ""
+    },
+    {
+     "kind": "shortAnswer",
+     "_note": "Write the model answer. The judge marks each candidate against it, so without one the standard is invented per candidate.",
+     "title": "",
+     "help": "",
+     "golden_answer": ""
+    },
+    {
+     "kind": "paragraph",
+     "_note": "Write the model answer. The judge marks each candidate against it, so without one the standard is invented per candidate.",
+     "title": "",
+     "help": "",
+     "golden_answer": ""
+    }
+   ]
+  },
+  {
+   "title": "2. Choices, grids and scales",
+   "description": "Everything scored by matching the candidate's pick against a key you set. Delete the kinds you do not need; two blank options are seeded because one option is not a choice and publish says so.",
+   "items": [
+    {
+     "kind": "multipleChoice",
+     "_note": "Two or more options, exactly one marked correct.",
+     "title": "",
+     "help": "",
+     "options": [
+      {
+       "label": "",
+       "correct": false
+      },
+      {
+       "label": "",
+       "correct": false
+      }
+     ]
+    },
+    {
+     "kind": "dropdown",
+     "_note": "Two or more options, exactly one marked correct. Delivered the same way as multiple choice; the designer draws it as a list.",
+     "title": "",
+     "help": "",
+     "options": [
+      {
+       "label": "",
+       "correct": false
+      },
+      {
+       "label": "",
+       "correct": false
+      }
+     ]
+    },
+    {
+     "kind": "checkboxes",
+     "_note": "Two or more options; mark every correct one. A candidate must tick exactly that set to earn the mark.",
+     "title": "",
+     "help": "",
+     "options": [
+      {
+       "label": "",
+       "correct": false
+      },
+      {
+       "label": "",
+       "correct": false
+      }
+     ]
+    },
+    {
+     "kind": "choiceGrid",
+     "_note": "Every row needs exactly one correct column - a row with two is refused, because a radio row can never match that key.",
+     "title": "",
+     "help": "",
+     "rows": [
+      "",
+      ""
+     ],
+     "columns": [
+      "",
+      ""
+     ],
+     "grid_key": {}
+    },
+    {
+     "kind": "checkboxGrid",
+     "_note": "Every row needs at least one correct column; a row may have several, because a checkbox row is scored as a set.",
+     "title": "",
+     "help": "",
+     "rows": [
+      "",
+      ""
+     ],
+     "columns": [
+      "",
+      ""
+     ],
+     "grid_key": {}
+    },
+    {
+     "kind": "linearScale",
+     "_note": "The correct point on the scale is the answer key. End labels are appended to the question's help text for the candidate.",
+     "title": "",
+     "help": "",
+     "scale_min": 1,
+     "scale_max": 5,
+     "scale_min_label": "",
+     "scale_max_label": "",
+     "golden_answer": ""
+    },
+    {
+     "kind": "rating",
+     "_note": "Stars run 1..max; the correct star count is the answer key.",
+     "title": "",
+     "help": "",
+     "rating_max": 5,
+     "golden_answer": ""
+    }
+   ]
+  },
+  {
+   "title": "3. Media questions",
+   "description": "Each needs its plate before it can be published. Paste a public URL, or upload the file in the designer and let it fill the field in for you.",
+   "items": [
+    {
+     "kind": "imageBlock",
+     "_note": "A picture on its own rides along on the next question. Add an option and the picture becomes the question itself.",
+     "title": "",
+     "help": "",
+     "media_url": "",
+     "media_kind": "",
+     "options": [
+      {
+       "label": "",
+       "correct": false
+      },
+      {
+       "label": "",
+       "correct": false
+      }
+     ],
+     "multi_select": false
+    },
+    {
+     "kind": "videoBlock",
+     "_note": "A clip on its own rides along on the next question. Add an option and the clip becomes the question itself.",
+     "title": "",
+     "help": "",
+     "media_url": "",
+     "media_kind": "",
+     "options": [
+      {
+       "label": "",
+       "correct": false
+      },
+      {
+       "label": "",
+       "correct": false
+      }
+     ],
+     "multi_select": false
+    },
+    {
+     "kind": "comparePair",
+     "_note": "Both plates, and one correct verdict. Asking for a written justification also requires the rationale the judge marks it against; turning that off scores the verdict alone.",
+     "title": "",
+     "help": "",
+     "media_url": "",
+     "media_kind": "",
+     "media_url_b": "",
+     "options": [
+      {
+       "label": "",
+       "correct": false
+      },
+      {
+       "label": "",
+       "correct": false
+      }
+     ],
+     "golden_answer": "",
+     "require_justification": false
+    },
+    {
+     "kind": "imageAnnotation",
+     "_note": "One plate and a numbered point per thing to find. EVERY point needs its golden answer - an unkeyed point is a mark no candidate can earn.",
+     "title": "",
+     "help": "",
+     "media_url": "",
+     "media_kind": "",
+     "annotation_count": 1,
+     "regions": [],
+     "golden_labels": {}
+    },
+    {
+     "kind": "promptWriting",
+     "_note": "The plate the candidate writes a prompt for, plus the golden prompt. A second plate makes it a transform (reference then output) and the medium follows the output.",
+     "title": "",
+     "help": "",
+     "media_url": "",
+     "media_kind": "",
+     "media_url_b": "",
+     "golden_answer": "",
+     "options": [
+      {
+       "label": "",
+       "correct": false
+      },
+      {
+       "label": "",
+       "correct": false
+      }
+     ]
+    },
+    {
+     "kind": "transcription",
+     "_note": "A clip the respondent transcribes, plus category, sound tags and speakers; marked by the LLM judge with the client's critical/minor rule.",
+     "title": "",
+     "help": "",
+     "media_url": "",
+     "media_kind": "",
+     "golden_answer": ""
+    }
+   ]
+  }
+ ]
+}

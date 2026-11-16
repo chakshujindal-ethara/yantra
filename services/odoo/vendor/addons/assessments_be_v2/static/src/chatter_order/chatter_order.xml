@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Chatter reading order: OLDEST at the top, NEWEST at the bottom.
+
+    Stock Odoo renders the form chatter as a "stack": `mail.Chatter` passes
+    order="'desc'" to the Thread component, which reverses the message list so
+    the newest post sits directly under the composer. Reading a generator's
+    history then means scrolling BOTTOM-UP, which fights the way the log
+    actually reads - "Generation complete" appearing above the "Generate
+    Questions requested" that caused it.
+
+    We flip that single prop to 'asc' so the thread reads like a transcript
+    (and like every chat app): first event at the top, latest at the bottom.
+
+    Why an XPath on the attribute rather than a JS patch: `order` is a plain
+    prop on the <Thread/> node inside the mail.Chatter template, so the whole
+    change is one attribute. Overriding it in XML keeps us off Chatter's JS
+    internals, which change between versions.
+
+    Scope note: this targets mail.Chatter (the form-view chatter) ONLY.
+    Discuss and chat windows mount Thread themselves with the default
+    order="asc" and are unaffected.
+-->
+<templates xml:space="preserve">
+
+    <t t-name="assessments_be_v2.ChatterOldestFirst"
+       t-inherit="mail.Chatter" t-inherit-mode="extension">
+        <xpath expr="//Thread[@scrollRef='rootRef']" position="attributes">
+            <attribute name="order">'asc'</attribute>
+        </xpath>
+    </t>
+
+</templates>

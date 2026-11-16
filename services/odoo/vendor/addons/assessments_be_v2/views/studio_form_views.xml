@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form Studio forms in Odoo: list, read, delete and publish.
+
+         READ-ONLY IN ODOO (decided, ETP_PLANS_AND_STRATEGY.md §4.6): the
+         Flutter designer saves its whole copy of an open form every 0.9 s, so
+         an Odoo edit would be silently overwritten; authoring is the console's
+         Form Studio. `edit="0"` makes the form and the item editor read-only;
+         access rights stay, because the Flutter `/forms/save` route runs as the
+         user. -->
+
+    <record id="etp_studio_form_tree" model="ir.ui.view">
+        <field name="name">etp.studio.form.list</field>
+        <field name="model">etp.studio.form</field>
+        <field name="arch" type="xml">
+            <list class="o_etp_backend" create="0">
+                <field name="display_title" string="Form"/>
+                <field name="internal_name" string="Internal Name"
+                       optional="show"/>
+                <field name="published" widget="boolean" string="Published"
+                       decoration-success="published"/>
+                <field name="shuffle_questions" widget="boolean"
+                       string="Shuffled" optional="hide"/>
+                <field name="write_date" string="Updated" optional="show"/>
+                <field name="client_uid" string="Id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="etp_studio_form_form" model="ir.ui.view">
+        <field name="name">etp.studio.form.form</field>
+        <field name="model">etp.studio.form</field>
+        <field name="arch" type="xml">
+            <form class="o_etp_backend" create="0" edit="0">
+                <header>
+                    <!-- The only write this form offers. Confirmed because
+                         publishing mints bank questions, a generator and a
+                         draft assessment in one transaction. Offered again
+                         after publishing, like Flutter's Publish: each press
+                         makes a NEW draft assessment from the form's current
+                         content, and earlier ones are left as they are. -->
+                    <!-- "Publish", the console's word: the button sends nothing
+                         to anybody. It mints bank questions, a generator and a
+                         DRAFT assessment; Launch &amp; Invite on that draft is
+                         what reaches people. The confirm says so first, and the
+                         question count sits beside the button because a
+                         `confirm=` is a static string. -->
+                    <button name="action_publish" type="object"
+                            string="Publish"
+                            class="btn-primary" icon="fa-check"
+                            confirm="Nothing reaches candidates until you launch it. Publishing turns this form into bank questions under a new generator, plus a new DRAFT assessment on it - you assign candidates and press Launch &amp; Invite there. Assessments published earlier are not changed. Continue?"/>
+                    <span class="text-muted ms-2 oe_inline">
+                        <field name="publish_question_count" readonly="1"
+                               nolabel="1" class="oe_inline"/> question(s)
+                    </span>
+                    <widget name="web_ribbon" title="Published"
+                            bg_color="text-bg-success" invisible="not published"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_title" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="title"/>
+                            <field name="internal_name"
+                                   placeholder="What operators call this form in lists"/>
+                            <field name="shuffle_questions"/>
+                        </group>
+                        <group>
+                            <field name="published" readonly="1"/>
+                            <field name="client_uid" readonly="1"/>
+                            <field name="write_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Structure">
+                            <!-- The item editor, read-only here. It draws the
+                                 form and runs the publish check
+                                 (`validate_structure`, the same walk
+                                 `publish_to_assessment` runs), so it shows what
+                                 Publish would refuse. -->
+                            <field name="structure_json"
+                                   widget="be_form_item_editor" nolabel="1"
+                                   readonly="1"/>
+                        </page>
+                        <page string="Raw JSON">
+                            <!-- The raw document, read-only, for comparing with
+                                 the console or reading a field the editor does
+                                 not draw. -->
+                            <div class="text-muted mb-2">
+                                The stored document, exactly as the designer and
+                                the API write it. Read-only; edit it in the
+                                console's Form Studio.
+                            </div>
+                            <field name="structure_json" widget="json"
+                                   readonly="1" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="etp_studio_form_search" model="ir.ui.view">
+        <field name="name">etp.studio.form.search</field>
+        <field name="model">etp.studio.form</field>
+        <field name="arch" type="xml">
+            <search>
+                <!-- Both names, because an operator remembers whichever one
+                     they gave it: `display_title` falls back to the title when
+                     no internal name was set, so searching only that would
+                     miss a form the author renamed internally. -->
+                <field name="display_title" string="Form"
+                       filter_domain="['|', ('display_title', 'ilike', self),
+                                       ('title', 'ilike', self)]"/>
+                <field name="internal_name"/>
+                <separator/>
+                <filter name="published" string="Published"
+                        domain="[('published', '=', True)]"/>
+                <filter name="draft" string="Not Published"
+                        domain="[('published', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_etp_studio_form" model="ir.actions.act_window">
+        <field name="name">Form Studio</field>
+        <field name="res_model">etp.studio.form</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="etp_studio_form_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No forms yet
+            </p>
+            <p>
+                A form is authored in the console's Form Studio and published
+                from here or from there. This list exists so an operator can
+                see which forms exist and which have been published without
+                opening the console.
+            </p>
+        </field>
+    </record>
+
+</odoo>

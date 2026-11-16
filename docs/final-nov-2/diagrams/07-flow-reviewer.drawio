@@ -1,0 +1,38 @@
+<mxfile host="app.diagrams.net" agent="yantra final-nov-2 build_diagrams.py" version="24.0.0">
+  <diagram id="07-flow-reviewer" name="User flow: the reviewer">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="User flow: the reviewer" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-60" width="900" height="30" as="geometry"/></mxCell>
+        <mxCell id="subtitle" value="Reason codes make quality history survive a rubric change; the audit sample keeps reviewers honest." style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#717182;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-34" width="1200" height="24" as="geometry"/></mxCell>
+        <mxCell id="s" value="Reviewer queue<br><span style="font-size:11px;color:#FFFFFF">next submission, never own work</span>" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#030213;strokeColor=#030213;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="0" width="190" height="76" as="geometry"/></mxCell>
+        <mxCell id="claim" value="Claims a review<br><span style="font-size:11px;color:#717182">one live review claim</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="240" y="0" width="190" height="76" as="geometry"/></mxCell>
+        <mxCell id="judge" value="Judges<br><span style="font-size:11px;color:#717182">side by side with the rubric version the unit carries</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="480" y="0" width="190" height="76" as="geometry"/></mxCell>
+        <mxCell id="reason" value="Reason code<br><span style="font-size:11px;color:#717182">required on needs-edits and reject; client-caused codes are billable</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="720" y="0" width="190" height="76" as="geometry"/></mxCell>
+        <mxCell id="unclear" value="Rubric unclear?<br><span style="font-size:11px;color:#717182">flag goes to the TPM</span>" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="960" y="0" width="190" height="76" as="geometry"/></mxCell>
+        <mxCell id="audit" value="Audit sample<br><span style="font-size:11px;color:#717182">10% of accepts re-judged by an auditor</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#B91C1C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="960" y="146" width="190" height="76" as="geometry"/></mxCell>
+        <mxCell id="canon" value="Canonical verdict<br><span style="font-size:11px;color:#717182">the one money event</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#C2410C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="720" y="146" width="190" height="76" as="geometry"/></mxCell>
+        <mxCell id="earn" value="Review earning<br><span style="font-size:11px;color:#717182">paid in the same weekly window</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="480" y="146" width="190" height="76" as="geometry"/></mxCell>
+        <mxCell id="e" value="Next submission" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#047857;strokeColor=#047857;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="240" y="146" width="190" height="76" as="geometry"/></mxCell>
+        <mxCell id="e0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s" target="claim"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="claim" target="judge"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="judge" target="reason"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="reason" target="unclear"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="unclear" target="audit"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="1055.0" y="111.0"/><mxPoint x="1055.0" y="111.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="audit" target="canon"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="canon" target="earn"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="earn" target="e"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

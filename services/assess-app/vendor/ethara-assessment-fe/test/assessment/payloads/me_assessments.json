@@ -1,0 +1,55 @@
+{
+ "ok": true,
+ "data": {
+  "applicant": {
+   "id": 2,
+   "name": "Priya Sharma",
+   "email": "REDACTED",
+   "has_portal_user": true
+  },
+  "buckets": {
+   "available": [],
+   "in_progress": [],
+   "upcoming": [],
+   "completed": [
+    {
+     "id": 4,
+     "token": "REDACTED",
+     "assessment_id": 18,
+     "name": "Forklift Safety - Induction E2E",
+     "state": "completed",
+     "state_label": "Completed",
+     "status_kind": "done",
+     "progress": {
+      "answered": 3,
+      "total": 3,
+      "percent": 100
+     },
+     "duration_minutes": 30,
+     "scheduled_start": "2026-08-05T07:55:54Z",
+     "deadline": "2026-08-05T08:28:23Z",
+     "started_at": "2026-08-05T07:58:23Z",
+     "submitted_at": "2026-08-05T07:58:23Z",
+     "proctoring": {
+      "is_violated": false,
+      "violation_count": 0,
+      "violation_reason": ""
+     },
+     "result": {
+      "released": true,
+      "status": "released",
+      "score_marks": "0 / 3",
+      "result": "fail",
+      "verdict": "fail",
+      "is_pending": false,
+      "subjective_pending": 0,
+      "label": "0 / 3 - FAIL"
+     },
+     "can_review_answers": true
+    }
+   ],
+   "closed": []
+  },
+  "total_count": 1
+ }
+}

@@ -1,0 +1,32 @@
+# Build-context hygiene for the `COPY . .` in Dockerfile.
+#
+# Without this the daemon receives ~865MB (.dart_tool alone is ~521MB, build/
+# ~335MB), and worse, the HOST's build/ and .dart_tool/ land in /app: those
+# carry macOS absolute paths in package_config.json, and stale web artifacts
+# from an older build config can survive `flutter build web` and be copied to
+# nginx. Everything excluded here is either regenerated inside the image by
+# `flutter pub get` / `flutter build web`, or has no business in a build.
+
+.git
+.gitignore
+.dockerignore
+
+# Host build output and tool state - regenerated in the image.
+build/
+.dart_tool/
+.hermes/
+
+# This app takes its config from --dart-define, never from a .env file, so
+# none of these are build inputs. Without them a developer who keeps a local
+# .env or .env.local copies real credentials into the builder layer. The glob
+# is deliberate: .gitignore keeps `.env.example` tracked as documentation, but
+# the image has no use for it either.
+.env*
+
+# Editor and IDE state.
+.idea/
+*.iml
+
+# Docs and CI descriptors are not build inputs.
+README.md
+LICENSE

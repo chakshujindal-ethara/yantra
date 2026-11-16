@@ -1,0 +1,1503 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- The counted confirm in front of Release Results. Same shape as the
+         console's sheet: the three numbers, who is still being graded, that it
+         cannot be undone, and a way out that waits for the grader. -->
+    <record id="assessments_be_release_wizard_form" model="ir.ui.view">
+        <field name="name">assessments.be.release.wizard.form</field>
+        <field name="model">assessments.be.release.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="assessment_id" invisible="1"/>
+                <h4>Release results for <field name="name" readonly="1"
+                                               nolabel="1" class="oe_inline"/>?</h4>
+                <div class="alert alert-warning" role="alert"
+                     invisible="still_grading_count == 0">
+                    <b><field name="still_grading_count" readonly="1"
+                              nolabel="1" class="oe_inline"/> of them are still
+                    being graded.</b> Their written answers have no mark yet -
+                    releasing now shows those candidates a partial result that
+                    fills in later.
+                    <div class="text-muted mt-1">
+                        Waiting on: <field name="still_grading_names"
+                                           readonly="1" nolabel="1"
+                                           class="oe_inline"/>
+                    </div>
+                </div>
+                <div class="alert alert-danger" role="alert">
+                    <b>This cannot be undone.</b> Once released, every
+                    candidate can see their marks, and there is no way to take
+                    them back.
+                </div>
+                <group>
+                    <group>
+                        <field name="submitted_count" readonly="1"/>
+                        <field name="releasable_count" string="Releasing now"
+                               readonly="1"/>
+                        <field name="still_grading_count" readonly="1"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_release" type="object"
+                            class="btn-danger">
+                        <field name="release_label" nolabel="1" readonly="1"
+                               class="oe_inline"/>
+                    </button>
+                    <button string="Wait for Scoring" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="assessments_be_tree" model="ir.ui.view">
+        <field name="name">assessments.be.tree</field>
+        <field name="model">assessments.be</field>
+        <field name="arch" type="xml">
+            <list class="o_etp_backend" delete="0">
+                <field name="name"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'done'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-danger="state == 'cancelled'"/>
+                <field name="response_count"/>
+                <!-- Which paper is grading, from the list. Plain `badge` rather
+                     than `be_auto_refresh`: that widget polls per record, which
+                     is one timer per row here. The form is where a run is
+                     watched; this column is for spotting one. -->
+                <field name="scoring_phase" widget="badge" optional="show"
+                       decoration-info="scoring_phase == 'queued'"
+                       decoration-warning="scoring_phase in ('scoring', 'stopping')"
+                       decoration-danger="scoring_phase == 'stalled'"
+                       decoration-muted="scoring_phase == 'idle'"/>
+                <!-- Carried for the Archive/Unarchive action in the list's
+                     Actions menu, which Odoo omits when `active` is not in the
+                     view. NOT for row styling: Odoo does not mute archived
+                     rows by itself and nothing in static/ does either, so an
+                     archived assessment reads as ordinary here - the form's
+                     ribbon is what says otherwise. -->
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="assessments_be_form" model="ir.ui.view">
+        <field name="name">assessments.be.form</field>
+        <field name="model">assessments.be</field>
+        <field name="arch" type="xml">
+            <form class="o_etp_wide_form o_etp_backend" delete="0">
+                <header>
+                    <button name="action_start" string="Launch &amp; Invite" type="object"
+                            class="oe_highlight"
+                            invisible="state != 'draft'"/>
+                    <button name="action_done" string="Mark Done" type="object"
+                            invisible="state != 'in_progress'"/>
+                    <!-- Hidden on a draft or cancelled paper: each click spends
+                         an LLM call per answer. The model refuses a cancelled
+                         paper too; this only keeps the button off screen
+                         (pm-ux-admin-13). -->
+                    <!-- Hidden while a kill is stopping: the lane would park
+                         this click straight back to cancelled (G1-08). -->
+                    <!-- Only with answers to grade, and never on an archived
+                         paper - the Flutter console's Score All rule. -->
+                    <button name="action_llm_score_all" string="Run Subjective Evaluation"
+                            type="object" icon="fa-magic"
+                            invisible="state in ('draft', 'cancelled') or not active or not awaiting_scoring_count or scoring_phase == 'stopping'"/>
+                    <!-- The scoring twin of the generator's Kill button, same
+                         style and same confirm shape. Scores already stored are
+                         kept.
+
+                         Gated on `scoring_phase`, not `awaiting_scoring_count`:
+                         that count includes every attempt holding an ungraded
+                         answer (never queued, parked by an earlier kill,
+                         errored), so the button would never leave.
+                         `scoring_phase` comes from the drainer's own selection
+                         predicate, so 'idle' means there is nothing to stop. -->
+                    <button name="action_kill_scoring" string="Kill Scoring Process"
+                            type="object" class="btn btn-outline-danger" icon="fa-stop"
+                            confirm="Stop subjective grading for this assessment? Any answer already scored keeps its mark - only the remaining model calls are cancelled. Any individual re-score still waiting on this paper is DROPPED and will have to be asked for again. You can run scoring again afterwards."
+                            invisible="scoring_phase == 'idle'"/>
+                    <!-- Retry after a grader outage: re-queues only the
+                         candidates whose grading failed, partly failed or
+                         errored, and resets only their failed or errored
+                         answers. A scored answer keeps its mark and is not
+                         billed again. -->
+                    <button name="action_llm_score_failed"
+                            string="Retry Failed Scoring" type="object"
+                            icon="fa-repeat"
+                            confirm="Re-queue only the candidates whose subjective grading failed or errored. Answers already scored keep their marks and are not re-graded or re-billed. Continue?"
+                            invisible="state in ('draft', 'cancelled') or not active or not scoring_failed_count or scoring_phase == 'stopping'"/>
+                    <button name="action_requeue_all_invitations"
+                            string="Resend Invitations" type="object"
+                            icon="fa-envelope"
+                            invisible="state != 'in_progress'"/>
+                    <button name="action_export_results" string="Export Results"
+                            type="object" icon="fa-trophy"
+                            invisible="state == 'draft'"/>
+                    <button name="action_export_responses" string="Export Responses"
+                            type="object" icon="fa-table"
+                            invisible="state == 'draft'"/>
+                    <!-- THE COUNT IS PART OF THE ASK. Release is irreversible -
+                         nothing in this module un-releases - and it reveals the
+                         whole cohort's marks at once, including candidates
+                         whose written answers are still with the grader. A
+                         `string=` cannot carry a number and a `confirm=` cannot
+                         either, so the label is a field rendered inside the
+                         button (the same trick every stat button uses) and the
+                         confirmation is the counted dialog the action opens. -->
+                    <button name="action_release_all_results"
+                            type="object" icon="fa-unlock"
+                            invisible="releasable_count == 0">
+                        <field name="release_label" nolabel="1" readonly="1"
+                               class="oe_inline"/>
+                    </button>
+                    <field name="submitted_count" invisible="1"/>
+                    <field name="releasable_count" invisible="1"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            confirm="Cancel this assessment? Invited candidates will no longer be able to take it."
+                            invisible="state in ('done', 'cancelled')"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                            context="{'confirm_released': True}"
+                            confirm="Reset to Draft permanently deletes every candidate's attempt and answers for this assessment, including results already released to candidates. The candidate list is kept. This cannot be undone. Continue?"
+                            invisible="state not in ('cancelled',)"/>
+                    <field name="invite_summary" class="oe_inline text-muted"
+                           invisible="not invite_summary"/>
+                    <!-- Is it scoring, and how far along. The grader is a cron,
+                         so this badge polls the phase (every 3 s, backing off
+                         to 30 s while nothing changes) and reloads the record
+                         when it settles. Hidden when idle: no badge and no
+                         polling. -->
+                    <field name="scoring_phase" widget="be_auto_refresh"
+                           class="oe_inline" nolabel="1"
+                           invisible="scoring_phase == 'idle'"/>
+                    <field name="scoring_summary" class="oe_inline text-muted"
+                           invisible="not scoring_summary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,in_progress,done"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <!-- Queued but nothing is draining it: a scoring cron is
+                         inactive or overdue, or a lane has stored nothing in
+                         15 minutes. Both admin buttons only queue, so
+                         without this a growing queue looks exactly like a busy
+                         one.
+
+                         The console reads the same verdict off
+                         `/api/v1/scoring`; this reads it off `scoring_phase`;
+                         both resolve it through
+                         `assessments.be._scoring_drainer_health`. An alert
+                         rather than a badge tone, because the fix is off this
+                         screen: re-enable a cron. -->
+                    <div class="alert alert-danger" role="alert"
+                         invisible="scoring_phase != 'stalled'">
+                        <strong>Subjective grading is queued but nothing is
+                        grading it.</strong>
+                        A scoring cron is inactive or more than 15 minutes
+                        overdue, or a grading lane has stored nothing in 15
+                        minutes (a held lane lock, the daily spend cap, or
+                        every call failing); the console's grader banner names
+                        which. An inactive cron is re-enabled under Settings
+                        &gt; Technical &gt; Scheduled Actions ("Assessments BE
+                        v2: Auto-score"). Nothing queued is lost while it
+                        waits, but a lane whose calls keep failing may still
+                        be making, and billing, them.
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Assessment Name"/>
+                        </h1>
+                    </div>
+                    <field name="active" invisible="1"/>
+                    <group>
+                        <group string="Schedule">
+                            <field name="start_date" readonly="state != 'draft'"/>
+                            <field name="launched_at"/>
+                            <field name="end_date" readonly="state != 'draft'"/>
+                            <field name="response_count"/>
+                        </group>
+                    </group>
+
+                    <group string="Assessment Configuration">
+                        <group>
+                            <field name="generator_id" string="Question Generator" readonly="state != 'draft'"/>
+                            <field name="question_limit" readonly="state != 'draft'"
+                                   help="Number of questions to pick from the generator. 0 = all questions."/>
+                            <!-- The scoring switches have their own "Scoring"
+                                 group below, as in the Flutter console. This
+                                 group is what the paper is built with:
+                                 generator, question count, time limit. -->
+                            <!-- The floor is enforced by _check_duration_minutes,
+                                 which is what makes it hold for the API too, and
+                                 again by a launch gate, because launching does not
+                                 write this field and so never trips the constraint.
+                                 The help is here so the rule is readable before a
+                                 save fails rather than only after. -->
+                            <field name="duration_minutes" readonly="state != 'draft'"
+                                   help="Time limit in minutes. At least 2 - every assessment is timed."/>
+                        </group>
+                        <group>
+                            <field name="total_questions_available"/>
+                            <field name="results_release"/>
+                            <field name="results_show_answers"/>
+                            <!-- SAY WHEN IT IS LOCKED, so the rest of the time
+                                 it is visibly not. Reported as "I am unable to
+                                 edit Pass Threshold", and nothing was stopping
+                                 the edit: this field sits under two genuinely
+                                 static neighbours, in the twin of a column
+                                 where five fields go readonly at launch, so
+                                 the whole group READS frozen. Making the one
+                                 real lock explicit is what distinguishes it.
+
+                                 `state == 'cancelled'` and NOT
+                                 `state != 'draft'`. This field is editable
+                                 after Done on purpose - raw scores are stored,
+                                 so moving the bar re-decides pass and fail
+                                 without re-grading, and `write()` implements
+                                 exactly that. Locking it at launch would break
+                                 the documented behaviour and take away the
+                                 correction precisely when somebody notices the
+                                 bar was wrong. -->
+                            <field name="subjective_threshold"
+                                   readonly="state == 'cancelled'"/>
+                            <field name="transcription_threshold"
+                                   readonly="state == 'cancelled'"/>
+                            <label for="pass_threshold"/>
+                            <div class="o_row">
+                                <field name="pass_threshold"
+                                       readonly="state == 'cancelled'"/>
+                                <field name="pass_threshold_note"
+                                       class="text-muted"
+                                       invisible="pass_threshold"/>
+                            </div>
+                        </group>
+                    </group>
+
+                    <!-- ONE GROUP, FLUTTER'S TITLE, FLUTTER'S ORDER: the
+                         switches the app groups under "Scoring" in
+                         assessment_detail_screen.dart, with its labels and help
+                         copied word for word, so a rename on either side reads
+                         as a difference instead of a second setting. "Same
+                         questions for everybody" is retired (every paper draws
+                         one shared set), so two remain.
+
+                         `shuffle_questions` IS NOT A COLUMN. It is a computed,
+                         non-stored mirror of `preserve_question_order` with an
+                         inverse setter - see the field. The stored negative
+                         stays the single source of truth: `action_start` reads
+                         it to choose between one shared random draw, shuffled
+                         per candidate, and the first N in bank order. A
+                         checkbox called "Shuffle Questions" that ticks to mean
+                         "do not shuffle" would be worse than a mirror. -->
+                    <group string="Scoring">
+                        <field name="shuffle_questions" readonly="state != 'draft'"/>
+                        <!-- Locked only once the assessment is FINISHED, unlike
+                             Shuffle Questions. Turning grading on after launch
+                             is how a starved queue gets restarted, and this
+                             switch only decides what a future submit does, so
+                             freezing it at launch would take the fix away
+                             exactly when somebody needs it. -->
+                        <field name="llm_auto_score" readonly="state in ('done', 'cancelled')"/>
+                    </group>
+
+                    <group>
+                        <group string="Rules &amp; Proctoring">
+                            <field name="rule_block_tab_switch"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="rule_block_copy_paste"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="rule_block_right_click"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="rule_block_devtools"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="rule_watermark"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="rule_fullscreen"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="rule_webcam"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="rule_ai_proctor"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="rule_require_seb"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="seb_quit_password"
+                                   invisible="not rule_require_seb"
+                                   required="rule_require_seb"
+                                   readonly="state in ('done', 'cancelled')"/>
+                        </group>
+                        <!-- "Violations", not "Violations & Scoring": the one
+                             scoring field it held moved to the Scoring group
+                             above, and a title promising a setting the group no
+                             longer contains is where an operator stops
+                             looking. -->
+                        <group string="Violations">
+                            <field name="violation_action" widget="radio"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="max_violations"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="ai_violation_action" widget="radio"
+                                   invisible="not rule_ai_proctor"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <field name="ai_max_violations"
+                                   invisible="not rule_ai_proctor"
+                                   readonly="state in ('done', 'cancelled')"/>
+                            <!-- No "Require Reviewed Rubric Before Launch"
+                                 switch. The field and its launch gate stay -
+                                 an assessment that has it set is still refused
+                                 until every subjective rubric is signed off -
+                                 but it is no longer offered as a per-assessment
+                                 choice here. The Flutter console never offered
+                                 it either; see the note beside the scoring
+                                 switches in assessment_detail_screen.dart. -->
+                        </group>
+                    </group>
+
+                    <!-- WHAT THE TWO FIELDS ABOVE DO TOGETHER, because apart
+                         they read as something they are not. A threshold of 14
+                         looks like a cap that ends the exam; under "Log only"
+                         it ends nothing (owner, A-074, 2026-09-24: Log only
+                         "captures violations, lists them but never end the
+                         paper"). Reaching it only labels the attempt
+                         "Violation limit breached" for the admin and the
+                         candidate - the same label Auto-submit shows on the
+                         attempt it ends (owner, 24 Sep).
+
+                         Measured, not supposed: on 2026-09-17, 209 of 753
+                         candidates were flagged across five cohorts and NOT
+                         ONE was auto-submitted, because every one of those
+                         assessments was log_only. An operator reading this
+                         form would reasonably have expected otherwise.
+
+                         A static sentence naming both fields, not Flutter's
+                         interpolated count - a view cannot compute that
+                         without a field to hold it, and the number is not what
+                         makes this confusing. -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="violation_action != 'log_only'">
+                        <b>The exam is never ended automatically.</b>
+                        On Violation is set to Log only, so violations are
+                        recorded and listed. Reaching the Violation Limit only
+                        marks the attempt "Violation limit breached", for you
+                        and for the candidate; a Violation Limit of 0 means no
+                        limit. Set On Violation to auto-submit to end the exam
+                        at the Violation Limit - it is marked "Violation limit
+                        breached" too.
+                    </div>
+
+                    <notebook>
+                        <page string="Assign Candidates" invisible="state != 'draft'">
+                            <group string="Import from CSV">
+                                <group>
+                                    <field name="candidate_csv_file"
+                                           filename="candidate_csv_filename"/>
+                                    <field name="candidate_csv_filename" invisible="1"/>
+                                </group>
+                                <group>
+                                    <button name="action_import_candidates_csv"
+                                            string="Import Candidates" type="object"
+                                            class="oe_highlight" icon="fa-upload"/>
+                                    <button name="action_download_candidate_template"
+                                            string="Download Template" type="object"
+                                            icon="fa-download"/>
+                                </group>
+                            </group>
+                            <!-- One roster, added to either by CSV or by the
+                                 Add a line row below. A separate many2many tag
+                                 box alongside this table was a second list of
+                                 the same people that could disagree with it. -->
+                            <separator string="Roster"/>
+                            <field name="assessment_evaluator_ids"
+                                   widget="be_candidate_table" nolabel="1"
+                                   context="{'default_assessment_id': id}">
+                                <!-- limit: see the note on the Candidates
+                                     page below. All three sub-views of this
+                                     field must agree. -->
+                                <list editable="bottom" delete="true" limit="10">
+                                    <field name="applicant_id"
+                                           options="{'no_quick_create': True}"
+                                           context="{'form_view_ref': 'assessments_be_v2.etp_hr_applicant_candidate_quickcreate_form'}"/>
+                                    <field name="candidate_email"
+                                           string="Email" readonly="1"
+                                           optional="show"/>
+                                    <field name="state" widget="badge"
+                                           readonly="1"
+                                           decoration-info="state == 'pending'"/>
+                                    <field name="invite_state" widget="badge"
+                                           readonly="1" optional="hide"/>
+                                    <!-- D1. On the ASSIGN roster too, so a
+                                         concern raised about this sitting is
+                                         visible while the cohort is still
+                                         being built rather than after they
+                                         have sat the paper. Per attempt: it
+                                         says nothing about the same person's
+                                         other papers.
+                                         READONLY even though the field is
+                                         writable and this list is
+                                         `editable="bottom"`: a tick landed
+                                         here while adding rows would flag a
+                                         paper nobody has sat yet, and the
+                                         attempt form is the deliberate place
+                                         to raise one. -->
+                                    <field name="manual_flagged"
+                                           widget="boolean" string="Flagged"
+                                           readonly="1" optional="show"
+                                           decoration-danger="manual_flagged"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Candidates" invisible="state == 'draft'">
+                            <!-- Not readonly on the field: that suppresses the
+                                 row selector column, and the bulk actions need
+                                 a selection. The list itself is create/edit/
+                                 delete false, so rows stay read-only. -->
+                            <field name="assessment_evaluator_ids"
+                                   widget="be_candidate_table">
+                                <!-- PAGE SIZE, and it has to be repeated on
+                                     every sub-view of this field.
+                                     `patchActiveFields` keeps ONE limit per
+                                     field name and lets the LAST node in the
+                                     arch win, and there is one StaticList per
+                                     field per record - so this list, the draft
+                                     roster above and the Leaderboard kanban
+                                     below all page together whether or not
+                                     that was intended. Setting it here alone
+                                     does nothing at all. -->
+                                <list create="false" delete="false"
+                                      edit="false" limit="10">
+                                    <field name="applicant_id"/>
+                                    <field name="candidate_link" widget="url"
+                                           string="Assessment Link"
+                                           text="Open link" optional="show"/>
+                                    <field name="state" widget="badge"
+                                           decoration-info="state == 'pending'"
+                                           decoration-warning="state == 'in_progress'"
+                                           decoration-success="state == 'submitted'"/>
+                                    <field name="invite_state" widget="badge"
+                                           optional="show"
+                                           decoration-muted="invite_state == 'none'"
+                                           decoration-warning="invite_state == 'queued'"
+                                           decoration-success="invite_state == 'sent'"
+                                           decoration-danger="invite_state == 'failed'"/>
+                                    <field name="started_at" optional="show"/>
+                                    <field name="answered_count" optional="hide"/>
+                                    <field name="total_questions" optional="hide"/>
+                                    <field name="total_score"
+                                           string="Objective Marks" optional="hide"/>
+                                    <field name="llm_total_score"
+                                           string="Subjective Marks" optional="hide"/>
+                                    <!-- `busy_if`: `pending` is both the queue
+                                         state the badge polls for and the
+                                         default `llm_state` of every attempt
+                                         (invited, mid-exam, submitted with
+                                         auto-grade off), so without the gate
+                                         every row would spin and poll.
+                                         `scoring_requested` says the work was
+                                         asked for, and it stays set through
+                                         `scoring`, so a live row still polls. -->
+                                    <field name="scoring_requested"
+                                           column_invisible="1"/>
+                                    <field name="llm_state"
+                                           widget="be_auto_refresh"
+                                           options="{'busy_if': 'scoring_requested'}"
+                                           string="Subjective Scoring"
+                                           optional="show"/>
+                                    <!-- Why it stopped: the grader's reason for
+                                         a failed re-grade, a spend-cap deferral
+                                         or a kill. Without it a silent failure
+                                         looks like a re-grade that confirmed
+                                         the mark. -->
+                                    <field name="llm_error"
+                                           string="Scoring Note" optional="hide"/>
+                                    <field name="score_marks_display"
+                                           column_invisible="1"/>
+                                    <field name="candidate_email"
+                                           string="Email" optional="hide"/>
+                                    <field name="score_percent"
+                                           widget="be_score_marks"
+                                           string="Marks" optional="show"/>
+                                    <field name="raw_result"
+                                           string="Raw Points" optional="show"
+                                           help="Sum of raw points over EVERY component: each contributes its ungated quality as a 0-1 fraction - a keyed sub-question its own mark, a written answer the grader's number, a labelling one the mean of its box raws. Same denominator as the mark beside it. Marks threshold this per COMPONENT to 0/1, so a low raw total can still show 0 marks."/>
+                                    <field name="result" widget="badge"
+                                           decoration-success="result == 'pass'"
+                                           decoration-danger="result == 'fail'"
+                                           decoration-muted="result == 'pending'"/>
+                                    <field name="scoring_error_flag" widget="badge"
+                                           optional="show"
+                                           decoration-danger="scoring_error_flag"/>
+                                    <field name="integrity_alert" widget="boolean"
+                                           string="Integrity Alert" optional="hide"/>
+                                    <field name="score_outlier" widget="boolean"
+                                           string="Score Outlier" optional="show"/>
+                                    <!-- D1. `optional="show"` so the operator
+                                         sees it without going looking, with the
+                                         remark alongside as its own hideable
+                                         column: the flag carries no reason text
+                                         of its own, so the remark is the only
+                                         place a "why" can be read, and it is a
+                                         paragraph rather than a badge label. -->
+                                    <field name="manual_flagged"
+                                           widget="boolean" string="Flagged"
+                                           optional="show"
+                                           decoration-danger="manual_flagged"/>
+                                    <field name="manual_remark"
+                                           string="Internal Remarks"
+                                           optional="hide"/>
+                                    <field name="is_locked" optional="hide"/>
+                                    <field name="violation_count" optional="hide"/>
+                                    <field name="violation_limit_breached"
+                                           widget="boolean" string="Limit Breached"
+                                           optional="show"
+                                           decoration-danger="violation_limit_breached"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Leaderboard" invisible="state == 'draft'">
+                            <field name="assessment_evaluator_ids" readonly="1">
+                                <kanban default_order="score_percent desc"
+                                        limit="10"
+                                        class="o_etp_backend o_etp_leaderboard"
+                                        records_draggable="0">
+                                    <field name="applicant_id"/>
+                                    <field name="total_score"/>
+                                    <field name="llm_total_score"/>
+                                    <field name="score_percent"/>
+                                    <field name="pass_threshold"/>
+                                    <field name="result"/>
+                                    <field name="llm_state"/>
+                                    <field name="scoring_error_flag"/>
+                                    <field name="integrity_alert"/>
+                                    <field name="manual_flagged"/>
+                                    <field name="manual_remark"/>
+                                    <templates>
+                                        <t t-name="card">
+                                            <div t-attf-class="etp-lb-card etp-lb-#{record.result.raw_value}">
+                                                <div class="etp-lb-rank">
+                                                    <i class="fa fa-trophy" role="img"
+                                                       aria-label="Rank"/>
+                                                </div>
+                                                <div class="etp-lb-main">
+                                                    <div class="etp-lb-top">
+                                                        <field class="etp-lb-name"
+                                                               name="applicant_id"/>
+                                                        <div class="etp-lb-pills">
+                                                            <field name="scoring_error_flag"
+                                                                   widget="badge"
+                                                                   decoration-danger="1"
+                                                                   invisible="not scoring_error_flag"/>
+                                                            <!-- A span, not the field: `badge`
+                                                                 takes no Boolean and warns on
+                                                                 every form load. -->
+                                                            <span class="badge text-bg-warning"
+                                                                  invisible="not integrity_alert">Integrity</span>
+                                                            <!-- D1. One card is one SITTING, so
+                                                                 the badge means "this paper was
+                                                                 flagged" and not "this person is
+                                                                 suspect". `title` carries the
+                                                                 remark, because a badge saying
+                                                                 only "Flagged" makes the reader
+                                                                 open another screen to learn
+                                                                 anything. -->
+                                                            <span class="badge text-bg-danger"
+                                                                  invisible="not manual_flagged"
+                                                                  t-att-title="record.manual_remark.value">
+                                                                Flagged
+                                                            </span>
+                                                            <field name="result" widget="badge"
+                                                                   decoration-success="result == 'pass'"
+                                                                   decoration-danger="result == 'fail'"
+                                                                   decoration-muted="result == 'pending'"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="etp-lb-barwrap">
+                                                        <div class="etp-lb-track">
+                                                            <div class="etp-lb-fill"
+                                                                 t-attf-style="width:#{record.score_percent.raw_value}%"/>
+                                                            <span class="etp-lb-thr"
+                                                                  t-attf-style="left:#{record.pass_threshold.raw_value}%"
+                                                                  title="Pass threshold"/>
+                                                        </div>
+                                                        <span class="etp-lb-pct">
+                                                            <field name="score_percent"
+                                                                   widget="float"
+                                                                   digits="[16,0]"/><span class="etp-lb-pct-sym">%</span>
+                                                        </span>
+                                                    </div>
+                                                    <div class="etp-lb-chips">
+                                                        <span class="etp-lb-chip">
+                                                            <i class="fa fa-check-square-o"
+                                                               role="img" aria-label="Objective"/>
+                                                            <span class="etp-lb-chip-k">Objective</span>
+                                                            <field class="etp-lb-chip-v"
+                                                                   name="total_score"/>
+                                                        </span>
+                                                        <span class="etp-lb-chip">
+                                                            <i class="fa fa-pencil-square-o"
+                                                               role="img" aria-label="Subjective"/>
+                                                            <span class="etp-lb-chip-k">Subjective</span>
+                                                            <field class="etp-lb-chip-v"
+                                                                   name="llm_total_score"/>
+                                                        </span>
+                                                        <field name="llm_state" widget="badge"
+                                                               decoration-success="llm_state == 'scored'"
+                                                               decoration-info="llm_state == 'scoring'"
+                                                               decoration-danger="llm_state in ('failed', 'error')"
+                                                               decoration-muted="llm_state in ('pending', 'cancelled')"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                        </page>
+                        <page string="Selected Questions"
+                              invisible="state == 'draft'">
+                            <field name="question_ids" readonly="1">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="prompt"/>
+                                    <field name="generator_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="assessments_be_kanban" model="ir.ui.view">
+        <field name="name">assessments.be.kanban</field>
+        <field name="model">assessments.be</field>
+        <field name="arch" type="xml">
+            <kanban class="o_etp_backend" sample="1">
+                <field name="state"/>
+                <field name="start_date"/>
+                <!-- Without `active` in the view Odoo omits Archive/Unarchive
+                     from the kanban Actions menu, so an assessment could be
+                     archived from the list and not from a card. -->
+                <field name="active"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="etp-kanban-card etp-kanban-card--assessment">
+                            <span class="etp-kc-accent"/>
+                            <div class="etp-kc-head">
+                                <field class="etp-kc-title" name="name"/>
+                                <field name="state" widget="badge"
+                                       decoration-info="state == 'draft'"
+                                       decoration-warning="state == 'in_progress'"
+                                       decoration-success="state == 'done'"
+                                       decoration-danger="state == 'cancelled'"/>
+                            </div>
+                            <div class="etp-kc-sub">
+                                <i class="fa fa-folder-o me-1" role="img"
+                                   aria-label="Question Generator"/>
+                                <field name="generator_id"/>
+                            </div>
+                            <div class="etp-kc-sub etp-kc-date"
+                                 t-if="record.start_date.raw_value">
+                                <i class="fa fa-calendar-o me-1" role="img"
+                                   aria-label="Exam date"/>
+                                <field name="start_date"/>
+                            </div>
+                            <div class="etp-kc-stats">
+                                <span class="etp-kc-stat" title="Questions available">
+                                    <i class="fa fa-list-ol" role="img"
+                                       aria-label="Questions"/>
+                                    <field name="total_questions_available"/>
+                                </span>
+                                <span class="etp-kc-stat" title="Duration (minutes)">
+                                    <i class="fa fa-clock-o" role="img"
+                                       aria-label="Duration"/>
+                                    <span><field name="duration_minutes"/>m</span>
+                                </span>
+                                <span class="etp-kc-stat" title="Responses / candidates">
+                                    <i class="fa fa-users" role="img"
+                                       aria-label="Responses"/>
+                                    <field name="response_count"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="assessments_be_search" model="ir.ui.view">
+        <field name="name">assessments.be.search</field>
+        <field name="model">assessments.be</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="evaluator_ids"/>
+                <separator/>
+                <filter name="filter_draft" string="Draft"
+                        domain="[('state','=','draft')]"/>
+                <filter name="filter_in_progress" string="In Progress"
+                        domain="[('state','=','in_progress')]"/>
+                <filter name="filter_done" string="Done"
+                        domain="[('state','=','done')]"/>
+                <separator/>
+                <filter name="filter_archived" string="Archived"
+                        domain="[('active','=',False)]"/>
+                <group>
+                    <filter name="group_state" string="State"
+                            context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_etp_assessment" model="ir.actions.act_window">
+        <field name="name">Assessments</field>
+        <field name="res_model">assessments.be</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="assessments_be_search"/>
+    </record>
+
+    <record id="assessments_be_evaluator_tree" model="ir.ui.view">
+        <field name="name">assessments.be.evaluator.tree</field>
+         <field name="model">assessments.be.evaluator</field>
+        <field name="arch" type="xml">
+            <list class="o_etp_backend">
+                <header>
+                    <button name="action_release_results" type="object"
+                            string="Release Results"
+                            confirm="Release results for the selected candidates? Each of them sees their marks at once. This cannot be undone - once released, there is no way to take them back."/>
+                </header>
+                <field name="assessment_id"/>
+                <field name="applicant_id"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'pending'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-success="state == 'submitted'"/>
+                <field name="answered_count"/>
+                <field name="total_questions"/>
+                <field name="total_score"/>
+                <field name="llm_total_score" string="Subjective Marks" optional="show"/>
+                <field name="score_marks_display" column_invisible="1"/>
+                <field name="score_percent" widget="be_score_marks"
+                       string="Score" optional="show"/>
+                <field name="result" widget="badge"
+                       decoration-success="result == 'pass'"
+                       decoration-danger="result == 'fail'"
+                       decoration-muted="result == 'pending'"/>
+                <field name="llm_state" widget="badge" string="Subjective State" optional="show"
+                       decoration-success="llm_state == 'scored'"
+                       decoration-danger="llm_state == 'failed'"/>
+                <!-- The grader's reason for a failed re-grade, a capped
+                     deferral or a kill. -->
+                <field name="llm_error" string="Scoring Note" optional="hide"/>
+                <field name="is_locked"/>
+                <field name="is_violated" widget="boolean"
+                       decoration-danger="is_violated"/>
+                <field name="violation_count" optional="hide"/>
+                <field name="ai_violation_count" optional="hide"/>
+                <field name="violation_limit_breached" widget="boolean"
+                       string="Limit Breached" optional="show"
+                       decoration-danger="violation_limit_breached"/>
+                <field name="score_outlier" widget="boolean"
+                       string="Score Outlier" optional="show"
+                       decoration-warning="score_outlier"/>
+                <!-- D1. `decoration-danger` rather than the `warning` the
+                     advisory flags use: a machine signal says "look at this",
+                     a person's flag says "somebody already looked and was
+                     concerned". `optional="show"` so it is on by default and
+                     an operator who does not want the column can still drop
+                     it, exactly like the two flags above it. -->
+                <field name="manual_flagged" widget="boolean"
+                       string="Flagged" optional="show"
+                       decoration-danger="manual_flagged"/>
+                <field name="pii_anonymized" widget="boolean"
+                       string="PII Anonymized" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="assessments_be_evaluator_search" model="ir.ui.view">
+        <field name="name">assessments.be.evaluator.search</field>
+        <field name="model">assessments.be.evaluator</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="assessment_id"/>
+                <!-- Search the person by name OR email: an admin chasing one
+                     candidate on a 60-row roster usually has the address. -->
+                <field name="applicant_id" string="Candidate"
+                       filter_domain="['|', ('applicant_id', 'ilike', self),
+                                       ('candidate_email', 'ilike', self)]"/>
+                <field name="candidate_email" string="Email"/>
+                <separator/>
+                <filter name="submitted" string="Submitted"
+                        domain="[('state', '=', 'submitted')]"/>
+                <filter name="in_progress" string="In Progress"
+                        domain="[('state', '=', 'in_progress')]"/>
+                <filter name="not_started" string="Not Started"
+                        domain="[('state', '=', 'pending')]"/>
+                <separator/>
+                <filter name="result_pass" string="Passed"
+                        domain="[('result', '=', 'pass')]"/>
+                <filter name="result_fail" string="Failed"
+                        domain="[('result', '=', 'fail')]"/>
+                <filter name="awaiting_grading" string="Awaiting Grading"
+                        domain="[('subjective_pending', '>', 0)]"/>
+                <separator/>
+                <filter name="invite_sent" string="Invite Sent"
+                        domain="[('invite_state', '=', 'sent')]"/>
+                <filter name="invite_failed" string="Invite Failed"
+                        domain="[('invite_state', '=', 'failed')]"/>
+                <separator/>
+                <filter name="score_outlier" string="Score Outlier"
+                        domain="[('score_outlier', '=', True)]"/>
+                <filter name="integrity_alert" string="Integrity Alert"
+                        domain="[('integrity_alert', '=', True)]"/>
+                <filter name="violated" string="Violations"
+                        domain="[('is_violated', '=', True)]"/>
+                <filter name="scoring_error" string="Scoring Error"
+                        domain="[('scoring_error_flag', '!=', False)]"/>
+                <!-- D1. A SEPARATE filter beside the three advisory ones, not
+                     folded into them: Odoo ORs filters within a group, so
+                     putting this in the same group would make "Score Outlier"
+                     and "Flagged" a union the moment both were ticked. The
+                     separator above keeps it its own group, where ticking both
+                     intersects - which is the question a reviewer asks. -->
+                <separator/>
+                <filter name="manually_flagged" string="Flagged by an Operator"
+                        domain="[('manual_flagged', '=', True)]"/>
+                <separator/>
+                <filter name="results_released" string="Results Released"
+                        domain="[('results_released', '=', True)]"/>
+                <filter name="results_held" string="Results Held"
+                        domain="[('results_released', '=', False),
+                                 ('state', '=', 'submitted')]"/>
+                <filter name="pii_anonymized" string="PII Anonymized"
+                        domain="[('pii_anonymized', '=', True)]"/>
+                <separator/>
+                <filter name="group_by_assessment" string="Assessment"
+                        context="{'group_by': 'assessment_id'}"/>
+                <filter name="group_by_state" string="State"
+                        context="{'group_by': 'state'}"/>
+                <filter name="group_by_result" string="Result"
+                        context="{'group_by': 'result'}"/>
+                <filter name="group_by_invite" string="Invite"
+                        context="{'group_by': 'invite_state'}"/>
+                <filter name="group_by_flagged" string="Operator Flag"
+                        context="{'group_by': 'manual_flagged'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="assessments_be_evaluator_form" model="ir.ui.view">
+        <field name="name">assessments.be.evaluator.form</field>
+        <field name="model">assessments.be.evaluator</field>
+        <field name="arch" type="xml">
+            <form class="o_etp_evaluator_form o_etp_backend">
+                <header>
+                    <!-- ONE RE-SCORE BUTTON, COUNTED, HIDDEN AT ZERO. The label
+                         counts the unresolved answers, as the console's does;
+                         the button is gone when there are none, and while a
+                         kill is stopping. Managers only: it spends model calls.
+                         This one is the unreleased case; a released attempt
+                         gets the confirming twin below. -->
+                    <field name="unresolved_answer_count" invisible="1"/>
+                    <field name="rescore_queued_count" invisible="1"/>
+                    <field name="assessment_scoring_phase" invisible="1"/>
+                    <button name="action_rescore_individually"
+                            type="object" icon="fa-magic"
+                            groups="assessments_be_v2.group_assessment_manager"
+                            invisible="state != 'submitted' or unresolved_answer_count == 0 or results_released or assessment_scoring_phase == 'stopping'">
+                        <field name="rescore_label" nolabel="1" readonly="1"
+                               class="oe_inline"/>
+                    </button>
+                    <!-- THE SAME BUTTON, FOR AN ATTEMPT THE CANDIDATE CAN
+                         ALREADY SEE. `confirm=` is a static attribute, so the
+                         released case needs a button of its own; the context
+                         key is the model's "yes, I know" flag
+                         (`action_rescore_individually(confirm_released=...)`
+                         reads `rescore_confirm_released`), without which it
+                         refuses a released attempt outright. The unreleased
+                         path above stays one click. -->
+                    <button name="action_rescore_individually"
+                            type="object" icon="fa-magic"
+                            groups="assessments_be_v2.group_assessment_manager"
+                            context="{'rescore_confirm_released': True}"
+                            confirm="This candidate's results have already been RELEASED - they can see these marks. Re-scoring costs one model call per answer and can change a mark they are looking at. An answer keeps its old mark if the new grade fails. Continue?"
+                            invisible="state != 'submitted' or unresolved_answer_count == 0 or not results_released or assessment_scoring_phase == 'stopping'">
+                        <field name="rescore_label" nolabel="1" readonly="1"
+                               class="oe_inline"/>
+                    </button>
+                    <button name="action_export_responses" string="Export Responses"
+                            type="object" icon="fa-table"/>
+                    <button name="action_release_results" string="Release Results"
+                            type="object" icon="fa-unlock" class="oe_highlight"
+                            confirm="Release this candidate's results? They see their marks at once. This cannot be undone - once released, there is no way to take them back."
+                            invisible="results_released or state != 'submitted'"/>
+                    <button name="action_erase_candidate_data"
+                            string="Erase Candidate Data" type="object"
+                            icon="fa-user-secret"
+                            confirm="Anonymize this candidate's free-text answers, violation reason, and grader audit prose? Numeric scores and pass/fail are kept. This cannot be undone."
+                            invisible="pii_anonymized"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="pending,in_progress,submitted"/>
+                </header>
+                <widget name="web_ribbon" title="PII Anonymized"
+                        bg_color="text-bg-secondary"
+                        invisible="not pii_anonymized"/>
+                <!-- A queued re-score, shown where it was asked for, so the
+                     admin can tell something is waiting and does not press
+                     again. The console relabels its control "Re-score queued";
+                     this says the same. -->
+                <div class="alert alert-info d-flex align-items-center gap-2"
+                     role="status" invisible="rescore_queued_count == 0">
+                    <i class="fa fa-hourglass-half" title="Queued"/>
+                    <span><strong>Re-score queued.</strong>
+                        <field name="rescore_queued_count" readonly="1"
+                               nolabel="1" class="oe_inline"/> answer(s) are
+                        waiting for the grader; it takes them first, usually
+                        within a minute. Pressing re-score again changes
+                        nothing - an answer already queued is graded once.</span>
+                </div>
+                <!-- Why scoring stopped, from `llm_error`: a failed re-grade
+                     keeps the old mark and writes why; a spend-cap or 429
+                     deferral writes "waiting to be graded, no attempt used"; a
+                     kill writes its reason. -->
+                <div class="alert alert-warning d-flex align-items-start gap-2"
+                     role="alert" invisible="not llm_error">
+                    <i class="fa fa-exclamation-triangle" title="Scoring note"/>
+                    <span><strong>Subjective scoring note.</strong>
+                        <field name="llm_error" readonly="1" nolabel="1"
+                               class="d-block"/>
+                        Marks already stored are kept. Re-score if this needs
+                        another attempt.</span>
+                </div>
+                <div class="alert alert-warning" invisible="not score_outlier"
+                     role="alert">
+                    <strong>Score outlier.</strong> This candidate's overall
+                    score is unusually high relative to the cohort - flagged for
+                    human review (e.g. a subjective answer that may have gamed the
+                    grader). Advisory only; it does not affect pass/fail.
+                </div>
+                <div class="alert alert-danger" invisible="not is_violated" role="alert">
+                    <strong>Violation:</strong>&#160;<field name="violation_reason" readonly="1"/> -
+                    <field name="violation_datetime" readonly="1"/>
+                    (count: <field name="violation_count" readonly="1"/>,
+                    AI: <field name="ai_violation_count" readonly="1"/>)
+                    <field name="violation_limit_breached" invisible="1"/>
+                    <field name="ai_violation_limit_breached" invisible="1"/>
+                    <span class="badge text-bg-danger ms-2"
+                          invisible="not violation_limit_breached">Violation limit breached</span>
+                    <span class="badge text-bg-danger ms-2"
+                          invisible="not ai_violation_limit_breached">AI violation limit breached</span>
+                </div>
+                <!-- D1. INTERNAL, and the banner says so on its face: this
+                     view is admin-only, but the remark is the kind of sentence
+                     that gets pasted into an email to a candidate by mistake.
+                     Read-only in the BANNER and editable in the Assignment
+                     group below, so the alert cannot be dismissed by editing
+                     the very field it is announcing.
+                     Keyed on the flag alone: a remark with no flag is a
+                     legitimate state and is not an alert, so it stays in the
+                     group below rather than raising a red banner. -->
+                <div class="alert alert-danger" invisible="not manual_flagged"
+                     role="alert">
+                    <strong>This sitting was flagged by an operator - internal only.</strong>
+                    <div invisible="not manual_remark">
+                        <field name="manual_remark" readonly="1" nolabel="1"/>
+                    </div>
+                    <div class="text-muted">
+                        Raised by <field name="manual_flagged_by_id"
+                                         readonly="1" nolabel="1"
+                                         class="oe_inline"/>
+                        on <field name="manual_flagged_at" readonly="1"
+                                  nolabel="1" class="oe_inline"/>.
+                        It applies to this attempt only and never reaches the
+                        candidate.
+                    </div>
+                </div>
+                <sheet>
+                    <div class="oe_title">
+                        <h2>Result Summary</h2>
+                    </div>
+                    <field name="result_summary" widget="html" readonly="1"
+                           nolabel="1"/>
+
+                    <!-- ================= PROGRESS DASHBOARD ================= -->
+                    <div class="etp-dash">
+                        <div class="etp-dash-hero">
+                            <!-- score ring centrepiece (native percentpie) -->
+                            <div class="etp-dash-ring">
+                                <field name="score_percent" widget="percentpie"
+                                       string="Final Score" nolabel="1"/>
+                                <div class="etp-dash-ring-foot">
+                                    <field name="result" widget="badge" nolabel="1"
+                                           decoration-success="result == 'pass'"
+                                           decoration-danger="result == 'fail'"
+                                           decoration-muted="result == 'pending'"/>
+                                    <span class="etp-dash-thr">Pass threshold
+                                        <field name="pass_threshold" nolabel="1"/>%</span>
+                                </div>
+                            </div>
+
+                            <!-- headline stat cards -->
+                            <div class="etp-stat-grid">
+                                <div class="etp-stat-card">
+                                    <span class="etp-stat-ico etp-ico-score">
+                                        <i class="fa fa-trophy" role="img"
+                                           aria-label="Objective score"/>
+                                    </span>
+                                    <div class="etp-stat-body">
+                                        <div class="etp-stat-num">
+                                            <field name="total_score" nolabel="1"/>
+                                            <span class="etp-stat-den">/
+                                                <field name="max_possible_score"
+                                                       nolabel="1"/></span>
+                                        </div>
+                                        <div class="etp-stat-cap">Objective Score</div>
+                                    </div>
+                                </div>
+
+                                <div class="etp-stat-card">
+                                    <span class="etp-stat-ico etp-ico-subj">
+                                        <i class="fa fa-magic" role="img"
+                                           aria-label="Subjective score"/>
+                                    </span>
+                                    <div class="etp-stat-body">
+                                        <div class="etp-stat-num">
+                                            <field name="llm_total_score" nolabel="1"/>
+                                            <span class="etp-stat-den">/
+                                                <field name="llm_max_score"
+                                                       nolabel="1"/></span>
+                                        </div>
+                                        <div class="etp-stat-cap">Subjective Score</div>
+                                    </div>
+                                </div>
+
+                                <div class="etp-stat-card">
+                                    <span class="etp-stat-ico etp-ico-answered">
+                                        <i class="fa fa-check-circle" role="img"
+                                           aria-label="Answered"/>
+                                    </span>
+                                    <div class="etp-stat-body">
+                                        <div class="etp-stat-num">
+                                            <field name="answered_count" nolabel="1"/>
+                                            <span class="etp-stat-den">/
+                                                <field name="total_questions"
+                                                       nolabel="1"/></span>
+                                        </div>
+                                        <div class="etp-stat-cap">Answered</div>
+                                    </div>
+                                </div>
+
+                                <div class="etp-stat-card etp-stat-warn">
+                                    <span class="etp-stat-ico etp-ico-warn">
+                                        <i class="fa fa-hourglass-half" role="img"
+                                           aria-label="Subjective pending"/>
+                                    </span>
+                                    <div class="etp-stat-body">
+                                        <div class="etp-stat-num">
+                                            <field name="subjective_pending"
+                                                   nolabel="1"/>
+                                        </div>
+                                        <div class="etp-stat-cap">Subjective Pending</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- progress bars (native progressbar widget) -->
+                        <div class="etp-dash-bars">
+                            <div class="etp-bar-row">
+                                <span class="etp-bar-label">
+                                    <i class="fa fa-check-circle"/> Answered</span>
+                                <field name="answered_count" widget="progressbar"
+                                       nolabel="1"
+                                       options="{'current_value': 'answered_count', 'max_value': 'total_questions'}"/>
+                            </div>
+                            <div class="etp-bar-row">
+                                <span class="etp-bar-label">
+                                    <i class="fa fa-list-ol"/> Objective</span>
+                                <field name="total_score" widget="progressbar"
+                                       nolabel="1"
+                                       options="{'current_value': 'total_score', 'max_value': 'max_possible_score'}"/>
+                            </div>
+                            <div class="etp-bar-row">
+                                <span class="etp-bar-label">
+                                    <i class="fa fa-magic"/> Subjective</span>
+                                <field name="llm_total_score" widget="progressbar"
+                                       nolabel="1"
+                                       options="{'current_value': 'llm_total_score', 'max_value': 'llm_max_score'}"/>
+                            </div>
+                        </div>
+
+                        <!-- secondary details card -->
+                        <div class="etp-dash-meta">
+                            <group>
+                                <group string="Assignment">
+                                    <field name="assessment_id"/>
+                                    <field name="applicant_id"/>
+                                    <field name="llm_state"/>
+                                    <field name="score_marks_display"
+                                           column_invisible="1"/>
+                                    <field name="score_percent"
+                                           widget="be_score_marks"
+                                           string="Score"/>
+                                    <field name="raw_result"/>
+                                    <field name="results_released"/>
+                                    <field name="is_locked"/>
+                                    <field name="ai_status" invisible="not ai_status"/>
+                                    <field name="pii_anonymized" readonly="1"/>
+                                    <field name="score_outlier" readonly="1"/>
+                                    <!-- D1 - THE ONE PLACE THE FLAG IS EDITED
+                                         IN ODOO, because it belongs to this
+                                         attempt and to no other. Writable,
+                                         unlike the advisory flags above it,
+                                         which are computed. The remark is
+                                         independent: it can be filled in with
+                                         the box unticked. -->
+                                    <field name="manual_flagged"/>
+                                    <field name="manual_remark"
+                                           placeholder="Internal remarks about this sitting. Never shown to the candidate."/>
+                                </group>
+                                <group string="Session">
+                                    <field name="started_at"/>
+                                    <field name="deadline_datetime"/>
+                                    <field name="access_token"/>
+                                    <field name="candidate_link" widget="url"
+                                           readonly="1"
+                                           text="Open candidate assessment link"/>
+                                </group>
+                            </group>
+                        </div>
+                    </div>
+                    <notebook>
+                        <page string="Score Details">
+                            <field name="response_ids" readonly="1">
+                                <list>
+                                    <field name="question_id"/>
+                                    <field name="question_type"
+                                           string="Type" optional="show"/>
+                                    <field name="answer_summary"
+                                           string="Candidate Answer"/>
+                                    <field name="justification"
+                                           string="Candidate Justification"
+                                           optional="hide"/>
+                                    <field name="correct_summary"
+                                           string="Correct Answer" optional="show"/>
+                                    <field name="score" string="Objective"/>
+                                    <field name="max_score" string="Objective Max"/>
+                                    <field name="needs_llm" string="Subjective?"
+                                           widget="boolean" optional="hide"/>
+                                    <field name="llm_raw_score"
+                                           string="Subjective Score (0-1)"
+                                           widget="float" digits="[4, 3]"/>
+                                    <field name="subjective_result" widget="badge"
+                                           string="Subjective Result"
+                                           decoration-success="subjective_result == 'pass'"
+                                           decoration-danger="subjective_result == 'fail'"/>
+                                     <field name="llm_feedback"
+                                            string="Subjective Feedback" optional="hide"/>
+                                     <field name="integrity_alert" widget="boolean"
+                                            string="Integrity Alert" optional="show"/>
+                                     <field name="llm_state" widget="badge"
+                                            string="Subjective State"
+                                            decoration-info="llm_state in ('pending','queued')"
+                                            decoration-success="llm_state == 'scored'"
+                                            decoration-muted="llm_state == 'not_needed'"
+                                            decoration-warning="llm_state == 'failed'"
+                                            decoration-danger="llm_state == 'error'"/>
+                                     <field name="state" widget="badge"/>
+                                 </list>
+                                <form>
+                                    <group>
+                                        <group string="Question">
+                                            <field name="question_id"/>
+                                            <field name="question_type"/>
+                                            <field name="state"/>
+                                        </group>
+                                        <group string="Result"
+                                               invisible="not needs_llm">
+                                            <field name="llm_raw_score"
+                                                   string="Subjective Score (0-1)"
+                                                   widget="float" digits="[4, 3]"/>
+                                            <field name="subjective_result"
+                                                   widget="badge"
+                                                   decoration-success="subjective_result == 'pass'"
+                                                   decoration-danger="subjective_result == 'fail'"/>
+                                            <field name="llm_state" widget="badge"
+                                                   decoration-success="llm_state == 'scored'"
+                                                   decoration-warning="llm_state == 'failed'"
+                                                   decoration-danger="llm_state == 'error'"/>
+                                            <field name="llm_rubric_source"/>
+                                            <field name="llm_gate"/>
+                                            <field name="integrity_alert"/>
+                                            <field name="ab_verdict_pct"
+                                                   string="AB Verdict %"
+                                                   invisible="question_type != 'image_ab'"/>
+                                            <field name="ab_justification_pct"
+                                                   string="AB Justification %"
+                                                   invisible="question_type != 'image_ab'"/>
+                                            <field name="label_coverage_pct"
+                                                   string="Label Coverage %"
+                                                   invisible="question_type != 'image_label'"/>
+                                            <field name="label_correctness_pct"
+                                                   string="Label Correctness %"
+                                                   invisible="question_type != 'image_label'"/>
+                                        </group>
+                                        <group string="Result" invisible="needs_llm">
+                                            <field name="score"
+                                                   string="Objective Score"/>
+                                            <field name="max_score"
+                                                   string="Objective Max"/>
+                                            <field name="correct_summary"
+                                                   string="Correct Answer"/>
+                                        </group>
+                                    </group>
+                                    <field name="answer_summary"
+                                           string="Candidate Answer"
+                                           invisible="not answer_summary"/>
+                                    <separator string="Candidate Justification"
+                                               invisible="not justification"/>
+                                    <field name="justification" nolabel="1"
+                                           invisible="not justification"/>
+                                    <separator string="Scoring Audit"
+                                               invisible="not needs_llm"/>
+                                    <field name="llm_feedback" nolabel="1"
+                                           widget="be_collapsible_text"
+                                           string="Feedback"
+                                           invisible="not needs_llm"/>
+                                    <field name="llm_reasoning" nolabel="1"
+                                           widget="be_collapsible_text"
+                                           invisible="not llm_reasoning"/>
+                                    <field name="llm_reference_answer"
+                                           widget="be_collapsible_text"
+                                           invisible="not llm_reference_answer"/>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_evaluator" model="ir.actions.act_window">
+        <field name="name">Candidate Assignments</field>
+        <field name="res_model">assessments.be.evaluator</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="assessments_be_evaluator_search"/>
+    </record>
+
+    <record id="assessments_be_response_tree" model="ir.ui.view">
+        <field name="name">assessments.be.response.tree</field>
+        <field name="model">assessments.be.response</field>
+        <field name="arch" type="xml">
+            <list class="o_etp_backend">
+                <field name="assessment_id"/>
+                <field name="evaluator_id" string="Candidate"/>
+                <field name="question_id"/>
+                <field name="objective_score" string="Objective" sum="Total Objective"/>
+                <field name="needs_llm" string="Subjective?" widget="boolean"/>
+                <field name="llm_raw_score" string="Subjective Score (0-1)"
+                       widget="float" digits="[4, 3]" optional="show"/>
+                <field name="subjective_result" widget="badge" string="Subjective"
+                       decoration-success="subjective_result == 'pass'"
+                       decoration-danger="subjective_result == 'fail'"/>
+                <field name="subjective_score" string="Mark (0/1)" optional="hide"
+                       sum="Total Subjective Marks"/>
+                <field name="integrity_alert" widget="boolean"
+                       string="Integrity Alert" optional="show"/>
+                <field name="llm_state" widget="badge" string="Subjective State" optional="show"
+                       decoration-info="llm_state in ('pending','queued')"
+                       decoration-success="llm_state == 'scored'"
+                       decoration-muted="llm_state == 'not_needed'"
+                       decoration-warning="llm_state == 'failed'"
+                       decoration-danger="llm_state == 'error'"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'submitted'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="assessments_be_response_form" model="ir.ui.view">
+        <field name="name">assessments.be.response.form</field>
+        <field name="model">assessments.be.response</field>
+        <field name="arch" type="xml">
+            <form class="o_etp_backend">
+                <header>
+                    <button name="action_submit" string="Submit" type="object"
+                            class="oe_highlight" invisible="state != 'draft'"/>
+                    <!-- TWO BUTTONS, ONE ACTION, BECAUSE `confirm=` IS STATIC.
+                         Re-scoring an answer whose results are RELEASED spends
+                         a model call and can move a mark the candidate is
+                         already looking at (the bulk requeue route demands
+                         `force: true` for the same reason), so that case gets
+                         its own button carrying the warning; the unreleased
+                         case stays one click. Both call the same method. -->
+                    <button name="action_rescore_this_answer"
+                            string="Re-score This Answer" type="object"
+                            icon="fa-refresh"
+                            groups="assessments_be_v2.group_assessment_manager"
+                            invisible="not needs_llm or state != 'submitted' or attempt_state != 'submitted' or attempt_released or rescore_request_key or assessment_scoring_phase == 'stopping'"/>
+                    <!-- The context key is the model's "yes, I know" flag:
+                         `action_rescore_individually` refuses a released
+                         attempt unless `rescore_confirm_released` is set, and
+                         `action_rescore_this_answer` hands its own context
+                         straight through to it. -->
+                    <button name="action_rescore_this_answer"
+                            string="Re-score This Answer" type="object"
+                            icon="fa-refresh"
+                            groups="assessments_be_v2.group_assessment_manager"
+                            context="{'rescore_confirm_released': True}"
+                            confirm="This candidate's results have already been RELEASED - they can see this mark. Re-scoring costs one model call and can change the mark they are looking at. The old mark is kept if the new grade fails. Continue?"
+                            invisible="not needs_llm or state != 'submitted' or attempt_state != 'submitted' or not attempt_released or rescore_request_key or assessment_scoring_phase == 'stopping'"/>
+                    <!-- Already queued: the console relabels the control
+                         "Re-score queued" and disables it. Odoo shows the
+                         badge below and takes the button away, which is the
+                         same statement with the same effect. -->
+                    <field name="attempt_state" invisible="1"/>
+                    <field name="attempt_released" invisible="1"/>
+                    <field name="rescore_request_key" invisible="1"/>
+                    <field name="assessment_scoring_phase" invisible="1"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info d-flex align-items-center gap-2"
+                         role="status" invisible="not rescore_request_key">
+                        <i class="fa fa-hourglass-half" title="Queued"/>
+                        <span><strong>Re-score queued.</strong> This answer is
+                            waiting for the grader - it takes queued answers
+                            first, usually within a minute. The mark below is
+                            the old one until the new grade lands.</span>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="assessment_id" readonly="1"/>
+                            <field name="evaluator_id" readonly="1"/>
+                            <field name="question_id" readonly="1"/>
+                            <field name="question_type" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="objective_score" string="Objective Score"/>
+                            <field name="objective_max" string="Objective Max"/>
+                            <field name="needs_llm" string="Needs Subjective"/>
+                            <field name="subjective_result" widget="badge"
+                                   string="Subjective Result"
+                                   decoration-success="subjective_result == 'pass'"
+                                   decoration-danger="subjective_result == 'fail'"/>
+                            <field name="llm_raw_score"
+                                   string="Subjective Score (0-1)"
+                                   widget="float" digits="[4, 3]"/>
+                            <field name="llm_score" string="Mark (0/1)"/>
+                            <field name="llm_max_score" string="Mark Max"/>
+                            <field name="llm_state" string="Subjective State"/>
+                            <field name="llm_rubric_source" string="Rubric Source"
+                                   invisible="not llm_rubric_source"/>
+                            <field name="llm_gate" string="Gate"
+                                   invisible="not llm_gate"/>
+                            <field name="llm_prompt_version" string="Judge Prompt"
+                                   groups="base.group_no_one"
+                                   invisible="not llm_prompt_version"/>
+                            <field name="integrity_alert" string="Integrity Alert"/>
+                            <field name="ab_verdict_pct" string="AB Verdict %"
+                                   invisible="question_type != 'image_ab'"/>
+                            <field name="ab_justification_pct"
+                                   string="AB Justification %"
+                                   invisible="question_type != 'image_ab'"/>
+                            <field name="label_coverage_pct"
+                                   string="Label Coverage %"
+                                   invisible="question_type != 'image_label'"/>
+                            <field name="label_correctness_pct"
+                                   string="Label Correctness %"
+                                   invisible="question_type != 'image_label'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Dimension Answers">
+                            <field name="line_ids" readonly="state == 'submitted'">
+                                <list editable="bottom">
+                                    <field name="question_dimension_id"/>
+                                    <field name="selected_option_id"
+                                           domain="[('question_dimension_id', '=', question_dimension_id)]"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Justification">
+                            <field name="justification" nolabel="1"
+                                   readonly="state == 'submitted'"/>
+                        </page>
+                        <page string="Subjective Reasoning"
+                              invisible="llm_state in ('not_needed', 'pending', 'queued')">
+                            <field name="llm_feedback" nolabel="1" readonly="1"
+                                   widget="be_collapsible_text"/>
+                            <separator string="Reference Answer"
+                                       invisible="not llm_reference_answer"/>
+                            <field name="llm_reference_answer" nolabel="1" readonly="1"
+                                   widget="be_collapsible_text"
+                                   invisible="not llm_reference_answer"/>
+                            <separator string="Full Audit"
+                                       invisible="not llm_reasoning"/>
+                            <field name="llm_reasoning" nolabel="1" readonly="1"
+                                   widget="be_collapsible_text"
+                                   invisible="not llm_reasoning"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="assessments_be_response_search" model="ir.ui.view">
+        <field name="name">assessments.be.response.search</field>
+        <field name="model">assessments.be.response</field>
+        <field name="arch" type="xml">
+            <search>
+                <!-- D2. ONE box over the three axes, first so it is the
+                     default, mirroring `_be_search_domain` on the model. The
+                     three individual fields below it stay: an operator who
+                     wants to search only by question still can, and removing
+                     them would narrow the view to close an API gap. -->
+                <field name="assessment_id" string="Search"
+                       filter_domain="['|', '|',
+                                       ('assessment_id', 'ilike', self),
+                                       ('evaluator_id', 'ilike', self),
+                                       ('question_id', 'ilike', self)]"/>
+                <field name="assessment_id"/>
+                <field name="evaluator_id" string="Candidate"/>
+                <field name="question_id"/>
+                <separator/>
+                <filter name="submitted" string="Submitted"
+                        domain="[('state', '=', 'submitted')]"/>
+                <filter name="draft" string="Draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <separator/>
+                <filter name="integrity_alert" string="Integrity Alert"
+                        domain="[('integrity_alert', '=', True)]"/>
+                <separator/>
+                <filter name="group_by_assessment" string="Assessment"
+                        context="{'group_by': 'assessment_id'}"/>
+                <filter name="group_by_candidate" string="Candidate"
+                        context="{'group_by': 'evaluator_id'}"/>
+                <filter name="group_by_state" string="State"
+                        context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_response" model="ir.actions.act_window">
+        <field name="name">Responses</field>
+        <field name="res_model">assessments.be.response</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="assessments_be_response_search"/>
+        <field name="context">{'search_default_group_by_assessment': 1, 'search_default_group_by_candidate': 1}</field>
+    </record>
+
+</odoo>

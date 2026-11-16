@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.yantra_bridge</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Yantra" string="Yantra" name="yantra_bridge" groups="yantra_bridge.group_yantra_ops">
+                    <block title="Gateway" name="yantra_gateway_block">
+                        <setting string="Gateway URL" help="Base URL of the Yantra gateway, e.g. http://gateway:8090">
+                            <field name="yantra_gateway_url" placeholder="http://localhost:8090"/>
+                        </setting>
+                        <setting string="Keycloak URL" help="Base URL of Keycloak; the realm is always 'yantra'">
+                            <field name="yantra_keycloak_url" placeholder="http://localhost:8180"/>
+                        </setting>
+                        <setting string="Service account" help="Confidential client with the realm role 'ops' (client credentials grant). The secret is never logged.">
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label for="yantra_keycloak_client_id" class="col-lg-4 o_light_label"/>
+                                    <field name="yantra_keycloak_client_id" placeholder="yantra-odoo"/>
+                                </div>
+                                <div class="row">
+                                    <label for="yantra_keycloak_client_secret" class="col-lg-4 o_light_label"/>
+                                    <field name="yantra_keycloak_client_secret" password="True"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Money" name="yantra_money_block">
+                        <setting string="Default TDS rate (%)" help="Applied to new worker records; the bill withholds this share of the gross.">
+                            <field name="yantra_default_tds_rate"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_yantra_settings" model="ir.actions.act_window">
+        <field name="name">Yantra settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'yantra_bridge', 'bin_size': False}</field>
+    </record>
+</odoo>

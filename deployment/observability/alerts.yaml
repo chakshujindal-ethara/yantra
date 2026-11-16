@@ -1,0 +1,140 @@
+# The Stage 1 alert rules (system design, operations section). Every rule names its runbook section in
+# deployment/RUNBOOKS.md. Thresholds are the plan's; tune them in this file only.
+groups:
+  - name: yantra
+    rules:
+      - alert: GatewayLatencyP99
+        expr: histogram_quantile(0.99, sum by (le) (rate(yantra_http_request_duration_seconds_bucket{process="gateway"}[5m]))) > 1
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "Gateway p99 latency above 1 s for 5 minutes"
+          runbook: "deployment/RUNBOOKS.md#gateway-slow-or-failing"
+
+      - alert: Http5xxRatio
+        expr: |
+          sum(rate(yantra_http_request_duration_seconds_count{process="gateway",status=~"5.."}[2m]))
+            / sum(rate(yantra_http_request_duration_seconds_count{process="gateway"}[2m])) > 0.01
+        for: 2m
+        labels: {severity: page}
+        annotations:
+          summary: "More than 1% of gateway answers are 5xx"
+          runbook: "deployment/RUNBOOKS.md#gateway-slow-or-failing"
+
+      - alert: DoubleLiveClaims
+        expr: max(yantra_units_with_two_live_claims) > 0
+        labels: {severity: page}
+        annotations:
+          summary: "A unit holds two live claims: the claim lock is broken"
+          runbook: "deployment/RUNBOOKS.md#stuck-claims"
+
+      - alert: ReviewBacklogAge
+        expr: max(yantra_review_backlog_oldest_age_seconds) > 172800
+        for: 10m
+        labels: {severity: ticket}
+        annotations:
+          summary: "A submission has waited more than 48 hours for review"
+          runbook: "deployment/RUNBOOKS.md#review-backlog"
+
+      - alert: ReconciliationDelta
+        expr: max(yantra_pay_window_reconciliation_delta) > 0
+        labels: {severity: page}
+        annotations:
+          summary: "A pay window's latest reconciliation does not balance"
+          runbook: "deployment/RUNBOOKS.md#stalled-pay-window"
+
+      - alert: FailedPayouts
+        expr: |
+          sum(yantra_window_lines{status=~"failed|returned"}) / sum(yantra_window_lines) > 0.01
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "More than 1% of payout lines in open windows failed or came back"
+          runbook: "deployment/RUNBOOKS.md#rail-outage"
+
+      - alert: RailUnreachable
+        # timeout, unreachable and retry (429/5xx) are the rail being away; refused (a 4xx) is a bad request, not
+        # an outage. Lines wait in queued while it lasts and never count as failed, so FailedPayouts stays quiet.
+        expr: |
+          sum by (rail) (rate(yantra_rail_calls_total{outcome=~"timeout|unreachable|retry"}[5m]))
+            / sum by (rail) (rate(yantra_rail_calls_total[5m])) > 0.5
+        for: 10m
+        labels: {severity: page}
+        annotations:
+          summary: "More than half of the calls to rail {{ $labels.rail }} fail to reach it (10 minutes)"
+          runbook: "deployment/RUNBOOKS.md#rail-outage"
+
+      - alert: PayoutLinesStuck
+        # the metric has no age, so: some line has been queued or processing at every scrape for 30 minutes
+        expr: sum(yantra_window_lines{status=~"queued|processing"}) > 0
+        for: 30m
+        labels: {severity: page}
+        annotations:
+          summary: "Payout lines have sat in queued or processing for 30 minutes"
+          runbook: "deployment/RUNBOOKS.md#rail-outage"
+
+      - alert: PayWindowNotClosed
+        expr: time() - max(yantra_pay_window_last_closed_timestamp) > 8 * 86400 and max(yantra_pay_window_last_closed_timestamp) > 0
+        for: 1h
+        labels: {severity: page}
+        annotations:
+          summary: "No pay window has closed in eight days: the weekly close was missed"
+          runbook: "deployment/RUNBOOKS.md#stalled-pay-window"
+
+      - alert: ConsumerLag
+        expr: max by (consumer) (yantra_consumer_oldest_age_seconds) > 300
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "Consumer {{ $labels.consumer }} is more than 5 minutes behind the stream"
+          runbook: "deployment/RUNBOOKS.md#nats-backlog"
+
+      - alert: OutboxStale
+        expr: max by (schema) (yantra_outbox_oldest_age_seconds) > 60
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "Outbox {{ $labels.schema }} has events unpublished for over a minute"
+          runbook: "deployment/RUNBOOKS.md#nats-backlog"
+
+      - alert: DeadLetters
+        expr: sum by (schema) (yantra_dead_events) > 0
+        labels: {severity: ticket}
+        annotations:
+          summary: "Dead letters in {{ $labels.schema }}: replay or resolve them"
+          runbook: "deployment/RUNBOOKS.md#dead-letters"
+
+      - alert: JobOverdue
+        expr: max by (job) (yantra_job_overdue) > 0
+        for: 15m
+        labels: {severity: page}
+        annotations:
+          summary: "Scheduled job {{ $labels.job }} is well past its slot: no replica holds its lease"
+          runbook: "deployment/RUNBOOKS.md#stuck-claims"
+
+      - alert: JobFailing
+        # The counter is born at a job's first failure, so increase() never sees that one: a rise inside the window,
+        # or a series that appeared at 2 or more within it, both mean the job keeps failing.
+        expr: |
+          increase(yantra_job_failures_total[15m]) >= 1
+            or (yantra_job_failures_total >= 2 unless yantra_job_failures_total offset 15m)
+        labels: {severity: ticket}
+        annotations:
+          summary: "Scheduled job {{ $labels.job }} keeps failing (more failures in the last 15 minutes)"
+          runbook: "deployment/RUNBOOKS.md#dead-letters"
+
+      - alert: PgConnections
+        expr: sum(pg_stat_activity_count) / max(pg_settings_max_connections) > 0.85
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "Postgres is above 85% of its connections"
+          runbook: "deployment/RUNBOOKS.md#connection-headroom"
+
+      - alert: TargetDown
+        expr: up == 0
+        for: 2m
+        labels: {severity: page}
+        annotations:
+          summary: "{{ $labels.job }} is not answering /metrics"
+          runbook: "deployment/RUNBOOKS.md#gateway-slow-or-failing"

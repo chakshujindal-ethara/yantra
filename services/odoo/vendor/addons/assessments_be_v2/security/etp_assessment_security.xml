@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- "Assessment v2", not "ETP Assessment Pro". The xml ids keep their
+             old names on purpose - renaming those would orphan every group
+             assignment already made on stage and in production - but the two
+             LABELS are what a person reads on the user form, and there were
+             two sections called "ETP Assessment Pro" on that page: the
+             decommissioned addon's and this one's. -->
+        <record id="module_category_etp_assessment" model="ir.module.category">
+            <field name="name">Assessment v2</field>
+            <field name="sequence">210</field>
+        </record>
+
+        <record id="privilege_etp_assessment" model="res.groups.privilege">
+            <field name="name">Assessment v2 Access</field>
+            <field name="category_id" ref="module_category_etp_assessment"/>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- FOUR RUNGS, AND THE DROPDOWN ORDER IS NOT DECLARED HERE.
+             Odoo 19 sorts a privilege's options by how many of its OWN groups
+             each one transitively implies (res_groups.py, _get_view_group_hierarchy):
+             Candidate implies 1 (itself), Manager 2, Admin 3. So the chain below
+             IS the order, and the field reads:
+
+                 No  /  Candidate  /  Manager  /  Admin
+
+             "No" is not a record - it is `privilege.placeholder`, whose default
+             is already "No". Nothing to declare, and nothing that can strip a
+             user's login: `base.group_user` carries no privilege_id, so it is
+             owned by the separate `role` radio and survives dropping to No.
+
+             `sequence` is belt-and-braces. Depth decides the order on its own,
+             but two groups at equal depth fall back to sequence then id - which
+             is what happens if an `implied_ids` link below is ever dropped.
+
+             DO NOT let any group OUTSIDE this privilege imply one of these
+             three. Inbound implication makes the widget truncate the dropdown
+             per-user and hide the lower options. -->
+
+        <record id="group_assessment_candidate" model="res.groups">
+            <field name="name">Candidate</field>
+            <field name="privilege_id" ref="privilege_etp_assessment"/>
+            <field name="sequence">10</field>
+            <!-- Candidates are provisioned as INTERNAL users today, so this
+                 keeps the seat model exactly as it was. It is also what makes
+                 "No" mean something: candidate ability used to ride on
+                 base.group_user alone, which every employee in the instance
+                 has - so "No" still let a person sit an exam. -->
+            <field name="implied_ids"
+                   eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- READ-ONLY MANAGER. Its 15 grants are all `1,0,0,0` rows in
+             ir.model.access.csv (suffix `_restricted`), NOT an implied_ids link
+             to the Admin group - implying Admin would hand over write/create/
+             unlink on everything and there would be no read-only role left.
+
+             One of those rows is for `hr.applicant`, which this module does not
+             own. It is needed because `assessments.be.evaluator_ids` is a
+             Many2many to hr.applicant, so the roster on every assessment - and
+             therefore GET /api/v1/assessments and /api/v1/attempts - cannot be
+             read without it. Admin gets the same access implicitly through
+             hr_recruitment.group_hr_recruitment_user below.
+
+             DO NOT grant it by adding hr_recruitment.group_hr_recruitment_user
+             or _interviewer here instead. The officer group carries write,
+             create and unlink on applicants plus the whole Recruitment menu.
+             The interviewer group looks harmless but drags in the "Applicant
+             Interviewer" record rule, whose domain is "only applicants whose
+             job or interviewer list names me" - a Manager would then open a
+             launched assessment and see an EMPTY roster with nothing on screen
+             to explain it. A bare ACL row attaches no rule, so the only rule
+             left on hr.applicant is the global multi-company one. -->
+        <record id="group_assessment_manager_restricted" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="privilege_id" ref="privilege_etp_assessment"/>
+            <field name="sequence">20</field>
+            <field name="implied_ids"
+                   eval="[(4, ref('group_assessment_candidate'))]"/>
+        </record>
+
+        <!-- THE XMLID IS `group_assessment_manager` AND THE LABEL IS "Admin".
+             They no longer match, on purpose, and this is the same convention
+             the note at the top of this file already sets for the category.
+
+             This group has always been the full-power one. Every existing
+             reference points at this xmlid - 25 ACL rows, 3 record rules, 10
+             menus, 8 code guards and the settings/question views - so keeping
+             it means the relabel touches none of them and NO membership
+             migration is needed: everyone who is an admin today stays one.
+
+             Repurposing the xmlid for the new read-only Manager instead would
+             silently convert all 40 of those sites into restricted grants,
+             which is a privilege change disguised as a rename. -->
+        <record id="group_assessment_manager" model="res.groups">
+            <field name="name">Admin</field>
+            <field name="privilege_id" ref="privilege_etp_assessment"/>
+            <field name="sequence">30</field>
+            <!-- Evaluator is gone, and Manager used to be defined as "Evaluator
+                 plus more" - so this line had to lose that reference or the file
+                 would fail to load against a deleted xml id. Nothing is lost:
+                 hr_recruitment.group_hr_recruitment_user implies
+                 group_hr_recruitment_interviewer, which implies base.group_user,
+                 which is exactly what Evaluator used to contribute. -->
+            <!-- Admin implies Manager, which implies Candidate. That chain is
+                 what orders the dropdown, and it is also what lets every route
+                 guard test the LOWEST group it needs: `has_group` resolves
+                 through implied_ids, so a check for the restricted Manager
+                 admits an Admin automatically and no guard has to enumerate. -->
+            <field name="implied_ids"
+                   eval="[(4, ref('group_assessment_manager_restricted')),
+                          (4, ref('hr_recruitment.group_hr_recruitment_user'))]"/>
+            <!-- Grant the installing admin the Admin group. Without this a FRESH
+                 install leaves this group with zero members, and since every ETP
+                 menu/action is restricted to it the admin who just installed the
+                 app cannot open Generators/Questions/Assessments at all. (4,…) is
+                 an additive link, so it is idempotent across upgrades. -->
+            <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+    </data>
+</odoo>

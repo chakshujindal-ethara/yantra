@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- noupdate="0" ON PURPOSE. The module owns every template in this file: the
+     bodies reference fields this addon defines, so a stale copy is a broken
+     email, not a customisation, and a body edit must reach existing databases
+     on upgrade. The cost is that an admin who edits a template in the UI loses
+     it on the next upgrade; edit it here instead. -->
+<odoo noupdate="0">
+    <record id="mail_template_candidate_invitation" model="mail.template">
+        <field name="name">ETP Assessment: Single Test Invitation</field>
+        <field name="model_id" ref="model_assessments_be_evaluator"/>
+        <field name="subject">Your assessment is ready: {{ object.assessment_id.name }}</field>
+        <!-- The verified sender; replies go to whoever made the paper (Q11). -->
+        <field name="email_from">no-reply@ethara.ai</field>
+        <field name="reply_to">{{ object.assessment_id.create_uid.email_formatted or '' }}</field>
+        <field name="email_to">{{ object.applicant_id.email_from or '' }}</field>
+        <field name="body_html" type="html">
+<div style="font-family:Arial,sans-serif;font-size:14px;color:#333;line-height:1.5">
+    <p>Hi <strong t-out="object.applicant_id.partner_name or 'there'"/>,</p>
+    <p>You have been invited to take an assessment.</p>
+    <table style="border-collapse:collapse;margin:12px 0">
+        <tr><td style="padding:6px 12px"><b>Assessment:</b></td><td t-out="object.assessment_id.name"/></tr>
+        <tr><td style="padding:6px 12px"><b>Questions:</b></td><td t-out="object.total_questions"/></tr>
+        <tr><td style="padding:6px 12px"><b>Time limit:</b></td><td><span t-out="object.assessment_id.duration_minutes"/> minutes, once you start</td></tr>
+        <tr t-if="object.assessment_id.start_date"><td style="padding:6px 12px"><b>Opens:</b></td><td><span t-out="format_datetime(object.assessment_id.start_date, tz='Asia/Kolkata', dt_format='d MMM yyyy, h:mm a')"/> IST</td></tr>
+        <tr t-if="object.assessment_id.end_date"><td style="padding:6px 12px"><b>Closes:</b></td><td><span t-out="format_datetime(object.assessment_id.end_date, tz='Asia/Kolkata', dt_format='d MMM yyyy, h:mm a')"/> IST</td></tr>
+    </table>
+    <!-- No pass mark and no proctoring rules here (owner, 2026-09-29): the
+         candidate app shows the rules on the start screen. -->
+    <p>Sign in with your Ethara account, using your official email address. First time? Use Default password provided by host or Forgot password to set one.</p>
+    <p><b>Before you start:</b> The clock starts when you press Start Assessment and does not pause, so begin only when you have <span t-out="object.assessment_id.duration_minutes"/> uninterrupted minutes.</p>
+    <p style="margin:24px 0">
+        <a t-att-href="object.candidate_home_url or ''"
+           style="background:#714B67;color:#fff;padding:10px 22px;text-decoration:none;border-radius:4px;font-weight:600">
+            Go to My Assessments
+        </a>
+    </p>
+    <p style="color:#888;font-size:12px">
+        Or paste this URL into your browser:<br/>
+        <span t-out="object.candidate_home_url or ''"/>
+    </p>
+</div>
+        </field>
+        <field name="auto_delete" eval="False"/>
+        <field name="use_default_to" eval="False"/>
+        <field name="lang">en_US</field>
+    </record>
+
+    <!-- Retire the previous record. Its `noupdate` flag was fixed in
+         ir_model_data when it was created, so its body never updated; the new
+         xml id is updatable, and this delete stops two templates sitting side
+         by side under one display name. Deleting a missing record is a no-op,
+         so re-running is safe. -->
+    <delete model="mail.template" id="mail_template_single_invitation"/>
+
+    <!-- The password-reset email.
+         WHY THIS ADDON HAS ITS OWN rather than reusing
+         `api_auth_gateway.email_template_password_reset`: the link differs.
+         The gateway builds it from ONE global system parameter shared with
+         every app on this database, so a shared template would have to send
+         every user to the same front end. See RESET_URL_PARAM in
+         controllers/api/auth.py.
+         `reset_link` and `user_name` arrive through the context, exactly as
+         the gateway's template reads them, so an operator comparing the two
+         finds the same two variables. -->
+    <record id="mail_template_password_reset" model="mail.template">
+        <field name="name">Assessment v2: Password Reset</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="subject">Reset your Ethara Assessment password</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="body_html" type="html">
+<div style="font-family:Arial,sans-serif;font-size:14px;color:#333;line-height:1.5">
+    <p>Hi <strong t-out="ctx.get('user_name') or object.name or 'there'"/>,</p>
+    <p>Somebody asked to reset the password for this account. If that was you,
+       choose a new one here:</p>
+    <p style="margin:24px 0">
+        <a t-att-href="ctx.get('reset_link') or '#'"
+           style="background:#B800B8;color:#fff;padding:10px 22px;text-decoration:none;border-radius:4px;font-weight:600">
+            Set a new password
+        </a>
+    </p>
+    <p style="color:#666;font-size:12px">
+        Or paste this URL into your browser:<br/>
+        <span t-out="ctx.get('reset_link') or ''"/>
+    </p>
+    <p><strong>This link expires in one hour</strong> and can be used once.</p>
+    <p style="color:#666;font-size:12px">
+        If you did not ask for this, you can ignore this email - your password
+        has not changed. Resetting it signs you out on every device.
+    </p>
+</div>
+        </field>
+        <field name="auto_delete" eval="False"/>
+        <field name="use_default_to" eval="False"/>
+        <field name="lang">en_US</field>
+    </record>
+</odoo>

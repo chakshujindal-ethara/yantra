@@ -1,0 +1,12 @@
+# Vendored upstream code: rebuilt by `yantra vendor sync`, verified by `yantra vendor check`.
+# Never edit the copies by hand: add a numbered patch under the patches directory instead.
+patches = "patches"
+
+[[source]]
+name = "ethara-assessment-fe"
+repo = "git@github.com:Ethara-Ai/ethara-assessment-fe.git"
+commit = "dc5b9116a1ec6208b048dd01e3193d6b9bb5e8af"
+paths = ["."]
+strip = ""
+dest = "ethara-assessment-fe"
+tree_sha256 = "350d612239716d33f47ef18d44574b671d7c98ed0988d2520dc3bbfed41b77fe"

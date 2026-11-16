@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Two wizards with the same shape, because the two imports have the same
+         shape: attach a CSV, press Import. The column spec lives in
+         `models/simple_import.py` and is downloadable from the button beside
+         the file field, so the form does not restate a list that would then
+         have two places to go stale. -->
+
+    <record id="assessments_be_tag_import_wizard_form" model="ir.ui.view">
+        <field name="name">assessments.be.tag.import.wizard.form</field>
+        <field name="model">assessments.be.tag.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Tags">
+                <div class="alert alert-info" role="status">
+                    <strong>Upsert, not append.</strong>
+                    A row whose <code>name</code> matches an existing tag updates
+                    it; anything else is created. Keys are canonicalised the same
+                    way the extraction model writes them, so an imported tag and
+                    an extracted one meaning the same thing land on one record.
+                </div>
+                <group>
+                    <field name="data_file" filename="data_filename"
+                           widget="binary" string="CSV file"
+                           options="{'accepted_file_extensions': '.csv'}"/>
+                    <field name="data_filename" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_import" type="object" string="Import"
+                            class="btn-primary"/>
+                    <button name="action_download_template" type="object"
+                            string="Download Template" class="btn-secondary"/>
+                    <button string="Cancel" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_tag_import" model="ir.actions.act_window">
+        <field name="name">Import Tags</field>
+        <field name="res_model">assessments.be.tag.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="assessments_be_generator_import_wizard_form" model="ir.ui.view">
+        <field name="name">assessments.be.generator.import.wizard.form</field>
+        <field name="model">assessments.be.generator.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Generators">
+                <div class="alert alert-info" role="status">
+                    <strong>The SOP document is not part of this.</strong>
+                    A CSV cell cannot carry a file, so an imported generator
+                    arrives with its settings and its notes and still needs its
+                    SOP uploaded before it can generate. A row whose
+                    <code>name</code> matches an existing generator updates it.
+                </div>
+                <group>
+                    <field name="data_file" filename="data_filename"
+                           widget="binary" string="CSV file"
+                           options="{'accepted_file_extensions': '.csv'}"/>
+                    <field name="data_filename" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_import" type="object" string="Import"
+                            class="btn-primary"/>
+                    <button name="action_download_template" type="object"
+                            string="Download Template" class="btn-secondary"/>
+                    <button string="Cancel" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_generator_import"
+            model="ir.actions.act_window">
+        <field name="name">Import Generators</field>
+        <field name="res_model">assessments.be.generator.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

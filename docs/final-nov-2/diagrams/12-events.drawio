@@ -1,0 +1,92 @@
+<mxfile host="app.diagrams.net" agent="yantra final-nov-2 build_diagrams.py" version="24.0.0">
+  <diagram id="12-events" name="Events: who publishes what, who consumes it">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Events: who publishes what, who consumes it" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-60" width="900" height="30" as="geometry"/></mxCell>
+        <mxCell id="subtitle" value="CloudEvents on NATS JetStream. Every producer writes to its own outbox in the same transaction; a relay publishes." style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#717182;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-34" width="1200" height="24" as="geometry"/></mxCell>
+        <mxCell id="p_odoo" value="odoo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#047857;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="0" width="150" height="60" as="geometry"/></mxCell>
+        <mxCell id="p_market" value="market" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="90" width="150" height="60" as="geometry"/></mxCell>
+        <mxCell id="p_quality" value="quality" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="180" width="150" height="60" as="geometry"/></mxCell>
+        <mxCell id="p_payout" value="payout" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="270" width="150" height="60" as="geometry"/></mxCell>
+        <mxCell id="p_assess" value="assess" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="360" width="150" height="60" as="geometry"/></mxCell>
+        <mxCell id="s_worker.eligible" value="worker.eligible" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="0" width="260" height="36" as="geometry"/></mxCell>
+        <mxCell id="s_worker.skill.verified" value="worker.skill.verified" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="50" width="260" height="36" as="geometry"/></mxCell>
+        <mxCell id="s_work.unit.published" value="work.unit.published" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="100" width="260" height="36" as="geometry"/></mxCell>
+        <mxCell id="s_work.unit.submitted" value="work.unit.submitted" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="150" width="260" height="36" as="geometry"/></mxCell>
+        <mxCell id="s_quality.verdict.accepted" value="quality.verdict.accepted" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="200" width="260" height="36" as="geometry"/></mxCell>
+        <mxCell id="s_quality.verdict.rejected" value="quality.verdict.rejected" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="250" width="260" height="36" as="geometry"/></mxCell>
+        <mxCell id="s_payout.window.closed" value="payout.window.closed" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="300" width="260" height="36" as="geometry"/></mxCell>
+        <mxCell id="s_payout.paid" value="payout.paid" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="350" width="260" height="36" as="geometry"/></mxCell>
+        <mxCell id="s_delivery.shipped" value="delivery.shipped" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="300" y="400" width="260" height="36" as="geometry"/></mxCell>
+        <mxCell id="c_market" value="market<br><span style="font-size:11px;color:#717182">worker read model, unit status, delivery</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="760" y="0" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="c_quality" value="quality<br><span style="font-size:11px;color:#717182">review tasks</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="760" y="80" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="c_payout" value="payout<br><span style="font-size:11px;color:#717182">earnings, holds</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="760" y="160" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="c_odoo" value="odoo<br><span style="font-size:11px;color:#717182">bills, invoices, bench</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#047857;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="760" y="240" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="c_notify" value="notify<br><span style="font-size:11px;color:#717182">messages</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#1D4ED8;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="760" y="320" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="c_perf" value="performance (Stage 2)<br><span style="font-size:11px;color:#717182">signals</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9CA3AF;fontColor=#717182;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;dashed=1;" vertex="1" parent="1"><mxGeometry x="760" y="400" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="e0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p_odoo" target="s_worker.eligible"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="180" y="18"/><mxPoint x="180" y="18"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p_assess" target="s_worker.skill.verified"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="252" y="374"/><mxPoint x="252" y="68"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p_market" target="s_work.unit.published"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="198" y="118"/><mxPoint x="198" y="118"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p_market" target="s_work.unit.submitted"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="198" y="136"/><mxPoint x="198" y="168"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p_quality" target="s_quality.verdict.accepted"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="216" y="218"/><mxPoint x="216" y="218"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p_quality" target="s_quality.verdict.rejected"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="216" y="226"/><mxPoint x="216" y="268"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p_payout" target="s_payout.window.closed"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="234" y="316"/><mxPoint x="234" y="318"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p_odoo" target="s_payout.paid"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="180" y="46"/><mxPoint x="180" y="368"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p_market" target="s_delivery.shipped"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="198" y="136"/><mxPoint x="198" y="418"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_worker.eligible" target="c_market"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="600" y="18"/><mxPoint x="600" y="18"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_worker.skill.verified" target="c_market"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="600" y="68"/><mxPoint x="600" y="46"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_work.unit.published" target="c_notify"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="672" y="118"/><mxPoint x="672" y="334"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_work.unit.submitted" target="c_quality"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="618" y="168"/><mxPoint x="618" y="126"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_quality.verdict.accepted" target="c_payout"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="636" y="218"/><mxPoint x="636" y="206"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_quality.verdict.accepted" target="c_market"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="600" y="218"/><mxPoint x="600" y="46"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_quality.verdict.rejected" target="c_notify"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="672" y="268"/><mxPoint x="672" y="334"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_payout.window.closed" target="c_odoo"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="654" y="318"/><mxPoint x="654" y="286"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_payout.paid" target="c_notify"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="672" y="368"/><mxPoint x="672" y="366"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_delivery.shipped" target="c_odoo"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="654" y="418"/><mxPoint x="654" y="286"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s_quality.verdict.accepted" target="c_perf"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="690" y="218"/><mxPoint x="690" y="414"/></Array>
+        </mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

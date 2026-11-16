@@ -1,0 +1,71 @@
+{
+    "ok": true,
+    "data": {
+        "id": 1,
+        "name": "Yantra quick: Transcription basics",
+        "active": true,
+        "deleted": false,
+        "state": "done",
+        "sop_title": "",
+        "sop_gen_state": "idle",
+        "sop_gen_error": "",
+        "sop_gen_report": "",
+        "sop_gen_started_at": null,
+        "sop_gen_finished_at": null,
+        "sop_gen_cancel_requested": false,
+        "sop_gen_cancelled_at": null,
+        "can_cancel_generation": false,
+        "tag_extract_state": "idle",
+        "tag_extract_error": "",
+        "tag_extract_cancel_requested": false,
+        "tag_extract_last_run": null,
+        "question_count": 2,
+        "approved_count": 2,
+        "resource_count": 0,
+        "similar_count": 0,
+        "tags": [],
+        "plain_tags": "",
+        "create_date": "2026-11-12T11:28:36Z",
+        "owner": "Administrator",
+        "similar": [],
+        "sop_summary": "",
+        "source_text": "Imported via CSV (2 rows).",
+        "question_count_mode": "auto",
+        "sop_question_count": 0,
+        "shape_quotas": {},
+        "tasks": [],
+        "task_count": 0,
+        "image_label_count": 20,
+        "image_label_live_capture": false,
+        "force_question_type": "",
+        "allowed_types": [],
+        "select_all_types": false,
+        "structure_mode": "",
+        "structure_count": 0,
+        "selected_structure_count": 0,
+        "structure_extract_state": "idle",
+        "last_extract_summary": "Imported 2 draft question(s).",
+        "tabs": {
+            "analysis": {
+                "metadata": {},
+                "mapping": {},
+                "skills": [],
+                "evidence": []
+            },
+            "requirements": {
+                "required_elements": [],
+                "covered_by_all": [],
+                "question_spec": {},
+                "rating_scheme": {}
+            },
+            "quality": {
+                "quality_criteria": [],
+                "failure_modes": [],
+                "gaps": [],
+                "conflicts": [],
+                "injection_flags": []
+            },
+            "resources": []
+        }
+    }
+}

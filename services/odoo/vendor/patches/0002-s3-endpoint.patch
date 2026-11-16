@@ -1,0 +1,190 @@
+# Assessment v2 against an S3-compatible store (MinIO): an internal endpoint for server calls, a public one for
+# the signatures handed to a browser (presigned GET/POST, proctoring evidence); path addressing; a CDN/public URL
+# with a path maps back to its key; plus its test.
+diff --git a/addons/assessments_be_v2/services/evidence.py b/addons/assessments_be_v2/services/evidence.py
+index 41c2912..d52f3c8 100644
+--- a/addons/assessments_be_v2/services/evidence.py
++++ b/addons/assessments_be_v2/services/evidence.py
+@@ -137,12 +137,13 @@ def list_evidence(evaluator):
+                for obj in page]
+     objects.sort(key=lambda o: (o.get("LastModified") or _EPOCH, o["Key"]),
+                  reverse=True)
++    signer = s3_service.presign_client(env) or cli  # Yantra patch 0002: browser-facing signatures
+     items = []
+     for obj in objects[:LIST_CAP]:
+         at, rule = _parse_name(obj["Key"])
+         items.append({
+             "key": obj["Key"],
+-            "url": cli.generate_presigned_url(
++            "url": signer.generate_presigned_url(
+                 "get_object", Params={"Bucket": bucket, "Key": obj["Key"]},
+                 ExpiresIn=900),
+             "at": at,
+diff --git a/addons/assessments_be_v2/services/s3_service.py b/addons/assessments_be_v2/services/s3_service.py
+index 0cb7ee2..6f4164b 100644
+--- a/addons/assessments_be_v2/services/s3_service.py
++++ b/addons/assessments_be_v2/services/s3_service.py
+@@ -78,9 +78,12 @@ def _max_retries(env):
+ _S3_CLIENT_CACHE = {}
+ 
+ 
+-def _build_client(region, ak, sk):
++def _build_client(region, ak, sk, endpoint=None):
+     """The ONE way this addon builds a boto3 S3 client, cached per credential.
+ 
++    ``endpoint`` (Yantra patch 0002) points the client at an S3-compatible store such as MinIO; such stores
++    are addressed by path (``<endpoint>/<bucket>/<key>``), not by a virtual host.
++
+     `s3v4` + virtual-host addressing are what a browser-usable presigned URL
+     needs outside us-east-1 (proven on ap-south-1): without them S3 answers
+     400 BEFORE it evaluates CORS, and the browser reports an opaque CORS error
+@@ -89,7 +92,7 @@ def _build_client(region, ak, sk):
+     """
+     import boto3
+     from botocore.config import Config
+-    cache_key = (ak, sk, region)
++    cache_key = (ak, sk, region, endpoint)
+     cli = _S3_CLIENT_CACHE.get(cache_key)
+     if cli is None:
+         cli = boto3.client(
+@@ -97,10 +100,11 @@ def _build_client(region, ak, sk):
+             region_name=region,
+             aws_access_key_id=ak,
+             aws_secret_access_key=sk,
++            endpoint_url=endpoint or None,
+             config=Config(
+                 retries={"max_attempts": 3, "mode": "standard"},
+                 signature_version="s3v4",
+-                s3={"addressing_style": "virtual"},
++                s3={"addressing_style": "path" if endpoint else "virtual"},
+             ),
+         )
+         _S3_CLIENT_CACHE[cache_key] = cli
+@@ -112,6 +116,23 @@ def _client(env):
+         _param(env, "assessments_be_v2.s3_region", "us-east-1"),
+         _param(env, "assessments_be_v2.s3_access_key_id"),
+         _secret(env, "assessments_be_v2.s3_secret_key"),
++        _param(env, "assessments_be_v2.s3_endpoint_url") or None,
++    )
++
++
++def presign_client(env):
++    """The client whose signatures a BROWSER will use (Yantra patch 0002). A signature covers the host, so when
++    the server reaches the store at an internal address (``s3_endpoint_url``, e.g. ``http://minio:9000``) the
++    browser-facing URL must be signed for the public one (``s3_public_endpoint_url``). Without a public endpoint
++    this is the ordinary client."""
++    public = _param(env, "assessments_be_v2.s3_public_endpoint_url")
++    if not public or _connector(env) is not None:
++        return storage_target(env)[0]
++    return _build_client(
++        _param(env, "assessments_be_v2.s3_region", "us-east-1"),
++        _param(env, "assessments_be_v2.s3_access_key_id"),
++        _secret(env, "assessments_be_v2.s3_secret_key"),
++        public,
+     )
+ 
+ 
+@@ -306,7 +327,9 @@ def object_key_from_url(env, url):
+         if host == bucket + ".s3.amazonaws.com":
+             return key
+     if cdn and url.startswith(cdn + "/"):
+-        return key
++        # Yantra patch 0002: a CDN or public endpoint may carry a path (MinIO's `<endpoint>/<bucket>`), so the key is
++        # what follows the CDN prefix, not the whole URL path.
++        return unquote(url[len(cdn) + 1:].split("?")[0].split("#")[0])
+     return None
+ 
+ 
+@@ -320,8 +343,8 @@ def presigned_url(env, key, expires=900, client=None):
+     if not key or not is_configured(env):
+         return None
+     try:
+-        target_cli, bucket = storage_target(env)
+-        cli = client or target_cli
++        _target_cli, bucket = storage_target(env)
++        cli = client or presign_client(env)
+         return cli.generate_presigned_url(
+             "get_object",
+             Params={"Bucket": bucket, "Key": key},
+@@ -363,6 +386,8 @@ def presigned_post(env, key_prefix, content_type, max_bytes, expires_in,
+         # one from the same credentials with this addon's config.
+         cli = _build_client(connector.region_name, connector.aws_access_key_id,
+                             connector.aws_secret_access_key)
++    else:
++        cli = presign_client(env)
+     prefix = f"{key_prefix}/"
+     if under_folder:
+         folder = _param(env, "assessments_be_v2.s3_folder", "etp_assessment").strip("/")
+diff --git a/addons/assessments_be_v2/tests/__init__.py b/addons/assessments_be_v2/tests/__init__.py
+index 27abd6d..7f8493f 100644
+--- a/addons/assessments_be_v2/tests/__init__.py
++++ b/addons/assessments_be_v2/tests/__init__.py
+@@ -306,3 +306,4 @@ from . import test_the_violation_log_stops_growing_at_500
+ from . import test_a_launch_renews_a_short_quit_password
+ from . import test_an_import_skips_who_cannot_sit
+ from . import test_an_invitation_the_mail_server_refused_is_not_sent
++from . import test_s3_endpoint
+diff --git a/addons/assessments_be_v2/tests/test_s3_endpoint.py b/addons/assessments_be_v2/tests/test_s3_endpoint.py
+new file mode 100644
+index 0000000..6664eea
+--- /dev/null
++++ b/addons/assessments_be_v2/tests/test_s3_endpoint.py
+@@ -0,0 +1,58 @@
++"""Yantra patch 0002: an S3-compatible store (MinIO) at an endpoint.
++
++The server reaches the store at an internal address (`s3_endpoint_url`, e.g. `http://minio:9000`) while a browser
++reaches it at a public one (`s3_public_endpoint_url`, e.g. `http://localhost:9000`). A presigned URL's signature
++covers the host, so every URL handed to a browser (presigned GET, presigned POST, proctoring evidence) must be signed
++for the public address, and every server call (put, list, head) must go to the internal one. Path addressing, because
++MinIO has no virtual-host bucket names. Without an endpoint the behaviour is AWS's, unchanged.
++"""
++from odoo.tests.common import TransactionCase, tagged
++
++from odoo.addons.assessments_be_v2.services import s3_service
++
++
++@tagged("post_install", "-at_install")
++class TestS3Endpoint(TransactionCase):
++
++    def setUp(self):
++        super().setUp()
++        icp = self.env["ir.config_parameter"].sudo()
++        icp.set_param("assessments_be_v2.s3_bucket", "yantra-assess")
++        icp.set_param("assessments_be_v2.s3_access_key_id", "yantra")
++        icp.set_param("assessments_be_v2.s3_secret_key", "yantra-local-secret")
++        icp.set_param("assessments_be_v2.s3_region", "us-east-1")
++        icp.set_param("assessments_be_v2.s3_folder", "assess")
++        self.icp = icp
++        s3_service._S3_CLIENT_CACHE.clear()
++
++    def test_without_an_endpoint_the_client_is_aws_virtual_host(self):
++        cli = s3_service._client(self.env)
++        self.assertEqual(cli.meta.config.s3["addressing_style"], "virtual")
++        self.assertIn("amazonaws.com", cli.meta.endpoint_url)
++        self.assertIs(s3_service.presign_client(self.env), s3_service.storage_target(self.env)[0])
++
++    def test_an_endpoint_switches_the_server_client_to_path_addressing(self):
++        self.icp.set_param("assessments_be_v2.s3_endpoint_url", "http://minio:9000")
++        cli, bucket = s3_service.storage_target(self.env)
++        self.assertEqual(cli.meta.endpoint_url, "http://minio:9000")
++        self.assertEqual(cli.meta.config.s3["addressing_style"], "path")
++        self.assertEqual(bucket, "yantra-assess")
++
++    def test_browser_urls_are_signed_for_the_public_endpoint(self):
++        self.icp.set_param("assessments_be_v2.s3_endpoint_url", "http://minio:9000")
++        self.icp.set_param("assessments_be_v2.s3_public_endpoint_url", "http://localhost:9000")
++        url = s3_service.presigned_url(self.env, "assess/x/clip.mp4")
++        self.assertTrue(url.startswith("http://localhost:9000/yantra-assess/assess/x/clip.mp4?"), url)
++        post = s3_service.presigned_post(self.env, "evidence/42", "image/jpeg", 400000, 600)
++        self.assertEqual(post["url"], "http://localhost:9000/yantra-assess")
++        self.assertEqual(post["prefix"], "assess/evidence/42/")
++        self.assertEqual(post["fields"]["Content-Type"], "image/jpeg")
++        # the server client still talks to the internal address
++        self.assertEqual(s3_service.storage_target(self.env)[0].meta.endpoint_url, "http://minio:9000")
++
++    def test_a_cdn_url_on_the_public_bucket_maps_back_to_its_key(self):
++        """The rig sets `s3_cdn_url` to the public bucket URL, so stored URLs are recognised as ours."""
++        self.icp.set_param("assessments_be_v2.s3_cdn_url", "http://localhost:9000/yantra-assess")
++        url, key = s3_service._build_url(self.env, "yantra-assess", "us-east-1", "assess/a.png"), "assess/a.png"
++        self.assertEqual(url, "http://localhost:9000/yantra-assess/assess/a.png")
++        self.assertEqual(s3_service.object_key_from_url(self.env, url), key)

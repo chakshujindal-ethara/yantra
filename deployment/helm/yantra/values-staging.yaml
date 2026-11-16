@@ -1,0 +1,68 @@
+# Staging: auto-synced by Argo CD from main. The promotion PR (CI job promote-staging) rewrites the three
+# image digests below; everything else changes by hand. Hostnames are placeholders the owner replaces.
+env: staging
+domain: staging.yantra.example
+
+image:
+  python:
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  app:
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  odoo:
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  assessApp:
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+
+config:
+  YANTRA_NATS_URL: nats://nats.nats.svc:4222
+  YANTRA_SMTP_HOST: smtp.staging.yantra.example
+  YANTRA_SMTP_PORT: "587"
+  YANTRA_MAIL_FROM: "Yantra (staging) <no-reply@staging.yantra.example>"
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector.monitoring.svc:4318
+  # owner: the ingress controller's pod CIDR (required: the chart refuses to render without it; helm-check.sh
+  # passes a stand-in)
+  FORWARDED_ALLOW_IPS: ""
+  YANTRA_RAIL: fake                  # switch to razorpayx once the test-mode keys are in the store
+  YANTRA_RAZORPAYX_PAYOUT_MODE: IMPS
+  # MinIO: in-release for staging (minio.enabled), the operator tenant in prod; browsers reach the files host
+  YANTRA_S3_ENDPOINT: http://yantra-minio:9000
+  YANTRA_S3_PUBLIC_ENDPOINT: https://files.staging.yantra.example
+  YANTRA_S3_BUCKET: yantra-staging
+  YANTRA_S3_REGION: ap-south-1
+
+secrets:
+  external: true
+  storeRef: {kind: ClusterSecretStore, name: yantra-secrets}
+  remotePrefix: yantra/staging
+
+python:
+  gateway:
+    env:
+      YANTRA_GATEWAY_KEYCLOAK_ISSUER: https://auth.staging.yantra.example/realms/yantra
+      YANTRA_GATEWAY_ALLOWED_ORIGINS: '["https://app.staging.yantra.example"]'
+    hpa: {enabled: true}
+    pdb: {enabled: true}
+  work-api:
+    hpa: {enabled: true}
+    pdb: {enabled: true}
+  money-api:
+    pdb: {enabled: true}
+
+app:
+  keycloakOrigin: https://auth.staging.yantra.example
+  pdb: {enabled: true}
+
+ingress:
+  className: nginx
+  clusterIssuer: letsencrypt-prod
+
+monitoring:
+  serviceMonitor: true
+
+odoo:
+  enabled: false
+
+# A single-node MinIO in the release; the bucket is created at start. Its root credentials are the s3 keys.
+minio:
+  enabled: true
+  bucket: yantra-staging

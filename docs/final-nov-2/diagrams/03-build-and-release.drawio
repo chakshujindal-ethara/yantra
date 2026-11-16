@@ -1,0 +1,40 @@
+<mxfile host="app.diagrams.net" agent="yantra final-nov-2 build_diagrams.py" version="24.0.0">
+  <diagram id="03-build-and-release" name="Build and release: one repository, affected-only CI, one release train">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Build and release: one repository, affected-only CI, one release train" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-60" width="900" height="30" as="geometry"/></mxCell>
+        <mxCell id="subtitle" value="A pull request that changes a contract must also change its consumers; a service without a runbook does not deploy." style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#717182;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-34" width="1200" height="24" as="geometry"/></mxCell>
+        <mxCell id="pr" value="Pull request<br><span style="font-size:11px;color:#717182">trunk-based, short branch</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="60" width="150" height="70" as="geometry"/></mxCell>
+        <mxCell id="ci" value="CI: path filters<br><span style="font-size:11px;color:#717182">tests only for what changed</span><br><span style="font-size:10px;color:#717182;font-family:Courier New">GitHub Actions</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="200" y="60" width="190" height="70" as="geometry"/></mxCell>
+        <mxCell id="ct" value="Contract tests<br><span style="font-size:11px;color:#717182">OpenAPI and event schemas; generated clients rebuilt</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="440" y="60" width="190" height="70" as="geometry"/></mxCell>
+        <mxCell id="img" value="Image build<br><span style="font-size:11px;color:#717182">signed, SBOM, scanned, tagged per service</span><br><span style="font-size:10px;color:#717182;font-family:Courier New">cosign, Harbor</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="680" y="60" width="190" height="70" as="geometry"/></mxCell>
+        <mxCell id="argo" value="Argo CD<br><span style="font-size:11px;color:#717182">app per service, app-of-apps per environment</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F3F5;strokeColor=#717182;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="920" y="60" width="170" height="70" as="geometry"/></mxCell>
+        <mxCell id="stg" value="Staging<br><span style="font-size:11px;color:#717182">smoke, claim-storm harness</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#B91C1C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="920" y="190" width="170" height="70" as="geometry"/></mxCell>
+        <mxCell id="prod" value="Production<br><span style="font-size:11px;color:#FFFFFF">canary, runbook on file</span>" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#047857;strokeColor=#047857;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="920" y="320" width="170" height="70" as="geometry"/></mxCell>
+        <mxCell id="db" value="Fresh-database tests<br><span style="font-size:11px;color:#717182">migrations per service from zero</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="440" y="190" width="190" height="70" as="geometry"/></mxCell>
+        <mxCell id="harness" value="Claim-storm harness<br><span style="font-size:11px;color:#717182">1.5x the largest cohort, zero errors</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#B91C1C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="680" y="190" width="190" height="70" as="geometry"/></mxCell>
+        <mxCell id="e0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="pr" target="ci"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="ci" target="ct"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="ct" target="img"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="img" target="argo"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="argo" target="stg"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e5" value="gate passed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="stg" target="prod"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="ci" target="db"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="295" y="225"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="db" target="harness"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="harness" target="stg"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

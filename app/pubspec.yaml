@@ -1,0 +1,43 @@
+name: yantra_app
+description: "Yantra: the app for workers, operators and clients."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  crypto: 3.0.6
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  go_router: 17.5.0
+  http: 1.5.0
+  http_parser: 4.1.2
+  shared_preferences: 2.5.3
+  uuid: 4.5.1
+  web: 1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Ethara portal typefaces, bundled (SIL OFL 1.1, assets/fonts/OFL-*.txt) so
+  # first paint never waits on a font CDN. Plus Jakarta Sans is one VARIABLE
+  # file (wght 200-800): weights go through FontVariation, see
+  # lib/core/theme/app_theme.dart. DM Mono ships at 400 and 500 only.
+  fonts:
+    - family: Plus Jakarta Sans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
+    - family: DM Mono
+      fonts:
+        - asset: assets/fonts/DMMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMMono-Medium.ttf
+          weight: 500

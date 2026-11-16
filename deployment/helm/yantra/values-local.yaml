@@ -1,0 +1,63 @@
+# kind / local cluster (deployment/scripts/kind-up.sh). Images are built locally and loaded into kind; the
+# infrastructure (Postgres, Redis, NATS, Keycloak) comes from deployment/kind/deps.yaml as plain Deployments.
+# Every secret here is the local rig's, never a real one.
+env: local
+domain: localtest.me
+
+image:
+  pullPolicy: Never          # kind load docker-image puts them on the node
+  python: {repository: yantra/python, tag: local}
+  app: {repository: yantra/app, tag: local}
+  odoo: {repository: yantra/odoo, tag: local}
+  assessApp: {repository: yantra/assess-app, tag: local}
+
+config:
+  YANTRA_NATS_URL: nats://nats:4222
+  LOG_FORMAT: text
+  YANTRA_RAIL: fake
+  YANTRA_S3_ENDPOINT: http://yantra-minio:9000
+  YANTRA_S3_PUBLIC_ENDPOINT: http://localhost:9000   # kind-up.sh port-forwards MinIO here
+  YANTRA_S3_BUCKET: yantra
+
+secrets:
+  external: false
+  values:
+    # One owner URL locally; staging/prod give work and money their own least-privilege roles (deployment/sql).
+    database-url-migrate: postgresql+psycopg://yantra:yantra@postgres:5432/yantra
+    database-url-work: postgresql+psycopg://yantra:yantra@postgres:5432/yantra
+    database-url-money: postgresql+psycopg://yantra:yantra@postgres:5432/yantra
+    pii-key: local-rig-pii-key
+    audit-key: local-rig-audit-key-not-a-secret-at-all
+    redis-url: redis://redis:6379/0
+    s3-access-key: yantra
+    s3-secret-key: yantra-local-secret
+    bank-key: "v1:bG9jYWwtcmlnLWJhbmsta2V5LTMyLWJ5dGVzLW9rISE="   # the compose rig's; money only
+
+python:
+  gateway:
+    replicas: 1
+    env:
+      # The issuer is the URL the browser and CLI use (port-forwarded); the keys come from inside the cluster.
+      YANTRA_GATEWAY_KEYCLOAK_ISSUER: http://localhost:8180/realms/yantra
+      YANTRA_GATEWAY_KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/yantra/protocol/openid-connect/certs
+      YANTRA_GATEWAY_ALLOW_INSECURE_JWKS: "true"
+      YANTRA_GATEWAY_ALLOWED_ORIGINS: '["http://localhost:8095"]'
+  work-api: {replicas: 1}
+  money-api: {replicas: 1}
+
+app:
+  replicas: 1
+  gatewayOrigin: http://localhost:8090
+  keycloakOrigin: http://localhost:8180
+  directLogin: true
+
+# kind has no ingress controller in kind-up.sh: the script port-forwards the gateway, Keycloak and the app.
+ingress:
+  enabled: false
+
+networkPolicy:
+  enabled: true              # rendered and applied; kind's default CNI does not enforce it
+
+minio:
+  enabled: true
+  storage: 2Gi

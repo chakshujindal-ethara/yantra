@@ -1,0 +1,12 @@
+{
+    "ok": true,
+    "data": {
+        "submitted": true,
+        "already": false,
+        "result": {
+            "released": false,
+            "status": "awaiting_results",
+            "label": "Awaiting results"
+        }
+    }
+}

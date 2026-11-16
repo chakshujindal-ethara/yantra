@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="550" viewBox="0 0 1340 550" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1340" height="550" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Data model: the entities that carry the loop</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Names follow DATAMODEL.md; rubric_version, reason_code, unit_price and the cost fields are this plan&#x27;s additions. Ids cross boundaries, foreign keys never do.</text>
+<rect x="40" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="40" y1="128" x2="260" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="150.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">worker (odoo)</text>
+<text x="50.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">id, partner_ref, status</text>
+<text x="50.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">agreements, consent</text>
+<text x="50.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">bank_account (one)</text>
+<text x="50.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">payout_identity_bound</text>
+<rect x="40" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="40" y1="278" x2="260" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="150.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">worker_skill (odoo)</text>
+<text x="50.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">worker_id, skill</text>
+<text x="50.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">evidence: claimed |</text>
+<text x="50.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle"> verified | proven</text>
+<text x="50.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">availability_until</text>
+<rect x="40" y="400" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="400" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="420" width="220" height="8" fill="#EFF6FF"/>
+<line x1="40" y1="428" x2="260" y2="428" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="150.0" y="414.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">worker_profile (market)</text>
+<text x="50.0" y="442.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">read model from events</text>
+<text x="50.0" y="457.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">odoo_partner_ref</text>
+<text x="50.0" y="472.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">cert gates, tier</text>
+<text x="50.0" y="487.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">eligible</text>
+<rect x="300" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="300" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="300" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="300" y1="128" x2="520" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="410.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">client_project (market)</text>
+<text x="310.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">id, client_org_id</text>
+<text x="310.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">schema, quality_policy</text>
+<text x="310.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rubric_version</text>
+<text x="310.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rate_card_id</text>
+<rect x="300" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="300" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="300" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="300" y1="278" x2="520" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="410.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">work_batch (market)</text>
+<text x="310.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">project_id, mode</text>
+<text x="310.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">unit_pay, unit_price (frozen)</text>
+<text x="310.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">margin_floor, approval</text>
+<text x="310.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">status</text>
+<rect x="560" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="560" y1="128" x2="780" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="670.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">work_unit (market)</text>
+<text x="570.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">batch_id, payload_uri</text>
+<text x="570.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rubric_version</text>
+<text x="570.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">status, cost fields</text>
+<text x="570.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">accepted_at</text>
+<rect x="560" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="560" y1="278" x2="780" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="670.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">claim + submission (market)</text>
+<text x="570.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">unit_id, worker_id</text>
+<text x="570.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">idempotency_key (unique)</text>
+<text x="570.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">expires_at</text>
+<text x="570.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">submission version</text>
+<rect x="820" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="820" y1="128" x2="1040" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="930.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">review (quality)</text>
+<text x="830.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">unit_id, reviewer_id</text>
+<text x="830.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">verdict, reason_code</text>
+<text x="830.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rubric_unclear</text>
+<text x="830.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">audit_of, canonical</text>
+<rect x="820" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="820" y1="278" x2="1040" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="930.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">earning (payout)</text>
+<text x="830.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">worker_id, unit_id</text>
+<text x="830.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">amount, kind (work|review)</text>
+<text x="830.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">window_id, hold</text>
+<text x="830.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">verdict_event_id</text>
+<rect x="1080" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="1080" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="1080" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="1080" y1="128" x2="1300" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="1190.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">pay_window (payout)</text>
+<text x="1090.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">sat_fri_ist, status</text>
+<text x="1090.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">approvals (2)</text>
+<text x="1090.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rail_batch_id</text>
+<text x="1090.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">reconciled_at</text>
+<rect x="1080" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="1080" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="1080" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="1080" y1="278" x2="1300" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="1190.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">vendor_bill (odoo)</text>
+<text x="1090.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">worker_id, window_id</text>
+<text x="1090.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">amount, tds</text>
+<text x="1090.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">state</text>
+<text x="1090.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">payment_ref</text>
+<rect x="560" y="400" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="400" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="420" width="220" height="8" fill="#EFF6FF"/>
+<line x1="560" y1="428" x2="780" y2="428" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="670.0" y="414.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">delivery (market)</text>
+<text x="570.0" y="442.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">batch_id, manifest</text>
+<text x="570.0" y="457.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">checksums, provenance</text>
+<text x="570.0" y="472.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">invoice_id</text>
+<rect x="820" y="400" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="400" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="420" width="220" height="8" fill="#EFF6FF"/>
+<line x1="820" y1="428" x2="1040" y2="428" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="930.0" y="414.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">artifact (hub, Stage 2)</text>
+<text x="830.0" y="442.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">version, card, lineage</text>
+<text x="830.0" y="457.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rights, openenv_version</text>
+<text x="830.0" y="472.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">entitlement, exclusivity</text>
+<path d="M150.0,210.0 L150.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M150.0,360.0 L150.0,400.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="126.8" y="371.0" width="46.3" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="150.0" y="380.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">events</text>
+<path d="M410.0,210.0 L410.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,290.0 L520.0,290.0 L520.0,155.0 L560.0,155.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M670.0,210.0 L670.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M670.0,360.0 L670.0,455.0 L260.0,455.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="432.8" y="446.0" width="64.5" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="465.0" y="455.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">worker_id</text>
+<path d="M780.0,155.0 L820.0,155.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M930.0,210.0 L930.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1040.0,305.0 L1040.0,305.0 L1040.0,155.0 L1080.0,155.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1190.0,210.0 L1190.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M410.0,360.0 L410.0,455.0 L560.0,455.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M780.0,455.0 L820.0,455.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="773.8" y="446.0" width="52.4" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="800.0" y="455.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">lineage</text>
+</svg>

@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="assessments_be_question_tree" model="ir.ui.view">
+        <field name="name">assessments.be.question.tree</field>
+        <field name="model">assessments.be.question</field>
+        <field name="arch" type="xml">
+            <!-- `decoration-muted` on RETIRED, not on `active`. Retiring is
+                 what takes a question out of the bank, and until this was here
+                 a retired row was indistinguishable from a live one: the
+                 Flutter bank drew it with an Archived pill, the Odoo list drew
+                 an ordinary row that simply never got drawn into a paper, with
+                 nothing on screen saying why. -->
+            <!-- js_class: the Import button beside "New", as on the app's
+                 Question Bank. CSV and harness JSON land in Pending Approvals
+                 as drafts; a native bank export restores here, live.
+                 `import="0"`: Odoo's generic "Import records" would create bank
+                 questions directly, skipping review. -->
+            <list class="o_etp_backend" decoration-muted="retired"
+                  js_class="be_question_import_list" import="0">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="question_type"/>
+                <field name="generator_id"/>
+                <field name="difficulty"/>
+                <field name="source_ref"/>
+                <field name="retired" column_invisible="1"/>
+                <!-- Carried so the Actions menu offers Archive/Unarchive, not
+                     for row styling - Odoo does not mute archived rows by
+                     itself, and nothing in static/ does either. -->
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="assessments_be_question_form" model="ir.ui.view">
+        <field name="name">assessments.be.question.form</field>
+        <field name="model">assessments.be.question</field>
+        <field name="arch" type="xml">
+            <form class="o_etp_backend">
+                <header>
+                    <!-- THE SAME REACH THE FLUTTER BANK'S ROW ACTION HAS.
+                         Retiring was API-only, so a question the console had
+                         archived could be seen from Odoo (once the list said
+                         so) but never put back. These two are the way back,
+                         and the way out, without leaving the record. -->
+                    <button name="action_retire_from_bank" type="object"
+                            string="Archive"
+                            confirm="Take this question out of the bank? Assessments already built with it keep it, along with every answer given - it simply cannot be drawn into a new one."
+                            invisible="retired"
+                            groups="assessments_be_v2.group_assessment_manager"/>
+                    <button name="action_restore_to_bank" type="object"
+                            string="Restore to Bank" class="btn-primary"
+                            invisible="not retired or deleted"
+                            groups="assessments_be_v2.group_assessment_manager"/>
+                </header>
+                <sheet>
+                    <!-- RETIRED, not `active` - see the field's own rationale
+                         on the model. This is the state the product calls
+                         "Archived"; `active` is Odoo's soft-delete and means
+                         something else entirely here. -->
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="not retired or deleted"/>
+                    <widget name="web_ribbon" title="Deleted"
+                            bg_color="text-bg-danger" invisible="not deleted"/>
+                    <field name="retired" invisible="1"/>
+                    <field name="deleted" invisible="1"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Question Title"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="question_type"/>
+                            <field name="generator_id"/>
+                            <field name="difficulty"/>
+                            <field name="detection_mode"
+                                   invisible="question_type != 'image_label'"/>
+                            <field name="time_minutes"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <!-- INVISIBLE, like the assessment and generator
+                                 forms, and here it is load-bearing rather than
+                                 tidiness. This was a bare "Active" checkbox,
+                                 and unticking it is the one edit on this form
+                                 that silently damages history: `question_ids`
+                                 is a plain m2m with no `active_test` override,
+                                 so Odoo drops an archived question out of
+                                 every assessment that holds it and a paper
+                                 already sat quietly loses a question. That is
+                                 exactly what `retired` exists to avoid, and
+                                 the header buttons above are the safe move the
+                                 operator actually wants. Kept in the view so
+                                 the Actions menu still resolves `active`. -->
+                            <field name="active" invisible="1"/>
+                            <field name="source_ref" readonly="1"/>
+                            <field name="has_subjective" readonly="1"/>
+                            <field name="rubric_reviewed"
+                                   invisible="not has_subjective"/>
+                        </group>
+                    </group>
+                    <field name="prompt" placeholder="Question prompt..."/>
+                    <field name="description" placeholder="Optional description..."/>
+                    <field name="has_valid_key" invisible="1"/>
+                    <field name="has_revealing_option" invisible="1"/>
+                    <field name="has_source_reference" invisible="1"/>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="has_valid_key">
+                        <strong>Missing answer key.</strong> This objective
+                        question has no correct option marked, so it cannot be
+                        scored. Mark the correct option(s) under Dimensions.
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not has_revealing_option">
+                        <strong>Option reveals its rationale.</strong> An option
+                        name embeds a "…, because …" justification. Option names
+                        are shown to the candidate - keep them to the bare choice
+                        (e.g. <strong>Image B</strong>) and move the "why" to the
+                        hidden Answer Rationale. Regenerate or edit the option text.
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not has_source_reference">
+                        <strong>References the source material.</strong> This item
+                        (or its answer key) cites the SOP / guidelines / a Section,
+                        but the candidate never sees the source - the question must
+                        be self-contained. Regenerate, or rewrite so the deciding
+                        facts live in the scenario itself.
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not missing_media_warning">
+                        <i class="fa fa-picture-o me-2" title="Missing media"
+                           role="img" aria-label="Missing media"/>
+                        <field name="missing_media_warning" nolabel="1"
+                               readonly="1" class="d-inline"/>
+                    </div>
+                    <separator string="Answer Key" invisible="not has_answer_key"/>
+                    <field name="has_answer_key" invisible="1"/>
+                    <field name="answer_key_preview" widget="html"
+                           invisible="not has_answer_key"/>
+                    <notebook>
+                        <page string="Dimensions">
+                            <div class="alert alert-info" role="alert"
+                                 invisible="not has_answer_key">
+                                The badged <strong>Answer Key</strong> above is the
+                                published view. Edit option text or the correct
+                                flag here; the preview updates on save.
+                            </div>
+                            <field name="question_dimension_ids">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                </list>
+                                <form>
+                                    <sheet>
+                                        <group>
+                                            <field name="name"/>
+                                            <field name="sequence"/>
+                                        </group>
+                                        <field name="option_line_ids">
+                                            <list editable="bottom">
+                                                <field name="sequence" widget="handle"/>
+                                                <field name="name"/>
+                                                <field name="is_correct"/>
+                                                <field name="score" readonly="1"/>
+                                            </list>
+                                        </field>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Grading / Rubric"
+                              invisible="question_type in ('image_ab','image_prompt','image_label') or (question_type in ('mcq','msq') and not official_reasoning)">
+                            <group>
+                                <field name="official_reasoning" readonly="1"
+                                       string="Answer Rationale (hidden from candidate)"
+                                       invisible="question_type not in ('mcq','msq')"/>
+                                <field name="transcription_language"
+                                       invisible="question_type != 'transcription'"/>
+                                <field name="subjective_rubric_json" placeholder="[]" widget="be_collapsible_text"
+                                       invisible="question_type not in ('subjective_rubric', 'transcription')"/>
+                                <field name="grading_json" placeholder="{}" widget="be_collapsible_text"
+                                       invisible="not grading_json"/>
+                                <field name="meta_json" placeholder="{}" widget="be_collapsible_text"
+                                       invisible="not meta_json"/>
+                            </group>
+                        </page>
+                        <page string="Image Evaluation"
+                              invisible="question_type not in ('image_ab','image_prompt','image_label')">
+                            <div class="etp-imgeval">
+                                <div class="alert alert-info etp-imgeval-banner" role="alert"
+                                     invisible="question_type != 'image_label'">
+                                    <i class="fa fa-object-group" role="img" aria-label="Image Labelling"/>
+                                    <span><strong>Image Labelling (one image).</strong> Upload a source
+                                    image on the Single row (a photo, or a UI
+                                    screenshot), pick the matching <strong>Detection
+                                    Mode</strong> above, then click
+                                    <strong>Detect Now</strong> - or wait a minute for
+                                    the background cron. Detection draws the numbered
+                                    overlay the candidate sees and stores the answer
+                                    key below - then correct it in the editor
+                                    underneath, not in the JSON.</span>
+                                </div>
+                                <div class="etp-imgeval-toolbar">
+                                    <button name="action_offload_images_s3" type="object"
+                                            string="Offload Images to S3"
+                                            icon="fa-cloud-upload"
+                                            class="btn-secondary"/>
+                                    <button name="action_detect_now" type="object"
+                                            string="Detect Now"
+                                            icon="fa-magic"
+                                            class="btn-primary"
+                                            invisible="question_type != 'image_label'"/>
+                                </div>
+                                <!--
+                                    THE GRAPHICAL BOX EDITOR. Directly under the
+                                    Detect Now toolbar and above the image rows,
+                                    because that is the order the work happens in -
+                                    detect, then correct - and because the editor's
+                                    own empty state tells the operator to "run Detect
+                                    Now above" when a plate has no boxes yet.
+                                    It was previously only reachable
+                                    as `detections_json`: a list of `box_2d`
+                                    quadruples on a 0-1000 grid, y-first, which an
+                                    operator who can SEE that marker 4 is on the
+                                    wrong defect cannot fix by typing.
+
+                                    BOUND TO `solution_json` - the golden-answer map
+                                    the widget authors - so the form reloads it when
+                                    the key changes. The widget writes through
+                                    `apply_studio_annotation_item`, the same model
+                                    method /api/v1/bank/<id>/studio_item/save calls,
+                                    never through the field, so dragging a box never
+                                    dirties the form.
+
+                                    NO `<group>` around it: a group caps the field at
+                                    a label column plus a narrow value column, and
+                                    every pixel of plate width is precision the
+                                    operator is placing boxes with.
+                                -->
+                                <div class="o_etp_annot_host"
+                                     invisible="question_type != 'image_label'">
+                                    <separator string="Annotation Editor"/>
+                                    <field name="solution_json" nolabel="1"
+                                           widget="be_annotation_editor"/>
+                                </div>
+                                <field name="image_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="label"/>
+                                        <field name="slot_ab"
+                                               column_invisible="parent.question_type != 'image_ab'"/>
+                                        <field name="slot_text"
+                                               column_invisible="parent.question_type not in ('image_prompt','image_label')"/>
+                                        <field name="image" widget="image"
+                                               options="{'size': [180, 180]}"/>
+                                        <field name="image_admin_url" widget="image_url"
+                                               string="Preview"
+                                               options="{'size': [0, 90]}"/>
+                                        <field name="image_url" widget="url"
+                                               string="S3 URL" optional="show"/>
+                                        <field name="annotated_image" widget="image"
+                                               options="{'size': [90, 90]}" readonly="1"
+                                               column_invisible="parent.question_type != 'image_label'"/>
+                                        <field name="annotated_admin_url" widget="image_url"
+                                               string="Annotated"
+                                               options="{'size': [0, 90]}"
+                                               column_invisible="parent.question_type != 'image_label'"/>
+                                        <field name="detections_json" readonly="1"
+                                               string="Answer Key (raw JSON)"
+                                               widget="be_collapsible_text"
+                                               optional="hide"
+                                               column_invisible="parent.question_type not in ('image_label')"/>
+                                        <field name="source_url" widget="url"
+                                               string="Source URL" optional="show"
+                                               column_invisible="parent.question_type != 'image_label'"/>
+                                        <field name="capture_viewport" readonly="1"
+                                               string="Viewport" optional="hide"
+                                               column_invisible="parent.question_type != 'image_label'"/>
+                                        <field name="dom_manifest_json" readonly="1"
+                                               widget="be_collapsible_text"
+                                               string="DOM Manifest" optional="hide"
+                                               column_invisible="parent.question_type != 'image_label'"/>
+                                        <field name="behavioural_key_json" readonly="1"
+                                               widget="be_collapsible_text"
+                                               string="Behavioural Key" optional="hide"
+                                               column_invisible="parent.question_type != 'image_label'"/>
+                                        <!-- Editable, not readonly: this integer IS the
+                                             denominator a labelling answer is marked out
+                                             of, so an examiner who meant "any three of
+                                             these five" must be able to see it and fix it
+                                             here. 0 reads as "all of them". -->
+                                        <field name="label_expected_count"
+                                               string="Expected Labels" optional="hide"
+                                               column_invisible="parent.question_type != 'image_label'"/>
+                                        <button name="action_capture_url" type="object"
+                                                string="Capture URL" icon="fa-crosshairs"
+                                                column_invisible="parent.question_type != 'image_label'"
+                                                invisible="not source_url"/>
+                                    </list>
+                                </field>
+                                <group invisible="question_type != 'image_ab'">
+                                    <field name="official_reasoning"
+                                           placeholder="Official rationale the LLM grades the candidate justification against..."/>
+                                    <field name="flaw_plan_json" widget="be_collapsible_text" readonly="1"
+                                           string="Flaw Plan (JSON)"
+                                           invisible="not flaw_plan_json"/>
+                                </group>
+                                <!--
+                                    MOVED, NOT REMOVED. This group is still the raw
+                                    rubric text area it always was - the editor above
+                                    only writes `ideal_labels`, while `decoys`,
+                                    `mandatory_elements`, `penalty_rules` and
+                                    `scoring_guide` live in the same object and are
+                                    editable nowhere else. It is folded away because
+                                    it is no longer the FIRST thing an operator
+                                    reaches for, not because anybody stopped needing
+                                    it.
+
+                                    `<details>`, not a Bootstrap collapse: it is
+                                    collapsed by default, keyboard-operable and
+                                    screen-reader-labelled with no JavaScript at all,
+                                    so it cannot end up permanently shut if
+                                    Bootstrap's click data-API ever stops being
+                                    delegated inside an OWL-rendered form - which
+                                    would hide the only editor for four answer-key
+                                    fields behind a dead arrow.
+                                -->
+                                <details class="etp-akey-advanced"
+                                         invisible="question_type not in ('image_prompt','image_label')">
+                                    <summary class="etp-akey-summary">Advanced - answer key as raw JSON</summary>
+                                    <group string="Answer Key (JSON)" class="etp-akey">
+                                        <field name="subjective_rubric_json" nolabel="1"
+                                               placeholder='{"ideal_prompt or ideal_labels": "...", "mandatory_elements": ["..."], "penalty_rules": ["..."], "scoring_guide": "..."}'
+                                               widget="be_collapsible_text"/>
+                                    </group>
+                                </details>
+                            </div>
+                        </page>
+                        <page string="Video Evaluation"
+                              invisible="question_type != 'video_prompt'">
+                            <div class="etp-imgeval">
+                                <div class="alert alert-info etp-imgeval-banner" role="alert">
+                                    <i class="fa fa-film" role="img" aria-label="Video Prompt"/>
+                                    <span><strong>Video Prompt.</strong> Upload a
+                                    <strong>Reference</strong> clip and an
+                                    <strong>Output</strong> clip below (mp4/webm),
+                                    then fill the Answer Key with the ideal prompt.
+                                    The candidate writes the transformation prompt,
+                                    graded like an Image Prompt.</span>
+                                </div>
+                                <group string="Upload Clip">
+                                    <field name="upload_video_slot"/>
+                                    <field name="upload_video" widget="binary"
+                                           filename="upload_video_filename"/>
+                                    <field name="upload_video_filename" invisible="1"/>
+                                    <button name="action_apply_uploaded_video" type="object"
+                                            string="Apply Uploaded Video"
+                                            icon="fa-cloud-upload"
+                                            class="btn-primary"
+                                            invisible="not upload_video"/>
+                                </group>
+                                <field name="video_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="label"/>
+                                        <field name="slot"/>
+                                        <field name="video_url" widget="url"
+                                               string="S3 URL" optional="show"/>
+                                        <field name="video" widget="binary"
+                                               filename="video_filename"/>
+                                        <field name="video_filename" optional="hide"/>
+                                        <field name="poster_url" widget="url"
+                                               optional="hide"/>
+                                        <field name="duration_s" optional="hide"/>
+                                        <field name="has_audio" optional="hide"/>
+                                    </list>
+                                </field>
+                                <group string="Answer Key (JSON)" class="etp-akey">
+                                    <field name="subjective_rubric_json" nolabel="1"
+                                           placeholder='{"ideal_prompt": "...", "mandatory_elements": ["..."], "penalty_rules": ["..."], "scoring_guide": "..."}'
+                                           widget="be_collapsible_text"/>
+                                </group>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="assessments_be_question_kanban" model="ir.ui.view">
+        <field name="name">assessments.be.question.kanban</field>
+        <field name="model">assessments.be.question</field>
+        <field name="arch" type="xml">
+            <kanban class="o_etp_backend" sample="1" import="0">
+                <field name="question_type"/>
+                <!-- Without `active` in the view Odoo omits Archive/Unarchive
+                     from the kanban Actions menu entirely, so the same record
+                     could be archived from the list and not from a card. -->
+                <field name="active"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="etp-kanban-card etp-kanban-card--question">
+                            <span class="etp-kc-accent"/>
+                            <field class="etp-kc-title" name="name"/>
+                            <div class="etp-kc-tags">
+                                <field name="question_type" widget="badge"
+                                       decoration-info="question_type in ('mcq','msq')"
+                                       decoration-warning="question_type == 'subjective_rubric'"
+                                       decoration-success="question_type in ('image_ab','image_prompt','image_label')"/>
+                                <field name="difficulty" widget="badge"
+                                       decoration-success="difficulty == 'easy'"
+                                       decoration-warning="difficulty == 'medium'"
+                                       decoration-danger="difficulty == 'hard'"/>
+                            </div>
+                            <div class="etp-kc-sub">
+                                <i class="fa fa-folder-o me-1" role="img"
+                                   aria-label="Question Generator"/>
+                                <field name="generator_id"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="assessments_be_question_search" model="ir.ui.view">
+        <field name="name">assessments.be.question.search</field>
+        <field name="model">assessments.be.question</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="prompt"/>
+                <field name="generator_id"/>
+                <separator/>
+                <filter name="filter_mcq" string="MCQ" domain="[('question_type','=','mcq')]"/>
+                <filter name="filter_msq" string="MSQ" domain="[('question_type','=','msq')]"/>
+                <filter name="filter_subjective" string="Subjective"
+                        domain="[('question_type','=','subjective_rubric')]"/>
+                <filter name="filter_image" string="Image Evaluation"
+                        domain="[('question_type','in',('image_ab','image_prompt','image_label'))]"/>
+                <separator/>
+                <!-- "ARCHIVED" MEANS RETIRED HERE, matching the Flutter bank
+                     and the word the product uses. It used to mean `active`,
+                     and the two are different states: an operator clicking
+                     Archived saw an EMPTY list while the console showed three
+                     archived questions, because nothing on this model is ever
+                     `active = False` - retiring is what the product does.
+                     `active` keeps its own filter below, under a name that
+                     cannot be mistaken for this one. -->
+                <filter name="filter_in_bank" string="In Bank"
+                        domain="[('retired','=',False)]"/>
+                <filter name="filter_archived" string="Archived"
+                        domain="[('retired','=',True), ('deleted','=',False)]"/>
+                <filter name="filter_deleted" string="Deleted"
+                        domain="[('deleted','=',True)]"/>
+                <separator/>
+                <filter name="filter_inactive" string="Inactive Record"
+                        domain="[('active','=',False)]"/>
+                <group>
+                    <filter name="group_generator" string="Question Generator"
+                            context="{'group_by':'generator_id'}"/>
+                    <filter name="group_type" string="Type"
+                            context="{'group_by':'question_type'}"/>
+                    <filter name="group_difficulty" string="Difficulty"
+                            context="{'group_by':'difficulty'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_question" model="ir.actions.act_window">
+        <field name="name">Question Bank</field>
+        <field name="res_model">assessments.be.question</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="assessments_be_question_search"/>
+        <!-- OPENS ON THE LIVE BANK, which is what "the bank" means and what
+             `/api/v1/bank` returns without `include_retired`.
+
+             A search DEFAULT, deliberately not a domain: a domain ANDs with
+             everything the operator does next, so an archived question would
+             be unreachable from this menu no matter which filter they picked -
+             and restoring one is precisely why they came. As a facet it drops
+             with one click, which is the same move as the console's
+             "Show archived" toggle. -->
+        <field name="context">{'search_default_filter_in_bank': 1}</field>
+    </record>
+
+    <record id="action_export_question_bank_json" model="ir.actions.server">
+        <field name="name">Export to JSON</field>
+        <field name="model_id" ref="model_assessments_be_question"/>
+        <field name="binding_model_id" ref="model_assessments_be_question"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_export_json()</field>
+    </record>
+
+    <record id="action_export_question_bank_csv" model="ir.actions.server">
+        <field name="name">Export to CSV</field>
+        <field name="model_id" ref="model_assessments_be_question"/>
+        <field name="binding_model_id" ref="model_assessments_be_question"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_export_csv()</field>
+    </record>
+
+    <record id="action_export_question_bank_native" model="ir.actions.server">
+        <field name="name">Export to JSON (round-trip)</field>
+        <field name="model_id" ref="model_assessments_be_question"/>
+        <field name="binding_model_id" ref="model_assessments_be_question"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_export_native_json()</field>
+    </record>
+</odoo>

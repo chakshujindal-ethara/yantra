@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Replaced by the value of `flutter build --base-href`; must start and end with "/". -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Yantra: work, operate and deliver, for workers, operators and clients.">
+  <meta name="theme-color" content="#B800B8">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#18181C">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Yantra">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon: the SVG mark where supported, the PNG elsewhere -->
+  <link rel="icon" type="image/svg+xml" href="icons/mark.svg">
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <title>Yantra</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- The splash shows until Flutter paints its first frame (it then adds <flutter-view>). -->
+  <style>
+    html, body { margin: 0; height: 100%; background: #F8F9FA; }
+    #splash {
+      position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; font: 500 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color: #717182;
+    }
+    #splash svg { width: 56px; height: 56px; animation: breathe 1.6s ease-in-out infinite; }
+    @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.94); } }
+    @media (prefers-reduced-motion: reduce) { #splash svg { animation: none; } }
+    @media (prefers-color-scheme: dark) { html, body { background: #0A0A0D; } #splash { color: #A0A0AC; } }
+    body:has(flutter-view) #splash, body:has(flt-glass-pane) #splash { display: none; }
+  </style>
+</head>
+<body>
+  <div id="splash" role="status" aria-live="polite">
+    <svg viewBox="0 0 512 512" aria-hidden="true">
+      <rect width="512" height="512" rx="112" fill="#B800B8"/>
+      <path d="M156 136 L256 262 L356 136 M256 262 L256 380" fill="none" stroke="#FFFFFF" stroke-width="60"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Opening Yantra…</span>
+  </div>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

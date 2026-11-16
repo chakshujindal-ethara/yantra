@@ -1,0 +1,24 @@
+[project]
+name = "yantra-work"
+version = "0.1.0"
+description = "The work deployable: one process serving the market, quality and notify modules, each on its own schema."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "yantra-common",
+  "yantra-market",
+  "yantra-talent",
+  "yantra-assess",
+  "yantra-quality",
+  "yantra-notify",
+  "yantra-tracker",
+  "yantra-analytics",
+  "fastapi==0.115.5",
+  "uvicorn[standard]==0.32.0",
+]
+
+[build-system]
+requires = ["hatchling==1.26.3"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["yantra_work"]

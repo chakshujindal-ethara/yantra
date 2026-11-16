@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="module_category_yantra" model="ir.module.category">
+            <field name="name">Yantra</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <record id="res_groups_privilege_yantra" model="res.groups.privilege">
+            <field name="name">Yantra</field>
+            <field name="category_id" ref="module_category_yantra"/>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="group_yantra_ops" model="res.groups">
+            <field name="name">Operations</field>
+            <field name="privilege_id" ref="res_groups_privilege_yantra"/>
+            <field name="comment">Sees and manages Yantra workers, pay windows, projects and batches.</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="rule_worker_ops" model="ir.rule">
+            <field name="name">Yantra workers: ops</field>
+            <field name="model_id" ref="model_yantra_worker"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_yantra_ops'))]"/>
+        </record>
+        <record id="rule_cert_gate_ops" model="ir.rule">
+            <field name="name">Yantra cert gates: ops</field>
+            <field name="model_id" ref="model_yantra_cert_gate"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_yantra_ops'))]"/>
+        </record>
+        <record id="rule_pay_window_ops" model="ir.rule">
+            <field name="name">Yantra pay windows: ops</field>
+            <field name="model_id" ref="model_yantra_pay_window"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_yantra_ops'))]"/>
+        </record>
+        <record id="rule_pay_window_line_ops" model="ir.rule">
+            <field name="name">Yantra pay window lines: ops</field>
+            <field name="model_id" ref="model_yantra_pay_window_line"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_yantra_ops'))]"/>
+        </record>
+        <record id="rule_client_project_ops" model="ir.rule">
+            <field name="name">Yantra client projects: ops</field>
+            <field name="model_id" ref="model_yantra_client_project"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_yantra_ops'))]"/>
+        </record>
+        <record id="rule_batch_ops" model="ir.rule">
+            <field name="name">Yantra batches: ops</field>
+            <field name="model_id" ref="model_yantra_batch"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_yantra_ops'))]"/>
+        </record>
+    </data>
+</odoo>

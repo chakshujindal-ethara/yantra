@@ -1,0 +1,116 @@
+{{- /*
+Staging-grade Odoo: one web process with the bridge addon, its filestore on a PVC. The init container installs the
+addon and seeds the bridge settings (services/odoo/init.sh); a second one renders odoo.conf with the real
+database-manager password (the image's file carries the local rig's). The four-role topology is a later chart.
+*/ -}}
+{{- if .Values.odoo.enabled }}
+{{- $full := include "yantra.fullname" . }}
+{{- $sel := dict "root" . "component" "odoo" }}
+{{- if not .Values.odoo.dbHost }}{{ fail "odoo.dbHost is required when odoo.enabled" }}{{ end }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $full }}-odoo
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  {{- with .Values.odoo.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.odoo.storage }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $full }}-odoo
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+    app.kubernetes.io/component: odoo
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels:
+      {{- include "yantra.selector" $sel | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "yantra.baseLabels" . | nindent 8 }}
+        {{- include "yantra.selector" $sel | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 101
+        fsGroup: 101
+        seccompProfile: {type: RuntimeDefault}
+      initContainers:
+        - name: conf
+          image: {{ include "yantra.image" (dict "img" .Values.image.odoo) }}
+          command: ["sh", "-c", "sed \"s|^admin_passwd = .*|admin_passwd = ${ODOO_ADMIN_PASSWD}|\" /etc/odoo/odoo.conf > /conf/odoo.conf"]
+          env:
+            - name: ODOO_ADMIN_PASSWD
+              valueFrom: {secretKeyRef: {name: {{ include "yantra.secretName" (dict "root" . "key" "odoo-admin-passwd") }}, key: value}}
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+          volumeMounts:
+            - {name: conf, mountPath: /conf}
+        - name: init
+          image: {{ include "yantra.image" (dict "img" .Values.image.odoo) }}
+          command: ["/usr/local/bin/yantra-odoo-init"]
+          env:
+            {{- include "yantra.odooEnv" . | nindent 12 }}
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+          volumeMounts:
+            - {name: data, mountPath: /var/lib/odoo}
+            {{- if and .Values.assess.enabled .Values.assess.vertex }}
+            - {name: vertex, mountPath: /var/run/yantra/vertex, readOnly: true}
+            {{- end }}
+      containers:
+        - name: odoo
+          image: {{ include "yantra.image" (dict "img" .Values.image.odoo) }}
+          command: ["odoo", "--config=/conf/odoo.conf", {{ printf "--db-filter=^%s$" .Values.odoo.dbName | quote }}, "--proxy-mode", {{ printf "--max-cron-threads=%v" .Values.odoo.cronThreads | quote }}]
+          env:
+            {{- include "yantra.odooEnv" . | nindent 12 }}
+          ports:
+            - {name: http, containerPort: {{ .Values.odoo.port }}}
+          readinessProbe:
+            # with Assessment v2: ready only when its database, Redis and object store answer
+            httpGet: {path: {{ ternary "/assessments_be/ready" "/web/health" .Values.assess.enabled }}, port: http}
+            periodSeconds: 15
+          livenessProbe:
+            httpGet: {path: /web/health, port: http}
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.odoo.resources | nindent 12 }}
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+          volumeMounts:
+            - {name: data, mountPath: /var/lib/odoo}
+            - {name: conf, mountPath: /conf, readOnly: true}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: {{ $full }}-odoo}
+        - name: conf
+          emptyDir: {sizeLimit: 1Mi}
+        {{- if and .Values.assess.enabled .Values.assess.vertex }}
+        - name: vertex
+          secret: {secretName: {{ include "yantra.secretName" (dict "root" . "key" "vertex-service-account") }}}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $full }}-odoo
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+    app.kubernetes.io/component: odoo
+spec:
+  selector:
+    {{- include "yantra.selector" $sel | nindent 4 }}
+  ports:
+    - {name: http, port: {{ .Values.odoo.port }}, targetPort: http}
+{{- end }}

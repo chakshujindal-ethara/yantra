@@ -1,0 +1,20 @@
+[project]
+name = "yantra-gateway"
+version = "0.1.0"
+description = "gateway: the only ingress for the app. Keycloak JWT validation, shared rate limits, idempotency, routing."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "yantra-common",
+  "fastapi==0.115.5",
+  "httpx==0.27.2",
+  "PyJWT[crypto]==2.9.0",
+  "redis==5.2.0",
+  "pydantic-settings==2.6.1",
+]
+
+[build-system]
+requires = ["hatchling==1.26.3"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["yantra_gateway"]

@@ -1,0 +1,65 @@
+# Production: Argo CD syncs it by hand after the promotion PR (digests copied from values-staging.yaml) merges,
+# outside the Friday 12:00 to Saturday 12:00 IST pay-window freeze (deployment/argocd/project.yaml).
+env: prod
+domain: yantra.example
+
+image:
+  python:
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  app:
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  odoo:
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  assessApp:
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+
+config:
+  YANTRA_NATS_URL: nats://nats.nats.svc:4222
+  YANTRA_SMTP_HOST: smtp.yantra.example
+  YANTRA_SMTP_PORT: "587"
+  YANTRA_MAIL_FROM: "Yantra <no-reply@yantra.example>"
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector.monitoring.svc:4318
+  # owner: the ingress controller's pod CIDR (required: the chart refuses to render without it; helm-check.sh
+  # passes a stand-in)
+  FORWARDED_ALLOW_IPS: ""
+  # The live rail. The money processes refuse to boot until the account number and the three secrets exist.
+  YANTRA_RAIL: razorpayx
+  YANTRA_RAZORPAYX_ACCOUNT_NUMBER: ""   # owner: the RazorpayX business account number
+  YANTRA_RAZORPAYX_PAYOUT_MODE: IMPS
+  # MinIO: in-release for staging (minio.enabled), the operator tenant in prod; browsers reach the files host
+  YANTRA_S3_ENDPOINT: http://minio.minio-tenant.svc:80
+  YANTRA_S3_PUBLIC_ENDPOINT: https://files.yantra.example
+  YANTRA_S3_BUCKET: yantra-prod
+  YANTRA_S3_REGION: ap-south-1
+
+secrets:
+  external: true
+  storeRef: {kind: ClusterSecretStore, name: yantra-secrets}
+  remotePrefix: yantra/prod
+
+python:
+  gateway:
+    replicas: 3
+    env:
+      YANTRA_GATEWAY_KEYCLOAK_ISSUER: https://auth.yantra.example/realms/yantra
+      YANTRA_GATEWAY_ALLOWED_ORIGINS: '["https://app.yantra.example"]'
+    hpa: {enabled: true, minReplicas: 3, maxReplicas: 10}
+    pdb: {enabled: true, minAvailable: 2}
+  work-api:
+    replicas: 3
+    hpa: {enabled: true, minReplicas: 3, maxReplicas: 12}
+    pdb: {enabled: true, minAvailable: 2}
+  money-api:
+    pdb: {enabled: true}
+
+app:
+  replicas: 3
+  keycloakOrigin: https://auth.yantra.example
+  pdb: {enabled: true, minAvailable: 2}
+
+ingress:
+  className: nginx
+  clusterIssuer: letsencrypt-prod
+
+monitoring:
+  serviceMonitor: true

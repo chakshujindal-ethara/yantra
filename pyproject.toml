@@ -1,0 +1,85 @@
+[project]
+name = "yantra"
+version = "0.1.0"
+description = "Yantra: one repository, a ring of services around Odoo 19 CE. Workspace root."
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[tool.uv.workspace]
+members = ["packages/*", "services/market", "services/talent", "services/assess", "services/quality", "services/payout", "services/notify", "services/gateway", "services/tracker", "services/analytics", "deployables/*", "tools/claim-storm", "tools/yantra-cli"]
+
+[tool.uv.sources]
+yantra-common = { workspace = true }
+yantra-contracts = { workspace = true }
+yantra-market = { workspace = true }
+yantra-talent = { workspace = true }
+yantra-assess = { workspace = true }
+yantra-quality = { workspace = true }
+yantra-payout = { workspace = true }
+yantra-notify = { workspace = true }
+yantra-gateway = { workspace = true }
+yantra-tracker = { workspace = true }
+yantra-analytics = { workspace = true }
+
+[dependency-groups]
+dev = [
+  "pytest==8.3.3",
+  "pytest-cov==6.0.0",
+  "pytest-timeout==2.3.1",
+  "httpx==0.27.2",
+  "ruff==0.7.4",
+  "mypy==1.13.0",
+  "types-jsonschema==4.23.0.20240813",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["docs", "services/odoo", "services/assess-app", "app", "data", "images"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "W"]
+ignore = ["N818"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/*_tests/*" = ["E501"]  # fixtures and expected bodies read better on one line
+
+[tool.ruff.lint.isort]
+known-first-party = ["yantra_common", "yantra_contracts", "yantra_market", "yantra_talent", "yantra_assess", "yantra_quality", "yantra_payout", "yantra_notify", "yantra_gateway", "yantra_tracker", "yantra_analytics", "yantra_work", "yantra_money", "claim_storm", "yantra_cli"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages", "services", "deployables", "tools"]
+addopts = "-q --ignore=services/odoo"  # the Odoo addon's tests run inside Odoo (see services/odoo/README.md)
+# no test may wait without end: past 15 minutes it fails with every thread's stack, so a stalled bus or lock
+# names itself instead of holding the run (the slowest test, a full money loop over NATS, takes under 2 minutes)
+timeout = 900
+filterwarnings = ["ignore::DeprecationWarning:starlette.testclient"]
+
+[tool.coverage.run]
+# `uv run pytest --cov` measures exactly these packages (the same list DEVELOPING.md used to spell out).
+source = [
+  "yantra_common", "yantra_contracts", "yantra_market", "yantra_talent", "yantra_assess", "yantra_quality",
+  "yantra_payout", "yantra_notify", "yantra_gateway", "yantra_tracker", "yantra_analytics", "yantra_work",
+  "yantra_money", "yantra_cli",
+]
+
+[tool.coverage.report]
+fail_under = 97
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+# `uv run mypy` checks exactly these (CI and docs/DEVELOPING.md run it bare, so the list lives only here)
+files = ["packages", "services/market", "services/talent", "services/assess", "services/quality", "services/payout", "services/notify", "services/gateway", "services/tracker", "services/analytics", "deployables", "tools"]
+
+exclude = ["migrations/", "services/odoo/", "app/"]
+
+[[tool.mypy.overrides]]
+module = ["market_tests", "market_tests.*", "talent_tests", "talent_tests.*", "assess_tests", "assess_tests.*", "quality_tests", "quality_tests.*", "payout_tests", "payout_tests.*", "notify_tests", "notify_tests.*", "cli_tests", "cli_tests.*", "gateway_tests", "gateway_tests.*", "money_tests", "money_tests.*", "work_tests", "work_tests.*", "common_tests", "common_tests.*", "tracker_tests", "tracker_tests.*", "analytics_tests", "analytics_tests.*"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+disallow_any_generics = false
+check_untyped_defs = false
+warn_return_any = false

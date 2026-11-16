@@ -1,0 +1,73 @@
+{
+    "ok": true,
+    "data": [
+        {
+            "id": 2,
+            "name": "Transcription basics (Yantra) attempt 2",
+            "state": "in_progress",
+            "active": true,
+            "generator": {
+                "id": 1,
+                "name": "Yantra quick: Transcription basics"
+            },
+            "question_limit": 0,
+            "questions_available": 2,
+            "duration_minutes": 15,
+            "pass_threshold": 75.0,
+            "start_date": "2026-11-12T11:30:36Z",
+            "launched_at": "2026-11-12T11:30:36Z",
+            "end_date": null,
+            "candidate_count": 2,
+            "assigned_count": 2,
+            "submitted_count": 1,
+            "releasable_count": 0,
+            "released_count": 1,
+            "awaiting_scoring_count": 0,
+            "response_count": 2,
+            "invite_summary": "2 queued",
+            "scoring_phase": "idle",
+            "scoring_summary": "",
+            "scoring_scored": 1,
+            "scoring_candidates": 1,
+            "scoring_finished_at": null,
+            "create_date": "2026-11-12T11:30:36Z"
+        },
+        {
+            "id": 1,
+            "name": "Transcription basics (Yantra)",
+            "state": "done",
+            "active": true,
+            "generator": {
+                "id": 1,
+                "name": "Yantra quick: Transcription basics"
+            },
+            "question_limit": 0,
+            "questions_available": 2,
+            "duration_minutes": 15,
+            "pass_threshold": 75.0,
+            "start_date": "2026-11-12T11:29:15Z",
+            "launched_at": "2026-11-12T11:29:15Z",
+            "end_date": null,
+            "candidate_count": 1,
+            "assigned_count": 1,
+            "submitted_count": 1,
+            "releasable_count": 0,
+            "released_count": 1,
+            "awaiting_scoring_count": 0,
+            "response_count": 2,
+            "invite_summary": "1 queued",
+            "scoring_phase": "idle",
+            "scoring_summary": "",
+            "scoring_scored": 1,
+            "scoring_candidates": 1,
+            "scoring_finished_at": null,
+            "create_date": "2026-11-12T11:28:51Z"
+        }
+    ],
+    "meta": {
+        "total": 2,
+        "limit": 40,
+        "offset": 0,
+        "has_more": false
+    }
+}

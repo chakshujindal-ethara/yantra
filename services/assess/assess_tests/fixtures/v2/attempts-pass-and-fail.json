@@ -1,0 +1,77 @@
+{
+    "ok": true,
+    "data": [
+        {
+            "id": 1,
+            "assessment_id": 1,
+            "assessment_name": "Transcription basics (Yantra)",
+            "candidate": {
+                "id": 1,
+                "name": "Fixture Worker",
+                "email": "fixture.worker@yantra.local",
+                "has_portal_user": true
+            },
+            "state": "submitted",
+            "is_locked": true,
+            "invite_state": "queued",
+            "invite_error": "",
+            "started_at": "2026-11-12T11:29:40Z",
+            "submitted_at": "2026-11-12T11:29:52Z",
+            "deadline": "2026-11-12T11:44:40Z",
+            "total_questions": 2,
+            "answered_count": 2,
+            "score_marks": "2 / 2",
+            "score_percent": 100.0,
+            "pass_threshold": 75.0,
+            "raw_result": 2.0,
+            "raw_max": 2,
+            "raw_percent": 100.0,
+            "result": "pass",
+            "results_released": true,
+            "objective": {
+                "score": 2,
+                "max": 2
+            },
+            "subjective": {
+                "score": 0,
+                "max": 0,
+                "pending": 0,
+                "state": "pending",
+                "error": "",
+                "scored_at": null,
+                "scoring_requested": false,
+                "has_terminal_error": false
+            },
+            "flags": {
+                "integrity_alert": false,
+                "score_outlier": false,
+                "is_violated": false,
+                "violation_count": 0,
+                "violation_limit_breached": false,
+                "violation_reason": "",
+                "violations": [],
+                "ai_violation_count": 0,
+                "ai_violation_limit_breached": false,
+                "ai_violations": [],
+                "ai_status": "",
+                "pii_anonymized": false,
+                "manual_flagged": false,
+                "review_flags": 0
+            },
+            "review_flag_count": 0,
+            "candidate_flag": {
+                "flagged": false,
+                "remark": ""
+            },
+            "auto_submitted": false,
+            "auto_submit_reason": ""
+        }
+    ],
+    "meta": {
+        "total": 1,
+        "limit": 40,
+        "offset": 0,
+        "has_more": false,
+        "server_time": "2026-11-12T11:30:25Z"
+    }
+}

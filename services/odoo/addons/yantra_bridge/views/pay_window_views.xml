@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pay_window_list" model="ir.ui.view">
+        <field name="name">yantra.pay.window.list</field>
+        <field name="model">yantra.pay.window</field>
+        <field name="arch" type="xml">
+            <list create="false">
+                <field name="name"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="status"/>
+                <field name="paid_at"/>
+                <field name="gross_total"/>
+                <field name="billed_gross"/>
+                <field name="held_total" optional="hide"/>
+                <field name="needs_worker_count"/>
+                <field name="reconciled" widget="boolean_toggle" readonly="1"/>
+                <field name="rail_reference" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pay_window_form" model="ir.ui.view">
+        <field name="name">yantra.pay.window.form</field>
+        <field name="model">yantra.pay.window</field>
+        <field name="arch" type="xml">
+            <form create="false">
+                <header>
+                    <button name="action_bill_pending_lines" type="object" string="Bill pending lines" class="btn-primary" invisible="not needs_worker_count and not pending_count"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_bills" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="bill_count" widget="statinfo" string="Bills"/>
+                        </button>
+                    </div>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group string="Gateway">
+                            <field name="gateway_id" readonly="1"/>
+                            <field name="status" readonly="1"/>
+                            <field name="starts_at" readonly="1"/>
+                            <field name="ends_at" readonly="1"/>
+                            <field name="paid_at" readonly="1"/>
+                            <field name="rail_reference" readonly="1"/>
+                        </group>
+                        <group string="Reconciliation">
+                            <field name="currency_id" readonly="1"/>
+                            <field name="gross_total" readonly="1"/>
+                            <field name="billed_gross"/>
+                            <field name="held_total" readonly="1"/>
+                            <field name="needs_worker_count"/>
+                            <field name="pending_count"/>
+                            <field name="reconciled"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lines" name="lines">
+                            <field name="line_ids" readonly="1">
+                                <list>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="worker_sub"/>
+                                    <field name="worker_id"/>
+                                    <field name="gross"/>
+                                    <field name="earning_count"/>
+                                    <field name="status"/>
+                                    <field name="hold_reason"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'billed'" decoration-danger="state == 'needs_worker'" decoration-warning="state == 'held'"/>
+                                    <field name="bill_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pay_window" model="ir.actions.act_window">
+        <field name="name">Pay windows</field>
+        <field name="res_model">yantra.pay.window</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No paid window yet</p>
+            <p>Paid windows are pulled from the gateway every 30 minutes; use "Pull paid windows now" in the action menu to pull immediately.</p>
+        </field>
+    </record>
+</odoo>

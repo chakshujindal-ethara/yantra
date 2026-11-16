@@ -1,0 +1,40 @@
+# The Yantra Argo CD project. Prod carries the pay-window freeze as a deny sync window: nothing syncs to
+# yantra-prod from Friday 12:00 to Saturday 12:00 IST (the window closes Friday 23:59 IST and is cut at 00:05
+# Saturday). Exam sittings and batch deadlines are frozen by hand (deployment/RUNBOOKS.md, "Deploy freezes").
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: yantra
+  namespace: argocd
+spec:
+  description: Yantra Stage 1 (gateway, work, money, app, odoo bridge)
+  sourceRepos:
+    - https://github.com/EtharaLabs/yantra
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: yantra-staging}
+    - {server: https://kubernetes.default.svc, namespace: yantra-prod}
+    - {server: https://kubernetes.default.svc, namespace: argocd}
+  clusterResourceWhitelist:
+    - {group: "", kind: Namespace}
+  namespaceResourceWhitelist:
+    - {group: "", kind: ConfigMap}
+    - {group: "", kind: Secret}
+    - {group: "", kind: Service}
+    - {group: "", kind: ServiceAccount}
+    - {group: "", kind: PersistentVolumeClaim}
+    - {group: apps, kind: Deployment}
+    - {group: batch, kind: Job}
+    - {group: autoscaling, kind: HorizontalPodAutoscaler}
+    - {group: policy, kind: PodDisruptionBudget}
+    - {group: networking.k8s.io, kind: Ingress}
+    - {group: networking.k8s.io, kind: NetworkPolicy}
+    - {group: external-secrets.io, kind: ExternalSecret}
+    - {group: monitoring.coreos.com, kind: ServiceMonitor}
+    - {group: argoproj.io, kind: Application}
+  syncWindows:
+    - kind: deny
+      schedule: "0 12 * * 5"      # Friday 12:00
+      duration: 24h
+      timeZone: Asia/Kolkata
+      applications: ["yantra-prod"]
+      manualSync: false             # a human cannot sync through it either; an incident overrides it in the UI

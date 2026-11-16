@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_worker_list" model="ir.ui.view">
+        <field name="name">yantra.worker.list</field>
+        <field name="model">yantra.worker</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone" optional="hide"/>
+                <field name="keycloak_sub" optional="hide"/>
+                <field name="status" widget="badge" decoration-success="status in ('eligible', 'active')" decoration-warning="status == 'suspended'" decoration-muted="status == 'offboarded'"/>
+                <field name="bank_account_last4"/>
+                <field name="tds_rate"/>
+                <field name="cert_gate_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_worker_form" model="ir.ui.view">
+        <field name="name">yantra.worker.form</field>
+        <field name="model">yantra.worker</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_mark_eligible" type="object" string="Mark eligible" class="btn-primary" invisible="status != 'draft'"/>
+                    <button name="action_activate" type="object" string="Activate" class="btn-primary" invisible="status not in ('eligible', 'suspended')"/>
+                    <button name="action_suspend" type="object" string="Suspend" invisible="status not in ('eligible', 'active')" confirm="Suspend this worker on the gateway?"/>
+                    <button name="action_offboard" type="object" string="Offboard" invisible="status not in ('eligible', 'active', 'suspended')" confirm="Offboard this worker on the gateway? This cannot be undone here."/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,eligible,active"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Full name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identity">
+                            <field name="keycloak_sub" readonly="status != 'draft'"/>
+                            <field name="email" widget="email"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="partner_id" readonly="1"/>
+                        </group>
+                        <group string="Agreement and consent">
+                            <field name="agreement_signed_at"/>
+                            <field name="dpdp_consent_at"/>
+                            <field name="cert_gate_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Payout" name="payout">
+                            <group>
+                                <group string="Bank">
+                                    <field name="account_holder"/>
+                                    <field name="bank_ifsc"/>
+                                    <field name="bank_account_number"/>
+                                    <field name="bank_account_last4"/>
+                                    <field name="bank_id" readonly="1"/>
+                                </group>
+                                <group string="Tax">
+                                    <field name="pan"/>
+                                    <field name="tds_rate"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="DPDP consent text" name="consent">
+                            <field name="dpdp_consent_text" nolabel="1" placeholder="The consent text the worker accepted, verbatim."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_worker_search" model="ir.ui.view">
+        <field name="name">yantra.worker.search</field>
+        <field name="model">yantra.worker</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="keycloak_sub"/>
+                <filter name="draft" string="Draft" domain="[('status', '=', 'draft')]"/>
+                <filter name="eligible" string="Eligible" domain="[('status', '=', 'eligible')]"/>
+                <filter name="active" string="Active" domain="[('status', '=', 'active')]"/>
+                <group name="group_by">
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_worker" model="ir.actions.act_window">
+        <field name="name">Workers</field>
+        <field name="res_model">yantra.worker</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Register the first worker</p>
+            <p>A worker needs a signed agreement, DPDP consent and a bank account before "Mark eligible" pushes them to the gateway.</p>
+        </field>
+    </record>
+
+    <record id="view_cert_gate_list" model="ir.ui.view">
+        <field name="name">yantra.cert.gate.list</field>
+        <field name="model">yantra.cert.gate</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_cert_gate" model="ir.actions.act_window">
+        <field name="name">Certification gates</field>
+        <field name="res_model">yantra.cert.gate</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

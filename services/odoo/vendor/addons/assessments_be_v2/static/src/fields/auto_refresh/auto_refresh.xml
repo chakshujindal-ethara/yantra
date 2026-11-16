@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="assessments_be_v2.EtpAutoRefresh">
+        <span class="etp-auto-refresh d-inline-flex align-items-center gap-1">
+            <span t-attf-class="badge {{ toneClass }}">
+                <i t-if="isBusy" class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-label="Working"/>
+                <t t-esc="label"/>
+            </span>
+            <small t-if="isBusy" class="text-muted">auto-refreshing…</small>
+            <!-- The settle happened while the form was dirty, so the record was
+                 NOT reloaded: offering it is the only way to show the new
+                 status without discarding what the admin typed. -->
+            <small t-if="state.stale" class="text-warning" role="status">
+                changed on the server -
+                <button type="button" class="btn btn-link btn-sm p-0 align-baseline"
+                        t-on-click="reload">save and reload</button>
+            </small>
+        </span>
+    </t>
+
+</templates>

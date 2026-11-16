@@ -1,0 +1,9 @@
+vendor/ethara-assessment-fe/build
+vendor/ethara-assessment-fe/.dart_tool
+vendor/ethara-assessment-fe/web/mediapipe/*.wasm
+vendor/ethara-assessment-fe/web/mediapipe/*.tflite
+vendor/ethara-assessment-fe/web/mediapipe/*.task
+vendor/patches
+vendor/VENDOR.toml
+README.md
+**/__pycache__

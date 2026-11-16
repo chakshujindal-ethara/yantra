@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="rule_assessment_evaluator_all_manager" model="ir.rule">
+            <field name="name">assessments.be.evaluator: manager full access</field>
+            <field name="model_id" ref="model_assessments_be_evaluator"/>
+            <field name="groups" eval="[(4, ref('assessments_be_v2.group_assessment_manager'))]"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_assessment_response_all_manager" model="ir.rule">
+            <field name="name">assessments.be.response: manager full access</field>
+            <field name="model_id" ref="model_assessments_be_response"/>
+            <field name="groups" eval="[(4, ref('assessments_be_v2.group_assessment_manager'))]"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_assessment_response_line_all_manager" model="ir.rule">
+            <field name="name">assessments.be.response.line: manager full access</field>
+            <field name="model_id" ref="model_assessments_be_response_line"/>
+            <field name="groups" eval="[(4, ref('assessments_be_v2.group_assessment_manager'))]"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+    </data>
+
+    <!-- THE DELETES HAVE TO BE HERE, AND IN THIS ORDER.
+         Two reasons, both proved against a live database.
+
+         First, the three rules removed above were declared under noupdate="1",
+         and `_process_end` only removes stale records whose noupdate is false.
+         So deleting them from this file does NOT delete them from an existing
+         database: they survive attached to NO group, and Odoo treats a rule
+         with no group as GLOBAL - ANDed into everyone's domain. Their domain is
+         "only rows where you are the candidate", so a Manager would open the
+         console and see zero attempts, zero responses, zero answers, with
+         nothing on screen to explain it.
+
+         Second, rule_group_rel's foreign key to res_groups is ON DELETE
+         RESTRICT, and res.groups.unlink is a bare DELETE with no m2m cleanup.
+         Delete the group while a rule still points at it and the statement
+         fails, which aborts the whole module upgrade. So: rules first, group
+         second. This file loads AFTER the security file, so by the time the
+         group delete runs nothing references it. Group MEMBERSHIP is fine
+         either way - res_groups_users_rel cascades.
+
+         A missing xml id is skipped with a warning (`_tag_delete`), so this is
+         a no-op on a fresh install and safe to re-run. -->
+    <data noupdate="0">
+        <!-- ir.model.access restricts too. Exactly two tables hold a RESTRICT
+             foreign key to res_groups - ir_model_access and rule_group_rel -
+             and every other reference cascades or nulls, so these two lists
+             plus the group are the whole job. The ACL rows are gone from
+             ir.model.access.csv, but that only stops them being re-created;
+             `_process_end` would clear the existing rows too late, after this
+             file has already tried to drop the group. -->
+        <delete model="ir.model.access" id="access_tag_evaluator"/>
+        <delete model="ir.model.access" id="access_question_image_evaluator"/>
+        <delete model="ir.model.access" id="access_question_video_evaluator"/>
+        <delete model="ir.model.access" id="access_assessment_evaluator"/>
+        <delete model="ir.model.access" id="access_assessment_evaluator_assignment_evaluator"/>
+        <delete model="ir.model.access" id="access_assessment_response_evaluator"/>
+        <delete model="ir.model.access" id="access_assessment_response_line_evaluator"/>
+        <delete model="ir.model.access" id="access_dashboard_evaluator"/>
+        <delete model="ir.model.access" id="access_llm_dashboard_evaluator"/>
+        <delete model="ir.model.access" id="access_similarity_evaluator"/>
+        <delete model="ir.model.access" id="access_etp_studio_form_staff"/>
+
+        <delete model="ir.rule" id="rule_assessment_evaluator_own_records_evaluator"/>
+        <delete model="ir.rule" id="rule_assessment_response_own_evaluator"/>
+        <delete model="ir.rule" id="rule_assessment_response_line_own_evaluator"/>
+        <delete model="res.groups" id="group_assessment_evaluator"/>
+    </data>
+</odoo>

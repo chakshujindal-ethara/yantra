@@ -1,0 +1,24 @@
+# Prod never syncs on its own: a human syncs after the prod promotion PR merges, outside the freeze window.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: yantra-prod
+  namespace: argocd
+spec:
+  project: yantra
+  source:
+    repoURL: https://github.com/EtharaLabs/yantra
+    targetRevision: main
+    path: deployment/helm/yantra
+    helm:
+      releaseName: yantra
+      valueFiles: [values.yaml, values-prod.yaml]
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: yantra-prod
+  syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: restricted
+        pod-security.kubernetes.io/enforce-version: latest
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="assessments_be_v2.CandidateTable">
+        <div class="o_etp_candidate_table">
+            <div class="o_etp_candidate_toolbar d-flex align-items-center gap-2 mb-2">
+                <div class="o_etp_candidate_search position-relative">
+                    <i class="fa fa-search o_etp_candidate_search_icon"
+                       role="img" aria-label="Search"/>
+                    <!-- t-att-value, so the box agrees with the filter that is
+                         actually applied. `runBulk` clears `state.query` and the
+                         text stayed on screen, leaving a search term above an
+                         unfiltered table. -->
+                    <input type="text" class="form-control o_etp_candidate_input"
+                           placeholder="Search name or email"
+                           t-att-value="state.query"
+                           t-on-input="onSearchInput"/>
+                </div>
+                <span t-if="state.matched !== null" class="text-muted small">
+                    <t t-esc="state.matched"/> match(es)
+                </span>
+
+                <div class="o_etp_candidate_actions d-flex gap-1 ms-auto"
+                     t-if="selectionCount">
+                    <span class="badge text-bg-light border align-self-center me-1">
+                        <t t-esc="selectionCount"/> selected
+                    </span>
+                    <button t-if="canRemove" type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            t-att-disabled="state.busy"
+                            t-on-click="onRemove">
+                        <i class="fa fa-trash-o me-1" role="img"/>Remove
+                    </button>
+                    <button t-if="canResend" type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            t-att-disabled="state.busy"
+                            t-on-click="onResend">
+                        <i class="fa fa-envelope me-1" role="img"/>Resend Invitation
+                    </button>
+                    <button t-if="canRelease" type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            t-att-disabled="state.busy"
+                            t-on-click="onRelease">
+                        <i class="fa fa-unlock me-1" role="img"/>Release Results
+                    </button>
+                </div>
+            </div>
+
+            <t t-call="web.X2ManyField"/>
+        </div>
+    </t>
+
+</templates>

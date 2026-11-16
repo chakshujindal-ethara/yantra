@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1230" height="508" viewBox="0 0 1230 508" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1230" height="508" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">User flow: ops and the client, from brief to invoice</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">One project is configuration, not a new app. The export gate and the margin report close the loop with the client.</text>
+<rect x="40" y="100" width="190" height="76" rx="38.0" fill="#030213" stroke="#030213" stroke-width="1.5"/>
+<text x="135.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Client brief</text>
+<text x="135.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">task type, volume, deadline,</text>
+<text x="135.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">quality bar</text>
+<rect x="280" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Project setup</text>
+<text x="375.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema, rubric v1, quality</text>
+<text x="375.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">policy, rate card</text>
+<rect x="520" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="115.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Price card</text>
+<text x="615.0" y="134.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">unit price frozen next to</text>
+<text x="615.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">unit pay; margin floor</text>
+<text x="615.0" y="161.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">checked</text>
+<polygon points="855.0,100 950,138.0 855.0,176 760,138.0" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="855.0" y="129.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Below floor?</text>
+<text x="855.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">warn, record approval</text>
+<rect x="1000" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="1095.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Batch import</text>
+<text x="1095.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">dry run reports every bad</text>
+<text x="1095.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">line</text>
+<rect x="1000" y="246" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="1095.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Publish</text>
+<text x="1095.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">freezes pay and price;</text>
+<text x="1095.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">assigned or open mode</text>
+<rect x="760" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="855.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Claims and reviews</text>
+<text x="855.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">workers and reviewers, weeks</text>
+<text x="855.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">1-n</text>
+<rect x="520" y="246" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="615.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Delivery gate</text>
+<text x="615.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">every line validated; one</text>
+<text x="615.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">bad line holds the batch</text>
+<rect x="280" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Manifest</text>
+<text x="375.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">checksums, provenance,</text>
+<text x="375.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">rubric version</text>
+<rect x="40" y="246" width="190" height="76" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="135.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Invoice</text>
+<text x="135.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">accepted units x rate;</text>
+<text x="135.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">e-invoice if Indian</text>
+<rect x="40" y="392" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="135.0" y="414.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Margin report</text>
+<text x="135.0" y="432.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">invoice minus every cost</text>
+<text x="135.0" y="446.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">line</text>
+<rect x="280" y="392" width="190" height="76" rx="38.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="375.0" y="413.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">People return to the</text>
+<text x="375.0" y="428.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">bench</text>
+<text x="375.0" y="447.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">the four numbers update</text>
+<path d="M230.0,138.0 L280.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M470.0,138.0 L520.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M710.0,138.0 L760.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M950.0,138.0 L1000.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1095.0,176.0 L1095.0,211.0 L1095.0,211.0 L1095.0,246.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1000.0,284.0 L950.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M760.0,284.0 L710.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,284.0 L470.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M280.0,284.0 L230.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M135.0,322.0 L135.0,357.0 L135.0,357.0 L135.0,392.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M230.0,430.0 L280.0,430.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

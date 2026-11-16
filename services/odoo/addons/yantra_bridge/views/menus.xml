@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_yantra_root" name="Yantra" sequence="60" groups="yantra_bridge.group_yantra_ops"/>
+    <menuitem id="menu_yantra_workers" name="Workers" parent="menu_yantra_root" action="action_worker" sequence="10"/>
+    <menuitem id="menu_yantra_pay_windows" name="Pay windows" parent="menu_yantra_root" action="action_pay_window" sequence="20"/>
+    <menuitem id="menu_yantra_projects" name="Client projects" parent="menu_yantra_root" action="action_client_project" sequence="30"/>
+    <menuitem id="menu_yantra_batches" name="Batches" parent="menu_yantra_root" action="action_batch" sequence="40"/>
+    <menuitem id="menu_yantra_config" name="Configuration" parent="menu_yantra_root" sequence="90"/>
+    <menuitem id="menu_yantra_cert_gates" name="Certification gates" parent="menu_yantra_config" action="action_cert_gate" sequence="10"/>
+    <menuitem id="menu_yantra_settings" name="Settings" parent="menu_yantra_config" action="action_yantra_settings" sequence="20"/>
+</odoo>

@@ -1,0 +1,67 @@
+# FE-6. API_BASE_URL=same-origin: the API is proxied on the page's own origin (Yantra's nginx), so one bundle serves any host.
+diff --git a/ethara-assessment-fe/lib/assessment/data/environment.dart b/ethara-assessment-fe/lib/assessment/data/environment.dart
+index 8e2f2c4..e0f51eb 100644
+--- a/ethara-assessment-fe/lib/assessment/data/environment.dart
++++ b/ethara-assessment-fe/lib/assessment/data/environment.dart
+@@ -154,6 +154,9 @@ AppEnvironment environmentForHost(String? host) {
+   return kHostEnvironments[h] ?? AppEnvironment.unknown;
+ }
+ 
++/// The `API_BASE_URL` value that means "the origin this page was served from".
++const String kSameOrigin = 'same-origin';
++
+ /// Resolve the whole profile for a page loaded at [pageUrl].
+ ///
+ /// Pure, and takes the URL as an argument rather than reading `Uri.base`, so
+@@ -175,7 +178,11 @@ EnvironmentProfile resolveEnvironment(
+   if (override.isNotEmpty) {
+     return EnvironmentProfile(
+       environment: env,
+-      apiBaseUrl: _stripTrailingSlashes(override),
++      // Yantra: `same-origin` means the API is proxied on the page's own
++      // origin (Yantra's nginx), so one bundle serves any host.
++      apiBaseUrl: override == kSameOrigin
++          ? pageUrl.origin
++          : _stripTrailingSlashes(override),
+       apiDb: dbOverride.trim(),
+     );
+   }
+diff --git a/ethara-assessment-fe/test/yantra/same_origin_api_test.dart b/ethara-assessment-fe/test/yantra/same_origin_api_test.dart
+new file mode 100644
+index 0000000..09f0ef9
+--- /dev/null
++++ b/ethara-assessment-fe/test/yantra/same_origin_api_test.dart
+@@ -0,0 +1,33 @@
++// Yantra serves this bundle behind its own nginx, which proxies the API on the
++// page's origin. `API_BASE_URL=same-origin` says exactly that, so one bundle
++// runs on any host Yantra deploys it to.
++import 'package:flutter_test/flutter_test.dart';
++
++import 'package:ethara_assessment/assessment/data/environment.dart';
++
++void main() {
++  test('same-origin resolves to the page origin, whatever the host', () {
++    for (final String page in <String>[
++      'http://localhost:8096/yantra/launch#ticket=x',
++      'https://assess.yantra.example/exam/abc',
++    ]) {
++      final Uri url = Uri.parse(page);
++      final EnvironmentProfile p = resolveEnvironment(
++        url,
++        baseUrlOverride: 'same-origin',
++        dbOverride: '',
++      );
++      expect(p.apiBaseUrl, url.origin);
++      expect(p.environment, environmentForHost(url.host));
++    }
++  });
++
++  test('a real URL is still taken as given', () {
++    final EnvironmentProfile p = resolveEnvironment(
++      Uri.parse('http://localhost:8096/'),
++      baseUrlOverride: 'http://odoo:8069/',
++      dbOverride: '',
++    );
++    expect(p.apiBaseUrl, 'http://odoo:8069');
++  });
++}

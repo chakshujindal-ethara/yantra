@@ -1,0 +1,746 @@
+diff --git a/lib/assessment/assessment_section.dart b/lib/assessment/assessment_section.dart
+index b2b9878..105d148 100644
+--- a/lib/assessment/assessment_section.dart
++++ b/lib/assessment/assessment_section.dart
+@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
+ 
+ import 'domain/enums.dart';
+ import 'domain/nav_entries.dart';
++import '../services/browser_history_stub.dart'
++    if (dart.library.js_interop) '../services/browser_history_web.dart';
+ import 'nav.dart';
+ import 'screens/account/account_screen.dart';
+ import 'screens/admin/assessment_detail_screen.dart';
+@@ -111,6 +113,9 @@ class _AssessmentSectionState extends State<AssessmentSection> {
+   late final AssessmentNav _nav = AssessmentNav();
+   AppStore get _store => widget.store;
+ 
++  /// Detaches the browser's `popstate` listener. A no-op off the web.
++  late final void Function() _detachBrowserHistory;
++
+   @override
+   void initState() {
+     super.initState();
+@@ -118,6 +123,15 @@ class _AssessmentSectionState extends State<AssessmentSection> {
+     _nav.addListener(_rebuild);
+     _store.addListener(_rebuild);
+ 
++    // The browser's own Back and Forward, wired to the same trail the in-app
++    // pair moves through. Attached HERE because this is where `_nav` lives and
++    // is disposed; a listener outliving its navigator would move a dead object
++    // on the next press.
++    //
++    // Before `_openEntry`, so the entry it replaces the root with is the first
++    // thing the browser is told about.
++    _detachBrowserHistory = listenBrowserHistory(_nav.adoptBrowserEntry);
++
+     _openEntry();
+   }
+ 
+@@ -198,6 +212,7 @@ class _AssessmentSectionState extends State<AssessmentSection> {
+ 
+   @override
+   void dispose() {
++    _detachBrowserHistory();
+     _nav.removeListener(_rebuild);
+     _store.removeListener(_rebuild);
+     _nav.dispose();
+diff --git a/lib/assessment/nav.dart b/lib/assessment/nav.dart
+index 26b6ac5..0ce1ead 100644
+--- a/lib/assessment/nav.dart
++++ b/lib/assessment/nav.dart
+@@ -18,6 +18,8 @@
+ // button and a rebuild both land in the same place.
+ import 'package:flutter/widgets.dart';
+ 
++import '../services/browser_history_stub.dart'
++    if (dart.library.js_interop) '../services/browser_history_web.dart';
+ import 'domain/models.dart';
+ 
+ /// Where the assessment section currently is.
+@@ -322,6 +324,35 @@ class AssessmentNav extends ChangeNotifier {
+   ];
+   int _cursor = 0;
+ 
++  /// Where entry ids start for this page load.
++  ///
++  /// UNIQUE PER PAGE LOAD, not per navigator, and that is a bug fix rather than
++  /// tidiness. Ids used to start at zero on every mount. A reload leaves the
++  /// browser holding the PREVIOUS load's entries - it restores the whole stack -
++  /// so the fresh trail minted 0, 1, 2 straight back over ids the old entries
++  /// still carried. Pressing the browser's Back or Forward then matched a stale
++  /// entry against a page it had nothing to do with: sometimes the wrong screen,
++  /// more often the id resolving to the page already showing, which reads as the
++  /// button doing nothing at all.
++  ///
++  /// A microsecond clock makes the run unique; the counter makes the entry
++  /// unique within it. Values stay far inside the range a JS number holds
++  /// exactly, which is what the history state stores them as.
++  int _nextId = DateTime.now().microsecondsSinceEpoch;
++
++  /// A serial id per trail entry, and the browser history entry it is tagged
++  /// with. Parallel to [_history] - same length, same order.
++  ///
++  /// AN ID RATHER THAN THE INDEX, because [maxEntries] drops the oldest entry
++  /// and shifts every index under a browser history entry we do not control.
++  /// An id never moves, so a Back into something the trail has forgotten is
++  /// recognised as gone instead of resolving to whatever slid into its slot.
++  late final List<int> _ids = <int>[_nextId++];
++
++  /// True while a browser-driven move is being applied, so the step we make in
++  /// response is not itself sent back to the browser.
++  bool _adopting = false;
++
+   AssessmentRoute get current => _history[_cursor];
+ 
+   bool get canGoBack => _cursor > 0;
+@@ -365,10 +396,20 @@ class AssessmentNav extends ChangeNotifier {
+ 
+     if (r == current) return;
+ 
+-    if (canGoForward) _history.removeRange(_cursor + 1, _history.length);
++    if (canGoForward) {
++      _history.removeRange(_cursor + 1, _history.length);
++      _ids.removeRange(_cursor + 1, _ids.length);
++    }
+     _history.add(r);
+-    if (_history.length > maxEntries) _history.removeAt(0);
++    _ids.add(_nextId++);
++    if (_history.length > maxEntries) {
++      _history.removeAt(0);
++      _ids.removeAt(0);
++    }
+     _cursor = _history.length - 1;
++    // The browser truncates its own forward entries on a push, so the two
++    // stacks stay the same shape without being told to.
++    pushBrowserEntry(_ids[_cursor]);
+     notifyListeners();
+   }
+ 
+@@ -383,22 +424,94 @@ class AssessmentNav extends ChangeNotifier {
+     _history
+       ..clear()
+       ..add(r);
++    _ids
++      ..clear()
++      ..add(_nextId++);
+     _cursor = 0;
++    // REPLACE, never push. A fresh trail is not somewhere the user navigated
++    // to, and pushing here would make the browser's Back undo the app's own
++    // startup - on a deep link, straight back out of the exam it just opened.
++    replaceBrowserEntry(_ids[0]);
+     notifyListeners();
+   }
+ 
++  // THE BROWSER MOVES THE CURSOR, WE DO NOT - on the web, and this is the whole
++  // reason the two sets of buttons agree.
++  //
++  // These used to move the cursor AND step the browser. Two writers to one
++  // position, and they drifted the moment either side did something the other
++  // did not see: a failed push, a reload restoring the old stack, a step the
++  // browser declined. The arrow would work and the browser's button would not.
++  //
++  // Now an arrow press is exactly a browser press. It asks the browser to move
++  // and returns; `popstate` arrives, `adoptBrowserEntry` runs, and the cursor
++  // moves there - through this same method, with `_adopting` set, which is the
++  // branch below. One path, one writer.
++  //
++  // Off the web, and on a page whose history writes are being refused, there is
++  // no browser stack to delegate to and the cursor moves directly. That is also
++  // what every widget test exercises, since they run on the Dart VM.
++
+   void back() {
+     if (!canGoBack) return;
++    if (!_adopting && hasBrowserHistory) {
++      stepBrowserHistory(-1);
++      return;
++    }
+     _cursor--;
+     notifyListeners();
+   }
+ 
+   void forward() {
+     if (!canGoForward) return;
++    if (!_adopting && hasBrowserHistory) {
++      stepBrowserHistory(1);
++      return;
++    }
+     _cursor++;
+     notifyListeners();
+   }
+ 
++  /// The browser history entry id of the page now showing.
++  int get currentEntryId => _ids[_cursor];
++
++  /// Move to the trail entry the BROWSER has landed on.
++  ///
++  /// The whole browser integration, and deliberately the only part of it that
++  /// is not behind the platform boundary: a test drives this directly to play
++  /// the part of the Back button (see `browser_history_test.dart`).
++  ///
++  /// IDEMPOTENT ON PURPOSE. Our own arrows move the cursor and then step the
++  /// browser, so every in-app press produces a `popstate` that arrives back
++  /// here naming the entry we are already on. Doing nothing in that case is
++  /// what lets one code path serve both buttons without a suppression flag
++  /// that has to be got exactly right.
++  ///
++  /// An id the trail no longer holds means the browser is offering an entry we
++  /// have dropped, or one belonging to another page on this origin. Staying put
++  /// is the only safe answer: moving to a guess would show a page the user did
++  /// not ask for.
++  void adoptBrowserEntry(int? entryId) {
++    if (entryId == null) return;
++    final int at = _ids.indexOf(entryId);
++    if (at < 0 || at == _cursor) return;
++
++    _adopting = true;
++    try {
++      // Through [back] and [forward] rather than by assigning the cursor, so
++      // the exam boundary and every other rule they enforce hold for the
++      // browser's buttons exactly as they do for ours.
++      while (_cursor > at) {
++        back();
++      }
++      while (_cursor < at) {
++        forward();
++      }
++    } finally {
++      _adopting = false;
++    }
++  }
++
+   // ── Named destinations ─────────────────────────────────────────────────
+   //
+   // These replace what used to be `Routes.*` URL builders. Same call sites,
+--- untracked files below ---
+=== lib/services/browser_history_stub.dart ===
+/// Keeping the browser's Back and Forward in step with the section's trail.
+///
+/// Non-web builds have no browser history. The app is web-only today, so this
+/// stub exists to satisfy the conditional import and does nothing, mirroring
+/// `reset_url_stub.dart` beside it.
+///
+/// It is also what the widget suite runs against: every test executes on the
+/// Dart VM, so these are the implementations `AssessmentNav` gets under test.
+/// That is deliberate. The mapping between the trail and the browser is pure
+/// and lives in `AssessmentNav.adoptBrowserEntry`, which a test drives
+/// directly - only the `window.history` calls are stubbed out here, so nothing
+/// worth testing is hidden behind the platform boundary.
+library;
+
+/// Whether a browser history stack exists to delegate Back and Forward to.
+///
+/// Always false here, so `AssessmentNav` moves its own cursor. That is what
+/// keeps the in-app arrows working - and testable - off the web.
+bool get hasBrowserHistory => false;
+
+/// Note a NEW entry in the browser's back stack, tagged with [entryId].
+void pushBrowserEntry(int entryId) {}
+
+/// Retag the CURRENT entry without adding one.
+void replaceBrowserEntry(int entryId) {}
+
+/// Step the browser's own history, so its Back button and ours agree.
+void stepBrowserHistory(int delta) {}
+
+/// Call [onPop] whenever the browser moves through history, with the entry id
+/// it landed on (null when the entry carries none). Returns a disposer.
+void Function() listenBrowserHistory(void Function(int? entryId) onPop) =>
+    () {};
+=== lib/services/browser_history_web.dart ===
+/// Keeping the browser's Back and Forward in step with the section's trail.
+///
+/// THE ADDRESS BAR IS NOT TOUCHED. Every entry pushed here reuses the current
+/// URL and carries its identity in the history STATE instead. That is what lets
+/// browser navigation work without first inventing a URL for all twenty-four
+/// routes, which is a much larger change (see the note at the top of
+/// `assessment/nav.dart`). The visible consequence is the honest one: Back and
+/// Forward work, and a page still cannot be linked to or bookmarked.
+///
+/// AN ID, NOT AN INDEX. The trail drops its oldest entry past
+/// `AssessmentNav.maxEntries`, which would shift every index under a history
+/// entry the browser is still holding. A serial id never moves, so an entry the
+/// trail has forgotten is simply not found and ignored, rather than resolving
+/// to whatever page slid into its slot.
+///
+/// THE STATE IS A BARE NUMBER rather than an object with a named field. It is
+/// read back through an `isA<JSNumber>` check, so a state written by anything
+/// else on this origin is recognised as foreign and ignored - which is all a
+/// wrapper object would have bought, at the cost of `dart:js_interop_unsafe`
+/// and hand-rolled property access.
+library;
+
+import 'dart:js_interop';
+
+import 'package:web/web.dart' as web;
+
+int? _idOf(JSAny? state) {
+  if (state == null || !state.isA<JSNumber>()) return null;
+  return (state as JSNumber).toDartInt;
+}
+
+/// False once a history write has failed, and it stays false.
+///
+/// WHAT IT GUARDS. `AssessmentNav` hands Back and Forward to the browser and
+/// waits for `popstate` to move the cursor, which is what keeps the in-app
+/// arrows and the browser's buttons from ever disagreeing. If our pushes are
+/// being refused there are no entries to step through, so that same delegation
+/// would leave both arrows dead. Reporting the loss lets the navigator fall
+/// back to moving its own cursor, which is exactly what it does off the web.
+///
+/// A sandboxed iframe refuses history writes outright, and a page that pushes
+/// too many entries too fast is throttled. One failure is enough to know the
+/// browser stack no longer mirrors the trail.
+bool _writable = true;
+
+bool get hasBrowserHistory => _writable;
+
+void pushBrowserEntry(int entryId) {
+  if (!_writable) return;
+  try {
+    // '' as the URL means "keep the current one". Passing `null` is also legal
+    // but some embedders normalise it to the document base, which would drop a
+    // `?token=` the app has not finished reading yet.
+    web.window.history.pushState(entryId.toJS, '', '');
+  } catch (_) {
+    _writable = false;
+  }
+}
+
+void replaceBrowserEntry(int entryId) {
+  if (!_writable) return;
+  try {
+    web.window.history.replaceState(entryId.toJS, '', '');
+  } catch (_) {
+    _writable = false;
+  }
+}
+
+void stepBrowserHistory(int delta) {
+  try {
+    web.window.history.go(delta);
+  } catch (_) {
+    // See above.
+  }
+}
+
+void Function() listenBrowserHistory(void Function(int? entryId) onPop) {
+  void handler(web.Event event) {
+    onPop(_idOf((event as web.PopStateEvent).state));
+  }
+
+  final JSFunction listener = handler.toJS;
+  try {
+    web.window.addEventListener('popstate', listener);
+  } catch (_) {
+    return () {};
+  }
+  return () {
+    try {
+      web.window.removeEventListener('popstate', listener);
+    } catch (_) {
+      // Tearing down during page unload; nothing left to detach from.
+    }
+  };
+}
+=== test/assessment/browser_history_test.dart ===
+// The browser's own Back and Forward, over the same trail the in-app pair uses.
+//
+// WHY THIS IS TESTABLE AT ALL ON THE VM. The `window.history` calls sit behind
+// a conditional import and are no-ops here, but the part worth testing is not
+// the interop - it is the mapping from a history entry id back onto the trail,
+// and that lives in `AssessmentNav.adoptBrowserEntry` as plain Dart. Calling it
+// directly is exactly what the real `popstate` handler does, so these tests
+// play the part of the Back button without a browser.
+//
+// The id is what makes the mapping safe. The trail drops its oldest entry past
+// `maxEntries`, so an index would slide under a history entry the browser is
+// still holding and Back would land on a page the user never visited.
+import 'package:flutter_test/flutter_test.dart';
+import 'package:ethara_assessment/assessment/nav.dart';
+
+void main() {
+  /// The id the browser would have recorded for the entry now showing.
+  ///
+  /// Read the way the real listener reads it - off the navigator - rather than
+  /// counted by the test, so a change to how ids are minted cannot leave these
+  /// tests asserting against a private accounting of their own.
+  int idNow(AssessmentNav nav) => nav.currentEntryId;
+
+  group('The browser moves the trail', () {
+    test('Back lands on the entry the browser names', () {
+      final AssessmentNav nav = AssessmentNav();
+      nav.replaceRoot(const Analytics());
+      final int atAnalytics = idNow(nav);
+
+      nav.go(const TagsAdmin());
+      nav.go(const QuestionBank());
+      expect(nav.current, isA<QuestionBank>());
+
+      nav.adoptBrowserEntry(atAnalytics);
+
+      expect(nav.current, isA<Analytics>());
+      expect(nav.canGoForward, isTrue, reason: 'two pages are still ahead');
+    });
+
+    test('Forward comes back again', () {
+      final AssessmentNav nav = AssessmentNav();
+      nav.replaceRoot(const Analytics());
+      final int atAnalytics = idNow(nav);
+      nav.go(const TagsAdmin());
+      final int atTags = idNow(nav);
+
+      nav.adoptBrowserEntry(atAnalytics);
+      expect(nav.current, isA<Analytics>());
+
+      nav.adoptBrowserEntry(atTags);
+      expect(nav.current, isA<TagsAdmin>());
+    });
+
+    test('naming the entry already showing changes nothing', () {
+      final AssessmentNav nav = AssessmentNav();
+      nav.replaceRoot(const Analytics());
+      nav.go(const TagsAdmin());
+
+      int notified = 0;
+      nav.addListener(() => notified++);
+      nav.adoptBrowserEntry(idNow(nav));
+
+      // EVERY in-app press produces one of these: the arrow moves the cursor,
+      // then steps the browser, and the resulting popstate arrives here naming
+      // the entry we already moved to. Doing nothing is what lets one code path
+      // serve both buttons.
+      expect(nav.current, isA<TagsAdmin>());
+      expect(notified, 0);
+    });
+
+    test('an id the trail has forgotten is ignored', () {
+      final AssessmentNav nav = AssessmentNav();
+      nav.replaceRoot(const Analytics());
+      nav.go(const TagsAdmin());
+
+      // A history entry from a previous mount, or from another page on this
+      // origin. Moving to a guess would show a page nobody asked for.
+      nav.adoptBrowserEntry(-99);
+      expect(nav.current, isA<TagsAdmin>());
+
+      nav.adoptBrowserEntry(null);
+      expect(nav.current, isA<TagsAdmin>());
+    });
+
+    test('a new page after a browser Back abandons the forward branch', () {
+      final AssessmentNav nav = AssessmentNav();
+      nav.replaceRoot(const Analytics());
+      final int atAnalytics = idNow(nav);
+      nav.go(const TagsAdmin());
+      final int atTags = idNow(nav);
+
+      nav.adoptBrowserEntry(atAnalytics);
+      nav.go(const QuestionBank());
+
+      expect(nav.canGoForward, isFalse);
+      // The abandoned entry must not be reachable by id either - the browser
+      // truncates its forward stack on a push, and the trail has to agree.
+      nav.adoptBrowserEntry(atTags);
+      expect(nav.current, isA<QuestionBank>());
+    });
+  });
+
+  group('The exam stays a boundary', () {
+    test('entering an exam starts a fresh trail the browser cannot escape', () {
+      final AssessmentNav nav = AssessmentNav();
+      nav.replaceRoot(const Analytics());
+      final int atAnalytics = idNow(nav);
+      nav.go(const TagsAdmin());
+
+      nav.go(const Exam('tok'));
+      expect(nav.current, isA<Exam>());
+      expect(nav.canGoBack, isFalse);
+
+      // The candidate is mid-sitting. A browser Back that walked out of the
+      // runner is the escape hatch the boundary exists to close, and the ids
+      // behind it are no longer in the trail.
+      nav.adoptBrowserEntry(atAnalytics);
+      expect(nav.current, isA<Exam>());
+    });
+  });
+
+  group('Ids survive the trail being trimmed', () {
+    test('the oldest entry dropping does not shift the others', () {
+      final AssessmentNav nav = AssessmentNav();
+      nav.replaceRoot(const Analytics());
+      nav.go(const TagsAdmin());
+      final int atTags = idNow(nav);
+
+      // Past `maxEntries`, so the front of the trail is dropped. An index-based
+      // mapping would now resolve `atTags` to a different page; an id does not.
+      for (int i = 0; i < AssessmentNav.maxEntries + 5; i++) {
+        nav.go(GeneratorDetail('gen-$i'));
+      }
+
+      nav.adoptBrowserEntry(atTags);
+      expect(
+        nav.current,
+        isA<GeneratorDetail>(),
+        reason: 'Tags fell off the trail, so its id resolves to nothing and the '
+            'page must not move',
+      );
+    });
+  });
+}
+=== test/assessment/browser_history_live_test.dart ===
+@TestOn('browser')
+library;
+
+// The browser's Back and Forward against the REAL `window.history`.
+//
+// `browser_history_test.dart` drives `adoptBrowserEntry` directly, which proves
+// the mapping from an entry id onto the trail. It cannot prove the half that
+// only exists in a browser: that our pushes and steps leave the history stack
+// the shape we think they do, and that a real `popstate` carries the id back.
+// A reported bug - the browser's Forward doing nothing while the in-app arrow
+// worked - lived entirely in that half.
+//
+// Run by `flutter test --platform chrome`, which the Makefile's `test` target
+// already does on every run.
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:ethara_assessment/assessment/nav.dart';
+import 'package:ethara_assessment/services/browser_history_web.dart';
+
+/// Waits for the navigator to settle after a history step.
+///
+/// `history.go` is asynchronous: the browser fires `popstate` on a later task,
+/// so an assertion made on the next line reads the state before the move. There
+/// is no callback to await, so this polls the navigator until it changes or the
+/// budget runs out - and a timeout is itself a result, since "nothing happened"
+/// is exactly the reported bug.
+Future<void> settle(AssessmentNav nav, {AssessmentRoute? until}) async {
+  for (int i = 0; i < 50; i++) {
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    if (until == null || nav.current == until) return;
+  }
+}
+
+void main() {
+  late AssessmentNav nav;
+  late void Function() detach;
+
+  setUp(() {
+    nav = AssessmentNav();
+    detach = listenBrowserHistory(nav.adoptBrowserEntry);
+  });
+
+  tearDown(() {
+    detach();
+    nav.dispose();
+  });
+
+  test('the browser Forward button returns to the page Back left', () async {
+    nav.replaceRoot(const Analytics());
+    nav.go(const TagsAdmin());
+    nav.go(const QuestionBank());
+    expect(nav.current, isA<QuestionBank>());
+
+    // The in-app arrow. This one was reported working.
+    nav.back();
+    await settle(nav, until: const TagsAdmin());
+    expect(nav.current, isA<TagsAdmin>());
+
+    // The browser's own Forward button, which is exactly this call.
+    stepBrowserHistory(1);
+    await settle(nav, until: const QuestionBank());
+
+    expect(
+      nav.current,
+      isA<QuestionBank>(),
+      reason: 'browser Forward must land where the in-app Forward would',
+    );
+  });
+
+  test('the browser Back button and the in-app arrow agree', () async {
+    nav.replaceRoot(const Analytics());
+    nav.go(const TagsAdmin());
+
+    stepBrowserHistory(-1);
+    await settle(nav, until: const Analytics());
+    expect(nav.current, isA<Analytics>());
+
+    stepBrowserHistory(1);
+    await settle(nav, until: const TagsAdmin());
+    expect(nav.current, isA<TagsAdmin>());
+  });
+
+  test('a reload does not let stale entries claim the new trail', () async {
+    nav.replaceRoot(const Analytics());
+    nav.go(const TagsAdmin());
+    nav.go(const QuestionBank());
+    final int staleId = nav.currentEntryId;
+
+    // A reload: the browser keeps the entries it already had, and the app comes
+    // back up with a brand new navigator over them. Ids used to restart at zero
+    // on every mount, so this second trail minted the same ids the entries
+    // above were already tagged with - and the browser's buttons then matched a
+    // stale entry against whatever page had inherited its number.
+    detach();
+    nav.dispose();
+    nav = AssessmentNav();
+    detach = listenBrowserHistory(nav.adoptBrowserEntry);
+    nav.replaceRoot(const Analytics());
+    nav.go(const TagsAdmin());
+
+    expect(
+      nav.currentEntryId,
+      isNot(staleId),
+      reason: 'a fresh run must not reuse the previous run ids',
+    );
+
+    nav.adoptBrowserEntry(staleId);
+    expect(
+      nav.current,
+      isA<TagsAdmin>(),
+      reason: 'an entry from the previous page load names nothing here',
+    );
+  });
+
+  test('in-app Back then browser Forward, repeated, stays in step', () async {
+    nav.replaceRoot(const Analytics());
+    nav.go(const TagsAdmin());
+    nav.go(const QuestionBank());
+
+    for (int round = 0; round < 3; round++) {
+      nav.back();
+      await settle(nav, until: const TagsAdmin());
+      expect(nav.current, isA<TagsAdmin>(), reason: 'round $round, after Back');
+
+      stepBrowserHistory(1);
+      await settle(nav, until: const QuestionBank());
+      expect(
+        nav.current,
+        isA<QuestionBank>(),
+        reason: 'round $round, after browser Forward',
+      );
+    }
+  });
+}
+=== test/assessment/browser_history_section_test.dart ===
+@TestOn('browser')
+library;
+
+// The browser's Back and Forward against the REAL section, in a REAL browser.
+//
+// `browser_history_live_test.dart` drives `AssessmentNav` on its own and passes,
+// so a bug that only shows in the app lives above the navigator: in how the
+// section mounts it, seeds it, and re-seeds it. This mounts the actual
+// `AssessmentSection` and drives it the way a user does - clicking the rail,
+// then pressing the browser's own buttons.
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:ethara_assessment/assessment/assessment_section.dart';
+import 'package:ethara_assessment/assessment/domain/nav_entries.dart';
+import 'package:ethara_assessment/assessment/nav.dart';
+import 'package:ethara_assessment/assessment/state/app_store.dart';
+import 'package:ethara_assessment/services/browser_history_web.dart';
+
+/// Let the browser deliver `popstate` and the frame settle.
+///
+/// `history.go` resolves on a later task and fires no Dart future, so the pump
+/// has to be given real wall-clock time rather than `pumpAndSettle`, which only
+/// drains Flutter's own queues.
+Future<void> settleHistory(WidgetTester tester) async {
+  for (int i = 0; i < 20; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 15)),
+    );
+    await tester.pump();
+  }
+}
+
+void main() {
+  Future<AssessmentNav> pumpSection(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1600, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    final AppStore store = AppStore();
+    addTearDown(store.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AssessmentSection(
+            store: store,
+            entry: AssessmentEntry.console,
+            sidebarBuilder:
+                (
+                  BuildContext _,
+                  List<NavEntry> entries,
+                  String _,
+                  void Function(String) onOpen,
+                ) => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: entries
+                      .map(
+                        (NavEntry n) => TextButton(
+                          key: ValueKey<String>('rail-${n.key}'),
+                          onPressed: () => onOpen(n.key),
+                          child: Text(n.label),
+                        ),
+                      )
+                      .toList(),
+                ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    return tester
+        .widget<AssessmentNavScope>(find.byType(AssessmentNavScope))
+        .notifier!;
+  }
+
+  Future<void> tapRail(WidgetTester tester, String key) async {
+    await tester.tap(find.byKey(ValueKey<String>('rail-$key')));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('browser Forward returns to the page the in-app Back left', (
+    WidgetTester tester,
+  ) async {
+    final AssessmentNav nav = await pumpSection(tester);
+
+    await tapRail(tester, 'tags');
+    await tapRail(tester, 'bank');
+    expect(nav.current, isA<QuestionBank>());
+
+    nav.back();
+    await settleHistory(tester);
+    expect(nav.current, isA<TagsAdmin>(), reason: 'the in-app arrow works');
+
+    stepBrowserHistory(1);
+    await settleHistory(tester);
+
+    expect(
+      nav.current,
+      isA<QuestionBank>(),
+      reason: 'the browser Forward button must do exactly what the arrow does',
+    );
+  });
+
+  testWidgets('browser Back and browser Forward round-trip through the rail', (
+    WidgetTester tester,
+  ) async {
+    final AssessmentNav nav = await pumpSection(tester);
+
+    await tapRail(tester, 'tags');
+    await tapRail(tester, 'bank');
+
+    stepBrowserHistory(-1);
+    await settleHistory(tester);
+    expect(nav.current, isA<TagsAdmin>(), reason: 'browser Back');
+
+    stepBrowserHistory(1);
+    await settleHistory(tester);
+    expect(nav.current, isA<QuestionBank>(), reason: 'browser Forward');
+  });
+}

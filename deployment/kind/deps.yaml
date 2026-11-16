@@ -1,0 +1,130 @@
+# The infrastructure a real environment gets from managed services, as plain Deployments for kind only:
+# Postgres (with the keycloak database), Redis, NATS JetStream and Keycloak importing the local realm
+# (the ConfigMap `yantra-realm` is created by kind-up.sh from deployment/local/keycloak/yantra-realm.json).
+# Local credentials only; nothing here is fit for any other cluster.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+data:
+  10-keycloak.sql: "CREATE DATABASE keycloak;"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: postgres}}
+  template:
+    metadata: {labels: {app: postgres}}
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16.4
+          env:
+            - {name: POSTGRES_USER, value: yantra}
+            - {name: POSTGRES_PASSWORD, value: yantra}
+            - {name: POSTGRES_DB, value: yantra}
+          ports: [{containerPort: 5432}]
+          readinessProbe:
+            exec: {command: ["pg_isready", "-U", "yantra", "-d", "yantra"]}
+            periodSeconds: 2
+          volumeMounts:
+            - {name: init, mountPath: /docker-entrypoint-initdb.d}
+      volumes:
+        - name: init
+          configMap: {name: postgres-init}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: postgres}
+spec:
+  selector: {app: postgres}
+  ports: [{port: 5432}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: redis}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: redis}}
+  template:
+    metadata: {labels: {app: redis}}
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.4.1-alpine
+          ports: [{containerPort: 6379}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: redis}
+spec:
+  selector: {app: redis}
+  ports: [{port: 6379}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: nats}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: nats}}
+  template:
+    metadata: {labels: {app: nats}}
+    spec:
+      containers:
+        - name: nats
+          image: nats:2.10.22-alpine
+          args: ["--jetstream", "--store_dir", "/data"]
+          ports: [{containerPort: 4222}]
+          volumeMounts: [{name: data, mountPath: /data}]
+      volumes: [{name: data, emptyDir: {}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: nats}
+spec:
+  selector: {app: nats}
+  ports: [{port: 4222}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: keycloak}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: keycloak}}
+  template:
+    metadata: {labels: {app: keycloak}}
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:26.4
+          args: ["start-dev", "--import-realm"]
+          env:
+            - {name: KC_BOOTSTRAP_ADMIN_USERNAME, value: admin}
+            - {name: KC_BOOTSTRAP_ADMIN_PASSWORD, value: admin}
+            - {name: KC_HOSTNAME, value: "http://localhost:8180"}   # the issuer the port-forwarded app and CLI see
+            - {name: KC_HOSTNAME_STRICT, value: "false"}
+            - {name: KC_HTTP_ENABLED, value: "true"}
+            - {name: KC_DB, value: postgres}
+            - {name: KC_DB_URL, value: "jdbc:postgresql://postgres:5432/keycloak"}
+            - {name: KC_DB_USERNAME, value: yantra}
+            - {name: KC_DB_PASSWORD, value: yantra}
+          ports: [{containerPort: 8080}]
+          readinessProbe:
+            httpGet: {path: /realms/yantra, port: 8080}
+            periodSeconds: 5
+            failureThreshold: 60
+          volumeMounts:
+            - {name: realm, mountPath: /opt/keycloak/data/import, readOnly: true}
+      volumes:
+        - name: realm
+          configMap: {name: yantra-realm}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: keycloak}
+spec:
+  selector: {app: keycloak}
+  ports: [{port: 8080}]

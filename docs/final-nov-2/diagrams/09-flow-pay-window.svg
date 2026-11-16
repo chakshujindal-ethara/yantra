@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="990" height="362" viewBox="0 0 990 362" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="990" height="362" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">User flow: finance, the weekly pay window</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Runs every week from the first dogfood batch. Zero deltas is the gate.</text>
+<rect x="40" y="100" width="190" height="76" rx="38.0" fill="#030213" stroke="#030213" stroke-width="1.5"/>
+<text x="135.0" y="129.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Friday 23:59 IST</text>
+<text x="135.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">window closes</text>
+<rect x="280" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="115.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Apply holds</text>
+<text x="375.0" y="134.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">first payout 7 days;</text>
+<text x="375.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">integrity holds before</text>
+<text x="375.0" y="161.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">payout, never clawbacks</text>
+<rect x="520" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Vendor bills</text>
+<text x="615.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one self-billed bill per</text>
+<text x="615.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">worker with TDS</text>
+<rect x="760" y="100" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="855.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Two approvals</text>
+<text x="855.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">finance lead plus one; caps</text>
+<text x="855.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">per window</text>
+<rect x="760" y="246" width="190" height="76" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="855.0" y="275.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">RazorpayX</text>
+<text x="855.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">bank file as fallback</text>
+<rect x="520" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="275.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Webhook</text>
+<text x="615.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">signed, replay window</text>
+<rect x="280" y="246" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="375.0" y="261.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Reconciliation</text>
+<text x="375.0" y="280.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">earnings = bills = payouts</text>
+<text x="375.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">net + TDS, to the paisa;</text>
+<text x="375.0" y="307.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">alerts, never auto-adjusts</text>
+<rect x="40" y="246" width="190" height="76" rx="38.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="135.0" y="261.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Statements</text>
+<text x="135.0" y="280.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">in the app; disputes</text>
+<text x="135.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">answered within the next</text>
+<text x="135.0" y="307.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">window</text>
+<path d="M230.0,138.0 L280.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M470.0,138.0 L520.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M710.0,138.0 L760.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M855.0,176.0 L855.0,211.0 L855.0,211.0 L855.0,246.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M760.0,284.0 L710.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,284.0 L470.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M280.0,284.0 L230.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

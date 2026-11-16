@@ -1,0 +1,1074 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="assessments_be_prompt_tree" model="ir.ui.view">
+        <field name="name">assessments.be.prompt.tree</field>
+        <field name="model">assessments.be.prompt</field>
+        <field name="arch" type="xml">
+            <!-- `import="0"`: the gear menu's "Import" (static/src/list/
+                 prompt_import_list.js) is this list's one import. Odoo's
+                 generic "Import records" would be a second, different one. -->
+            <list class="o_etp_backend" import="0">
+                <header>
+                    <button name="action_normalize_tags" type="object"
+                            string="Normalize Tags"
+                            help="Tidies the shared tag vocabulary (merges duplicate/drifted tags onto one readable name) and re-extracts the selected generators against it. Run it as you add projects: the knowledge base keeps getting cleaner, so tags stay readable, similar projects rank together, and future assessments improve."/>
+                </header>
+                <field name="name"/>
+                <field name="tag_ids" widget="many2many_tags"
+                       options="{'color_field': 'color'}" optional="hide"
+                       context="{'etp_hide_tag_prefix': True}"/>
+                <field name="resource_count"/>
+                <field name="question_count"/>
+                <field name="approved_count"/>
+                <field name="state"/>
+                <field name="create_date"/>
+                <!-- Needed for the Archive action to appear in the list's
+                     Actions menu, which Odoo omits when `active` is not in the
+                     view. NOT for row styling: Odoo does not mute archived
+                     rows by itself and nothing in static/ does either - the
+                     form's ribbon is what marks an archived generator. -->
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="assessments_be_prompt_search" model="ir.ui.view">
+        <field name="name">assessments.be.prompt.search</field>
+        <field name="model">assessments.be.prompt</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="tag_ids"/>
+                <separator/>
+                <!-- Archiving is the supported way to retire a generator an
+                     assessment has already used: such a generator can never be
+                     deleted (ondelete=restrict) without orphaning candidate
+                     results. -->
+                <filter name="filter_archived" string="Archived"
+                        domain="[('active','=',False), ('deleted','=',False)]"/>
+                <filter name="filter_deleted" string="Deleted"
+                        domain="[('deleted','=',True)]"/>
+                <group>
+                    <filter name="group_state" string="Status"
+                            context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="assessments_be_prompt_similar_tree" model="ir.ui.view">
+        <field name="name">assessments.be.prompt.similar.tree</field>
+        <field name="model">assessments.be.prompt</field>
+        <!-- High priority so this ranking-only view is never auto-selected as the
+             default list for the Generators action (it is referenced explicitly
+             by the "Similar Projects" action's view_id). -->
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list class="o_etp_backend" create="false">
+                <field name="name"/>
+                <field name="tag_ids" widget="many2many_tags"
+                       options="{'color_field': 'color'}"
+                       context="{'etp_hide_tag_prefix': True}"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="assessments_be_prompt_form" model="ir.ui.view">
+        <field name="name">assessments.be.prompt.form</field>
+        <field name="model">assessments.be.prompt</field>
+        <field name="arch" type="xml">
+            <form class="o_etp_backend">
+                <header>
+                    <button name="action_generate_from_sop" type="object"
+                            string="Generate Questions"
+                            class="oe_highlight"
+                            invisible="not resource_ids"/>
+                    <button name="action_extract_tags" type="object"
+                            string="Extract Tags"
+                            invisible="not resource_ids or tag_extract_state in ('queued', 'generating')"/>
+                    <button name="action_cancel_tag_extract" type="object"
+                            string="Stop Extract Tags" icon="fa-stop"
+                            class="btn-outline-danger"
+                            confirm="Stop reading the SOP? The skills already on this generator are kept; a reply that arrives after this is not applied."
+                            invisible="tag_extract_state not in ('queued', 'generating') or tag_extract_cancel_requested"/>
+                    <field name="tag_extract_cancel_requested" invisible="1"/>
+                    <button name="action_approve_all_drafts" type="object"
+                            string="Approve All Drafts"
+                            confirm="Approve every pending draft question into the question bank?"
+                            invisible="question_count == 0"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,skills_ready,generating,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_similar" type="object"
+                                class="oe_stat_button" icon="fa-sitemap"
+                                invisible="similar_count == 0">
+                            <field name="similar_count" widget="statinfo"
+                                   string="Similar"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Prompt Title"/>
+                        </h1>
+                    </div>
+                    <field name="active" invisible="1"/>
+
+                    <!-- Step 1: the mandatory SOP upload, front and centre -->
+                    <field name="has_sop_resource" invisible="1"/>
+                    <!-- Declared so the banners below can branch on it: Odoo
+                         only evaluates a modifier against fields the view has
+                         actually loaded. -->
+                    <field name="sop_gen_cancel_requested" invisible="1"/>
+                    <div class="o_etp_sop_upload p-2 mb-3">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <label for="upload_sop_file" string="SOP document (required)"
+                                   class="o_etp_flabel fw-semibold mb-0"/>
+                            <field name="upload_sop_file" nolabel="1"
+                                   widget="be_upload_button"
+                                   filename="upload_sop_filename"
+                                   required="not has_sop_resource"
+                                   help="Required: the SOP document questions are generated from."/>
+                            <field name="upload_sop_filename" invisible="1"/>
+                            <field name="resource_ids" nolabel="1"
+                                   widget="be_file_chips"
+                                   options="{'category': 'sop'}"/>
+                        </div>
+                    </div>
+
+                    <!-- Friendly live-progress banners for the non-technical
+                         operator: shows exactly what the system is doing right
+                         now, so generation never looks "broken". -->
+                    <div class="alert alert-info d-flex align-items-center gap-2"
+                         role="status"
+                         invisible="sop_gen_state not in ('queued','generating') or sop_gen_cancel_requested">
+                        <i class="fa fa-spinner fa-spin" title="Working"/>
+                        <span class="flex-grow-1">
+                            <strong>Writing your questions…</strong>
+                            The SOP is being read and questions are being authored.
+                            This takes a minute or two. Reload the page to see them
+                            appear in <strong>Question Drafts</strong> below.
+                        </span>
+                        <!-- The stop button lives IN the working banner, which
+                             is the only place an operator is looking while a run
+                             is costing money. -->
+                        <button name="action_cancel_generation" type="object"
+                                class="btn btn-outline-danger btn-sm"
+                                icon="fa-stop"
+                                confirm="Stop generating questions for this generator? Draft questions already produced are kept - only the remaining model calls are cancelled."
+                                string="Kill generation"/>
+                    </div>
+                    <!-- A kill is not instant, and saying so is the whole
+                         point of this banner: the run stops at its next model
+                         call, which can be up to one call away. Without it the
+                         screen looked unchanged after pressing Kill and invited
+                         a second press. -->
+                    <div class="alert alert-warning d-flex align-items-center gap-2"
+                         role="status"
+                         invisible="not sop_gen_cancel_requested">
+                        <i class="fa fa-hourglass-half" title="Stopping"/>
+                        <span><strong>Stopping…</strong>
+                            No further model calls will be made for this
+                            generator. The run finishes the one already in
+                            flight and then stops; drafts it produced are kept.</span>
+                    </div>
+                    <div class="alert alert-secondary d-flex align-items-start gap-2"
+                         role="status"
+                         invisible="sop_gen_state != 'cancelled'">
+                        <i class="fa fa-ban" title="Cancelled"/>
+                        <span><strong>Generation was cancelled.</strong>
+                            Any draft questions the run had already written are
+                            in <strong>Question Drafts</strong> below - review
+                            or discard them. Press
+                            <strong>Generate Questions</strong> to start again.</span>
+                    </div>
+                    <div class="alert alert-info d-flex align-items-center gap-2"
+                         role="status"
+                         invisible="tag_extract_state not in ('queued','generating')">
+                        <i class="fa fa-spinner fa-spin" title="Working"/>
+                        <span><strong>Reading the SOP for tags…</strong>
+                            Plain-English tags appear here in a moment.</span>
+                    </div>
+                    <!-- A run that produced nothing gets a banner of its own:
+                         the success banner below needs drafts, so an empty run
+                         would otherwise show no banner beside a stage bar
+                         saying Done. -->
+                    <div class="alert alert-danger d-flex align-items-start gap-2"
+                         role="alert"
+                         invisible="sop_gen_state != 'failed'">
+                        <i class="fa fa-exclamation-triangle" title="Failed"/>
+                        <span><strong>Generation produced no questions.</strong>
+                            <field name="sop_gen_error" readonly="1" nolabel="1"
+                                   class="d-block"/>
+                            Fix the cause and press <strong>Generate Questions</strong>
+                            again. Nothing was saved, so re-running is safe.</span>
+                    </div>
+                    <!-- Gated on `draft_count`, not `question_count`: the
+                         banner is about drafts still to review, so it goes once
+                         every draft is reviewed (the banner below says so
+                         instead). -->
+                    <field name="draft_count" invisible="1"/>
+                    <div class="alert alert-success d-flex align-items-center gap-2"
+                         role="status"
+                         invisible="sop_gen_state != 'done' or draft_count == 0">
+                        <i class="fa fa-check-circle" title="Done"/>
+                        <span><strong><field name="draft_count" readonly="1"
+                                             nolabel="1" class="oe_inline"/>
+                            question(s) ready for review.</strong>
+                            They are under <strong>Question Drafts</strong> below —
+                            <strong>Task:</strong> items reproduce the actual task the
+                            candidate performs, the rest probe the SOP's rules. Approve
+                            the ones you want.</span>
+                    </div>
+                    <div class="alert alert-light d-flex align-items-center gap-2"
+                         role="status"
+                         invisible="sop_gen_state != 'done' or draft_count != 0 or question_count == 0">
+                        <i class="fa fa-check-circle text-success" title="Done"/>
+                        <span><strong>Every generated question has been
+                            reviewed.</strong> Nothing is waiting under Question
+                            Drafts. Generate again to author more.</span>
+                    </div>
+
+                    <!-- Status: what the system reports (dimmed, secondary) -->
+                    <group class="o_etp_status">
+                        <group>
+                            <field name="resource_count" readonly="1"/>
+                            <field name="sop_gen_state" readonly="1"
+                                   widget="be_auto_refresh"/>
+                            <field name="sop_gen_started_at" readonly="1"
+                                   invisible="not sop_gen_started_at"/>
+                            <field name="sop_gen_finished_at" readonly="1"
+                                   invisible="not sop_gen_finished_at"/>
+                            <field name="tag_extract_state" readonly="1"
+                                   widget="be_auto_refresh"/>
+                            <field name="tag_extract_last_run" readonly="1"
+                                   invisible="not tag_extract_last_run"/>
+                            <field name="tag_extract_error" readonly="1"
+                                   invisible="tag_extract_state != 'failed'"/>
+                            <field name="tag_ids" widget="many2many_tags"
+                                   options="{'color_field': 'color'}"
+                                   context="{'etp_hide_tag_prefix': True}"
+                                   placeholder="Semantic SOP tags..."/>
+                        </group>
+                        <group>
+                            <field name="last_extract_summary" readonly="1"/>
+                            <!-- Written on every run: the one field that
+                                 explains how a run that "succeeded" yielded
+                                 nothing. -->
+                            <field name="sop_gen_report" readonly="1"
+                                   invisible="not sop_gen_report"/>
+                            <field name="question_count" readonly="1"/>
+                            <field name="approved_count" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Generation controls: every knob for the run, in one card -->
+                    <div class="o_etp_panel">
+                        <separator string="Generation controls"/>
+                        <div class="d-flex align-items-center gap-3 flex-wrap mb-2 mt-1">
+                            <label for="question_count_mode" string="Questions to generate"
+                                   class="o_etp_flabel fw-semibold mb-0"/>
+                            <field name="question_count_mode" nolabel="1"
+                                   widget="radio" options="{'horizontal': True}"/>
+                            <field name="sop_question_count" nolabel="1" widget="integer"
+                                   invisible="question_count_mode != 'fixed'"
+                                   class="o_etp_count_input"/>
+                        </div>
+                        <div class="d-flex align-items-center gap-3 flex-wrap mb-2 mt-3">
+                            <label for="image_label_count" string="Image labelling count"
+                                   class="o_etp_flabel fw-semibold mb-0"/>
+                            <field name="image_label_count" nolabel="1" widget="integer"
+                                   class="o_etp_count_input"/>
+                            <span class="text-muted small">
+                                Maximum number of image label counts to allow in a question.
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+                            <label for="image_label_live_capture" string="Screenshot live websites"
+                                   class="o_etp_flabel fw-semibold mb-0"/>
+                            <field name="image_label_live_capture" nolabel="1" widget="boolean_toggle"/>
+                            <span class="text-muted small">
+                                Off: labelling pictures are AI-made. On: a real website is screenshotted.
+                            </span>
+                        </div>
+                        <!-- ALLOWED QUESTION TYPES, out of Advanced options as in
+                             the app: what a run produces is part of the job, not
+                             a refinement. Locked while a generation runs. -->
+                        <div class="d-flex align-items-center justify-content-between mb-1 mt-3">
+                            <span class="fw-semibold">Allowed question types</span>
+                            <span class="d-inline-flex align-items-center gap-1 small text-muted">
+                                <field name="select_all_types" nolabel="1"
+                                       readonly="sop_gen_state in ('queued','generating','finalizing')"/>
+                                <label for="select_all_types" string="Select all" class="mb-0 fw-normal"/>
+                            </span>
+                        </div>
+                        <div class="o_etp_control mb-1 o_etp_qtypes">
+                            <field name="types_all_selected" invisible="1"/>
+                            <span class="o_etp_qtypes_full" invisible="not types_all_selected"/>
+                            <field name="allowed_question_type_ids" nolabel="1"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   domain="[('id', 'not in', allowed_question_type_ids)]"
+                                   placeholder="Add a type…"
+                                   readonly="sop_gen_state in ('queued','generating','finalizing')"
+                                   help="Leave empty to let the model choose the best type per item."/>
+                        </div>
+                        <!-- Question templates picked for this run, with their
+                             counts. A change that leaves any count sets
+                             "Questions to generate" to their sum. -->
+                        <div class="mb-1">
+                            <field name="shape_quota_json" nolabel="1"
+                                   widget="be_template_quotas"
+                                   readonly="sop_gen_state in ('queued','generating','finalizing')"/>
+                        </div>
+                        <div class="text-muted small mb-2">
+                            Leave empty (recommended) and the generator picks the type that
+                            reproduces the SOP's real task for each item.
+                        </div>
+                        <!-- What the run will ask the model for, read from
+                             `effective_generation_count`, the function
+                             generation calls. It can exceed "Questions to
+                             generate": per-shape counts are a floor, and each
+                             allowed type with no count of its own still earns
+                             one item. In Auto mode it reads "Model decides". -->
+                        <div class="o_etp_control mb-2" role="status">
+                            <span class="badge text-bg-light border">
+                                <field name="effective_question_label"
+                                       readonly="1" nolabel="1"
+                                       class="oe_inline"/>
+                            </span>
+                            <span class="text-muted small ms-2">
+                                Per-shape counts are a floor, and each allowed
+                                question type with no count of its own still
+                                gets one item.
+                            </span>
+                        </div>
+                        <div class="text-muted small mb-2">
+                            That is all you need. Upload the SOP above and click
+                            <strong>Generate Questions</strong>. Everything below is optional.
+                        </div>
+                        <!-- Advanced options folded away so the default view stays
+                             dead-simple for a non-technical operator. -->
+                        <details class="o_etp_advanced mt-2">
+                            <summary class="fw-semibold" style="cursor:pointer">
+                                Advanced options (optional)
+                            </summary>
+                            <div class="pt-2">
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                            <label for="upload_sample_file" string="Sample questions (optional)"
+                                   class="o_etp_flabel fw-semibold mb-0"/>
+                            <field name="upload_sample_file" nolabel="1"
+                                   widget="be_upload_button"
+                                   filename="upload_sample_filename"
+                                   help="Also called golden questions. PDF, Word, text, CSV, HTML, JSON, XML or images."/>
+                            <field name="upload_sample_filename" invisible="1"/>
+                            <field name="resource_ids" nolabel="1"
+                                   widget="be_file_chips"
+                                   options="{'category': 'sample'}"/>
+                        </div>
+                        <div class="fw-semibold mb-1 mt-3">Extra instructions</div>
+                        <div class="o_etp_control">
+                            <field name="source_text" nolabel="1" rows="4"
+                                   placeholder="Optional extra instructions for the generator…"/>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            Appended to the source material the model reads - e.g. "focus on edge-case moderation calls; keep language plain, avoid legalese."
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2 mt-3">
+                            <label for="upload_reference_file" string="Reference files (optional)"
+                                   class="o_etp_flabel fw-semibold mb-0"/>
+                            <field name="upload_reference_file" nolabel="1"
+                                   widget="be_upload_button"
+                                   options="{'icon_only': true, 'label': 'Add a reference file'}"
+                                   filename="upload_reference_filename"
+                                   help="Supporting documents the generator reads alongside the SOP and your notes."/>
+                            <field name="upload_reference_filename" invisible="1"/>
+                            <field name="resource_ids" nolabel="1"
+                                   widget="be_file_chips"
+                                   options="{'category': 'reference'}"/>
+                        </div>
+                            </div>
+                        </details>
+                    </div>
+
+                    <notebook>
+                        <page string="Resources">
+                            <div class="alert alert-info" role="alert">
+                                Every file attached to this generator. Upload from the form above.
+                                Text is extracted from .docx, .txt, .md, .csv, .html, .json and .xml;
+                                .pdf and images are read directly by the model instead.
+                            </div>
+                            <field name="resource_ids" readonly="1">
+                                <list create="false" delete="false" edit="false">
+                                    <field name="category"/>
+                                    <field name="name"/>
+                                    <field name="file" filename="name"/>
+                                    <field name="char_count"/>
+                                    <field name="status"/>
+                                    <field name="extraction_error"/>
+                                </list>
+                                <form>
+                                    <sheet>
+                                        <group>
+                                            <field name="name" readonly="1"/>
+                                            <field name="file" filename="name" readonly="1"/>
+                                            <field name="char_count" readonly="1"/>
+                                            <field name="status" readonly="1"/>
+                                            <field name="extraction_error" readonly="1"/>
+                                        </group>
+                                        <field name="extracted_text" readonly="1"/>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Skills &amp; Templates" name="skills_templates">
+                            <!-- Shown once the SOP's skills are extracted, as in
+                                 the app: a template is the examiner's correction to
+                                 what extraction read out of the SOP. -->
+                            <div class="text-muted" role="status"
+                                 invisible="tag_ids or tag_extract_state == 'done'">
+                                Question Templates appear here once the SOP's
+                                skills are extracted - press
+                                <strong>Extract Tags</strong> above.
+                            </div>
+                            <div invisible="not tag_ids and tag_extract_state != 'done'">
+                                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                    <span class="fw-semibold fs-5">Question Templates</span>
+                                    <span class="flex-grow-1"/>
+                                    <!-- Hidden for this push (Q10): it can
+                                         save stray templates (G4-07). -->
+                                    <button name="action_draft_task_template"
+                                            type="object" string="Draft from SOP"
+                                            icon="fa-magic" class="btn-secondary btn-sm"
+                                            groups="assessments_be_v2.group_assessment_manager"
+                                            invisible="True"
+                                            confirm="Draft a template from the SOP? This is one model call (real money). It opens an editable draft: review it, then Save; Discard to drop it."/>
+                                    <button name="action_new_task_template"
+                                            type="object" string="New Template"
+                                            icon="fa-plus" class="btn-primary btn-sm"
+                                            groups="assessments_be_v2.group_assessment_manager"/>
+                                </div>
+                                <div class="text-muted small mb-3">
+                                    Describe a task once - its axes and their options -
+                                    then ask for that many of it on the Generation
+                                    controls above.
+                                </div>
+                                <!-- The ONE sample-questions list (golden
+                                     questions are sample questions), also on
+                                     Generation > Advanced options. Draft from
+                                     SOP (hidden for this push, Q10) reads it
+                                     too. -->
+                                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                    <label for="upload_golden_file"
+                                           string="Sample questions (optional)"
+                                           class="o_etp_flabel fw-semibold mb-0"/>
+                                    <field name="upload_golden_file" nolabel="1"
+                                           widget="be_upload_button"
+                                           filename="upload_golden_filename"
+                                           options="{'icon_only': true, 'label': 'Attach a sample questions file'}"/>
+                                    <field name="upload_golden_filename" invisible="1"/>
+                                    <field name="resource_ids" nolabel="1"
+                                           widget="be_file_chips"
+                                           options="{'category': 'sample'}"/>
+                                </div>
+                                <div class="text-muted small mb-3">
+                                    Also called golden questions. PDF, Word, text, CSV,
+                                    HTML, JSON, XML or images.
+                                </div>
+                                <div class="text-muted" invisible="task_template_ids">
+                                    No templates yet for this SOP. Add one with New
+                                    Template.
+                                </div>
+                                <field name="task_template_ids" nolabel="1" readonly="1"
+                                       invisible="not task_template_ids">
+                                    <list create="false" delete="false">
+                                        <field name="name"/>
+                                        <field name="draft_badge" nolabel="1" widget="badge"
+                                               invisible="not draft_badge"/>
+                                        <field name="usable_badge" nolabel="1" widget="badge"
+                                               decoration-danger="usable_badge == 'Generates nothing'"
+                                               decoration-warning="usable_badge != 'Generates nothing'"
+                                               invisible="not usable_badge"/>
+                                        <field name="fix_badge" nolabel="1" widget="badge"
+                                               decoration-warning="fix_badge"
+                                               invisible="not fix_badge"/>
+                                        <field name="run_badge" nolabel="1" widget="badge"
+                                               decoration-info="run_badge"
+                                               invisible="not run_badge"/>
+                                        <field name="item_count" string="Questions"/>
+                                        <field name="question_type" string="Type"/>
+                                        <field name="shape_line" optional="show"/>
+                                        <field name="shape_warnings" optional="show"
+                                               string="Warnings"/>
+                                        <button name="action_open_template" type="object"
+                                                string="Edit" icon="fa-pencil"
+                                                groups="assessments_be_v2.group_assessment_manager"/>
+                                        <button name="action_archive" type="object"
+                                                string="Archive" icon="fa-archive"
+                                                groups="assessments_be_v2.group_assessment_manager"
+                                                title="Hides it from the picker and removes it from every generator's counts. Questions already generated from it are unaffected."/>
+                                    </list>
+                                </field>
+                            </div>
+                        </page>
+                        <page string="Similar Projects" name="similar_projects">
+                            <div class="oe_button_box">
+                                <button name="action_compute_similarity_semantic" type="object"
+                                        class="btn-primary" icon="fa-magic"
+                                        string="Re-run AI ranking"
+                                        confirm="Re-run the by-meaning mapping pass? This scores this SOP against every other project (lexical + AI) and blends 0.30 lexical + 0.70 semantic. It runs automatically during tag extraction — use this to refresh the rankings after new projects are added."
+                                        help="Re-run the full hybrid ranking (lexical + AI by-meaning, blended 0.30/0.70) for this SOP against the whole library. Runs automatically on tag extraction; use this to refresh once new projects exist."/>
+                            </div>
+                            <div class="text-muted small mb-2" colspan="2">
+                                Similarity is ranked automatically when you extract tags from the SOP — lexical + AI by-meaning, blended and computed once. Use <b>Re-run AI ranking</b> to refresh after new projects are added.
+                            </div>
+                            <div class="o_etp_backend etp-simrank-wrap">
+                                <field name="similar_html" widget="html"
+                                       readonly="1" nolabel="1"/>
+                            </div>
+                            <separator string="Similarity matrix (all computed pairs)"/>
+                            <field name="similarity_source_ids" nolabel="1" readonly="1">
+                                <list string="Similarity rows" default_order="overall desc"
+                                      create="false" delete="false" edit="false"
+                                      decoration-success="band == 'near-duplicate'"
+                                      decoration-warning="band == 'same-family'"
+                                      decoration-muted="band == 'new-territory'">
+                                    <field name="target_id" string="Compared to"/>
+                                    <field name="overall" string="Match %"/>
+                                    <field name="lexical" string="Lexical %"/>
+                                    <field name="semantic" string="Semantic %"/>
+                                    <field name="band"/>
+                                    <field name="mode"/>
+                                    <field name="evidence" string="Facet evidence" optional="show"/>
+                                    <field name="why" string="Reason (AI)" optional="hide"/>
+                                    <field name="computed_on" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Question Drafts">
+                            <!-- Drafts only, as the tab's name and its Approve
+                                 / Deny Selected buttons (which act on drafts)
+                                 say. Approved rows are under the Questions
+                                 smart button and in the bank. -->
+                            <field name="draft_question_ids">
+                                <list default_group_by="gen_batch_label">
+                                    <header>
+                                        <button name="action_approve" type="object"
+                                                string="Approve Selected" class="btn-primary"/>
+                                        <button name="action_deny" type="object"
+                                                string="Deny Selected" class="btn-secondary"/>
+                                    </header>
+                                    <field name="gen_batch_label" column_invisible="1"/>
+                                    <field name="name"/>
+                                    <field name="question_type"/>
+                                    <field name="difficulty"/>
+                                    <field name="has_dimensions" string="Keyed"
+                                           widget="boolean"/>
+                                    <field name="has_assets" string="Assets"
+                                           widget="boolean"/>
+                                    <field name="generation_status"
+                                           string="Generation Status"/>
+                                    <field name="gen_warnings"
+                                           string="Review Notes"
+                                           optional="show"/>
+                                    <field name="state"/>
+                                    <button name="action_approve" type="object"
+                                            icon="fa-check" title="Approve"
+                                            invisible="state != 'draft'"/>
+                                    <button name="action_deny" type="object"
+                                            icon="fa-times" title="Deny"
+                                            invisible="state != 'draft'"/>
+                                </list>
+                                <form>
+                                    <header>
+                                        <button name="action_approve" type="object"
+                                                string="Approve" class="btn-primary"
+                                                invisible="state != 'draft'"/>
+                                        <button name="action_deny" type="object"
+                                                string="Deny" class="btn-secondary"
+                                                invisible="state != 'draft'"/>
+                                        <field name="state" widget="statusbar"
+                                               statusbar_visible="draft,approved,denied"/>
+                                    </header>
+                                    <sheet>
+                                        <div class="oe_title">
+                                            <h2><field name="name"
+                                                       placeholder="Question Title"/></h2>
+                                        </div>
+                                        <group>
+                                            <group>
+                                                <field name="question_type"/>
+                                                <field name="medium_display"/>
+                                                <field name="difficulty"/>
+                                                <field name="time_minutes"/>
+                                            </group>
+                                            <group>
+                                                <field name="approved_question_id"
+                                                       readonly="1"/>
+                                                <field name="has_dimensions" invisible="1"/>
+                                                <field name="has_images" invisible="1"/>
+                                            </group>
+                                        </group>
+                                        <field name="question_prompt"
+                                               placeholder="Question prompt shown to the candidate..."/>
+                                        <field name="description"
+                                               placeholder="Optional candidate-facing description..."/>
+                                        <field name="image_preview" widget="html"
+                                               invisible="not has_images"/>
+                                        <group string="Images"
+                                               invisible="question_type not in ('image_ab','image_prompt','image_label')">
+                                            <field name="image_state"/>
+                                            <field name="upload_slot"
+                                                   placeholder="a / b / single / reference / output"/>
+                                            <field name="upload_image" widget="image"
+                                                   filename="upload_slot"/>
+                                            <button name="action_apply_uploaded_image" type="object"
+                                                    string="Apply Uploaded Image"
+                                                    class="btn-secondary"
+                                                    invisible="not upload_image"/>
+                                            <field name="image_brief_json" widget="be_collapsible_text"
+                                                   placeholder="Render briefs (used by the automatic render)..."/>
+                                            <field name="flaw_plan_json" widget="be_collapsible_text" readonly="1"
+                                                   string="Flaw Plan (answer key by construction)"
+                                                   invisible="question_type != 'image_ab' or not flaw_plan_json"
+                                                   help="Injected flaws + construction_keys the answer key is derived from. Eyeball the FLAWED image against injected_flaws before approving."/>
+                                        </group>
+                                        <field name="has_video_clips" invisible="1"/>
+                                        <field name="video_preview" widget="html"
+                                               invisible="not has_video_clips"/>
+                                        <group string="Reference / Output Clips"
+                                               invisible="question_type != 'video_prompt'">
+                                            <field name="video_state"/>
+                                            <div class="alert alert-info" role="alert" colspan="2"
+                                                 invisible="video_state not in ('pending','generating')">
+                                                Clips are still generating… reopen this draft in a moment.
+                                            </div>
+                                            <div class="alert alert-danger d-flex align-items-center gap-2 flex-wrap"
+                                                 role="alert" colspan="2"
+                                                 invisible="video_state not in ('failed','partial')">
+                                                <field name="video_error_short" readonly="1" nolabel="1"
+                                                       class="fw-bold mb-0 me-1 w-auto flex-grow-0"/>
+                                                <button name="action_retry_video_generation"
+                                                        type="object"
+                                                        string="Retry Video Generation"
+                                                        icon="fa-refresh"
+                                                        class="btn-danger btn-sm"/>
+                                            </div>
+                                            <div class="text-muted" colspan="2"
+                                                 invisible="video_state not in ('rendered','partial') or has_video_clips">
+                                                No viewable clips are staged for this draft.
+                                            </div>
+                                        </group>
+                                        <field name="has_revealing_option" invisible="1"/>
+                                        <field name="has_source_reference" invisible="1"/>
+                                        <div class="alert alert-warning" role="alert"
+                                             invisible="not has_source_reference">
+                                            This item or its answer key
+                                            <strong>references the source material</strong>
+                                            (SOP / guidelines / a Section). The candidate never
+                                            sees the source - the question must be self-contained.
+                                            Regenerate, or rewrite so the deciding facts live in
+                                            the scenario itself.
+                                        </div>
+                                        <separator string="Answer Key"
+                                                   invisible="question_type not in ('mcq','msq','image_ab')"/>
+                                        <div class="alert alert-warning" role="alert"
+                                             invisible="not has_revealing_option">
+                                            An option name embeds its rationale
+                                            ("…, <strong>because</strong> …"). Option names are
+                                            shown to the candidate - keep them to the bare choice
+                                            (e.g. <strong>Image B</strong>) and move the "why" to the
+                                            hidden <strong>Answer Rationale</strong>. Regenerate or
+                                            edit the option text before approving.
+                                        </div>
+                                        <div class="alert alert-secondary" role="alert"
+                                             invisible="question_type not in ('mcq','msq','image_ab')">
+                                            Each row is one scoring <strong>dimension</strong>; the
+                                            <strong>Correct</strong> toggle marks the answer key. Used
+                                            <strong>only for scoring</strong> - candidates see the options
+                                            to choose from but never which one is correct.
+                                        </div>
+                                        <field name="dimensions_preview" widget="html"
+                                               invisible="not has_dimensions"/>
+                                        <field name="answer_dimension_ids"
+                                               invisible="question_type not in ('mcq','msq','image_ab')">
+                                            <list editable="bottom">
+                                                <field name="sequence" widget="handle"/>
+                                                <field name="label"/>
+                                            </list>
+                                            <form>
+                                                <group>
+                                                    <field name="label"/>
+                                                </group>
+                                                <field name="option_line_ids">
+                                                    <list editable="bottom">
+                                                        <field name="sequence" widget="handle"/>
+                                                        <field name="name"/>
+                                                        <field name="is_correct" widget="boolean_toggle"/>
+                                                    </list>
+                                                </field>
+                                            </form>
+                                        </field>
+                                        <group string="Answer Key - Rubric"
+                                               invisible="question_type not in ('subjective_rubric','image_prompt','image_label')">
+                                            <field name="ak_ideal_answer"
+                                                   invisible="question_type not in ('image_prompt','image_label')"
+                                                   placeholder="The ideal prompt (image_prompt) or ideal labels (image_label) the candidate is graded against..."/>
+                                            <field name="ak_mandatory_elements"
+                                                   invisible="question_type not in ('image_prompt','image_label')"
+                                                   placeholder="One required element per line..."/>
+                                            <field name="ak_penalty_rules"
+                                                   invisible="question_type not in ('image_prompt','image_label')"
+                                                   placeholder="One penalty rule per line..."/>
+                                            <field name="ak_scoring_guide"
+                                                   invisible="question_type not in ('image_prompt','image_label')"/>
+                                            <field name="ak_checklist"
+                                                   invisible="question_type != 'subjective_rubric'"
+                                                   placeholder="One required point per line..."/>
+                                            <field name="ak_constraints"
+                                                   invisible="question_type != 'subjective_rubric'"
+                                                   placeholder="One constraint per line..."/>
+                                            <field name="ak_pass_condition"
+                                                   invisible="question_type != 'subjective_rubric'"/>
+                                        </group>
+                                        <field name="official_reasoning"
+                                               invisible="question_type not in ('mcq','msq','image_ab')"
+                                               placeholder="Hidden answer-key rationale - stored for review/scoring, never shown to the candidate..."/>
+                                        <notebook>
+                                            <page string="Advanced (raw JSON)">
+                                                <div class="alert alert-info" role="alert">
+                                                    The <strong>Answer Key</strong> above is what gets
+                                                    published. These raw fields are the original LLM
+                                                    output; edit them only for power tweaks, then click
+                                                    <strong>Rebuild Answer Key from JSON</strong>.
+                                                </div>
+                                                <button name="action_rebuild_answer_key_from_json"
+                                                        type="object"
+                                                        string="Rebuild Answer Key from JSON"
+                                                        class="btn-secondary mb-2"/>
+                                                <group>
+                                                    <field name="options_json" widget="be_collapsible_text"
+                                                           invisible="question_type not in ('mcq','msq')"/>
+                                                    <field name="correct_answer_json" widget="be_collapsible_text"
+                                                           invisible="question_type not in ('mcq','msq')"/>
+                                                    <field name="dimensions_json" widget="be_collapsible_text"
+                                                           invisible="question_type != 'image_ab'"/>
+                                                    <field name="rubric_json" widget="be_collapsible_text"
+                                                           invisible="question_type not in ('subjective_rubric','image_prompt','image_label')"/>
+                                                    <field name="image_summary" readonly="1"
+                                                           help="Images are shown above. Raw base64 is intentionally hidden."/>
+                                                    <field name="video_error" readonly="1"
+                                                           widget="be_collapsible_text"
+                                                           string="Video Error (full)"
+                                                           invisible="not video_error"
+                                                           help="The complete Veo failure text. The short label beside Retry Video Generation is the summary of this."/>
+                                                </group>
+                                            </page>
+                                        </notebook>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_prompt" model="ir.actions.act_window">
+        <field name="name">Question Bank Generators</field>
+        <field name="res_model">assessments.be.prompt</field>
+        <field name="view_mode">list,form</field>
+        <!-- Pin the list to the main tree; otherwise the create="false" similar
+             ranking view (same model) can shadow it and hide the New button. -->
+        <field name="view_id" ref="assessments_be_prompt_tree"/>
+        <!-- Explicit, so the Archived filter is reachable from this action. -->
+        <field name="search_view_id" ref="assessments_be_prompt_search"/>
+    </record>
+
+    <record id="assessments_be_prompt_question_tree" model="ir.ui.view">
+        <field name="name">assessments.be.prompt.question.tree</field>
+        <field name="model">assessments.be.prompt.question</field>
+        <field name="arch" type="xml">
+            <!-- js_class: the Import button beside "New", as on the app's
+                 Review Queue. CSV and harness JSON arrive here as drafts; a
+                 native bank export restores straight into the bank.
+                 `import="0"`: Odoo's generic "Import records" would be a
+                 second, different import. -->
+            <list class="o_etp_backend" js_class="be_question_import_list"
+                  import="0">
+                <header>
+                    <button name="action_approve" type="object"
+                            string="Approve Selected" class="btn-primary"/>
+                    <button name="action_deny" type="object"
+                            string="Deny Selected" class="btn-secondary"/>
+                </header>
+                <field name="prompt_id"/>
+                
+                <field name="name"/>
+                <field name="question_type"/>
+                <field name="difficulty"/>
+                <field name="has_dimensions" string="Keyed" widget="boolean"
+                       optional="show"/>
+                <field name="has_assets" string="Assets" widget="boolean"
+                       optional="show"/>
+                <field name="generation_status" string="Generation Status"
+                       optional="show"/>
+                <field name="state"/>
+                <field name="approved_question_id" optional="hide"/>
+                <button name="action_approve" type="object"
+                        icon="fa-check" title="Approve"
+                        invisible="state != 'draft'"/>
+                <button name="action_deny" type="object"
+                        icon="fa-times" title="Deny"
+                        invisible="state != 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="assessments_be_prompt_question_form" model="ir.ui.view">
+        <field name="name">assessments.be.prompt.question.form</field>
+        <field name="model">assessments.be.prompt.question</field>
+        <field name="arch" type="xml">
+            <form class="o_etp_backend">
+                <header>
+                    <button name="action_approve" type="object"
+                            string="Approve" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_deny" type="object"
+                            string="Deny" class="btn-secondary"
+                            invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,approved,denied"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h2><field name="name" placeholder="Question Title"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="prompt_id" readonly="1"/>
+                            <field name="question_type"/>
+                            <field name="medium_display"/>
+                            <field name="difficulty"/>
+                            <field name="time_minutes"/>
+                        </group>
+                        <group>
+                            <field name="approved_question_id" readonly="1"/>
+                            <field name="has_dimensions" invisible="1"/>
+                            <field name="has_images" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="question_prompt"
+                           placeholder="Question prompt shown to the candidate..."/>
+                    <field name="description"
+                           placeholder="Optional candidate-facing description..."/>
+                    <field name="image_preview" widget="html"
+                           invisible="not has_images"/>
+                    <group string="Images"
+                           invisible="question_type not in ('image_ab','image_prompt','image_label')">
+                        <field name="image_state"/>
+                        <field name="upload_slot"
+                               placeholder="a / b / single / reference / output"/>
+                        <field name="upload_image" widget="image"
+                               filename="upload_slot"/>
+                        <button name="action_apply_uploaded_image" type="object"
+                                string="Apply Uploaded Image"
+                                class="btn-secondary"
+                                invisible="not upload_image"/>
+                        <field name="image_brief_json" widget="be_collapsible_text"
+                               placeholder="Render briefs (used by the automatic render)..."/>
+                        <field name="flaw_plan_json" widget="be_collapsible_text" readonly="1"
+                               string="Flaw Plan (answer key by construction)"
+                               invisible="question_type != 'image_ab' or not flaw_plan_json"
+                               help="Injected flaws + construction_keys the answer key is derived from. Eyeball the FLAWED image against injected_flaws before approving."/>
+                    </group>
+                    <field name="has_video_clips" invisible="1"/>
+                    <field name="video_preview" widget="html"
+                           invisible="not has_video_clips"/>
+                    <group string="Reference / Output Clips"
+                           invisible="question_type != 'video_prompt'">
+                        <field name="video_state"/>
+                        <div class="alert alert-info" role="alert" colspan="2"
+                             invisible="video_state not in ('pending','generating')">
+                            Clips are still generating… reopen this draft in a moment.
+                        </div>
+                        <div class="alert alert-danger d-flex align-items-center gap-2 flex-wrap"
+                             role="alert" colspan="2"
+                             invisible="video_state not in ('failed','partial')">
+                            <field name="video_error_short" readonly="1" nolabel="1"
+                                   class="fw-bold mb-0 me-1 w-auto flex-grow-0"/>
+                            <button name="action_retry_video_generation"
+                                    type="object"
+                                    string="Retry Video Generation"
+                                    icon="fa-refresh"
+                                    class="btn-danger btn-sm"/>
+                        </div>
+                        <div class="text-muted" colspan="2"
+                             invisible="video_state not in ('rendered','partial') or has_video_clips">
+                            No viewable clips are staged for this draft.
+                        </div>
+                    </group>
+                    <field name="has_revealing_option" invisible="1"/>
+                    <field name="has_source_reference" invisible="1"/>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not has_source_reference">
+                        This item or its answer key
+                        <strong>references the source material</strong>
+                        (SOP / guidelines / a Section). The candidate never sees the
+                        source - the question must be self-contained. Regenerate, or
+                        rewrite so the deciding facts live in the scenario itself.
+                    </div>
+                    <separator string="Answer Key"
+                               invisible="question_type not in ('mcq','msq','image_ab')"/>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not has_revealing_option">
+                        An option name embeds its rationale
+                        ("…, <strong>because</strong> …"). Option names are shown to the
+                        candidate - keep them to the bare choice (e.g. <strong>Image B</strong>)
+                        and move the "why" to the hidden <strong>Answer Rationale</strong>.
+                        Regenerate or edit the option text before approving.
+                    </div>
+                    <div class="alert alert-secondary" role="alert"
+                         invisible="question_type not in ('mcq','msq','image_ab')">
+                        Each row is one scoring <strong>dimension</strong>; the
+                        <strong>Correct</strong> toggle marks the answer key. Used
+                        <strong>only for scoring</strong> - candidates see the options
+                        to choose from but never which one is correct.
+                    </div>
+                    <field name="dimensions_preview" widget="html"
+                           invisible="not has_dimensions"/>
+                    <field name="answer_dimension_ids"
+                           invisible="question_type not in ('mcq','msq','image_ab')">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="label"/>
+                        </list>
+                        <form>
+                            <group>
+                                <field name="label"/>
+                            </group>
+                            <field name="option_line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="is_correct" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </form>
+                    </field>
+                    <group string="Answer Key - Rubric"
+                           invisible="question_type not in ('subjective_rubric','image_prompt','image_label')">
+                        <field name="ak_ideal_answer"
+                               invisible="question_type not in ('image_prompt','image_label')"
+                               placeholder="The ideal prompt (image_prompt) or ideal labels (image_label) the candidate is graded against..."/>
+                        <field name="ak_mandatory_elements"
+                               invisible="question_type not in ('image_prompt','image_label')"
+                               placeholder="One required element per line..."/>
+                        <field name="ak_penalty_rules"
+                               invisible="question_type not in ('image_prompt','image_label')"
+                               placeholder="One penalty rule per line..."/>
+                        <field name="ak_scoring_guide"
+                               invisible="question_type not in ('image_prompt','image_label')"/>
+                        <field name="ak_checklist"
+                               invisible="question_type != 'subjective_rubric'"
+                               placeholder="One required point per line..."/>
+                        <field name="ak_constraints"
+                               invisible="question_type != 'subjective_rubric'"
+                               placeholder="One constraint per line..."/>
+                        <field name="ak_pass_condition"
+                               invisible="question_type != 'subjective_rubric'"/>
+                    </group>
+                    <field name="official_reasoning"
+                           invisible="question_type not in ('mcq','msq','image_ab')"
+                           placeholder="Hidden answer-key rationale - stored for review/scoring, never shown to the candidate..."/>
+                    <notebook>
+                        <page string="Advanced (raw JSON)">
+                            <div class="alert alert-info" role="alert">
+                                The <strong>Answer Key</strong> above is what gets published.
+                                These raw fields are the original LLM output; edit them only for
+                                power tweaks, then click <strong>Rebuild Answer Key from JSON</strong>.
+                            </div>
+                            <button name="action_rebuild_answer_key_from_json"
+                                    type="object"
+                                    string="Rebuild Answer Key from JSON"
+                                    class="btn-secondary mb-2"/>
+                            <group>
+                                <field name="options_json" widget="be_collapsible_text"
+                                       invisible="question_type not in ('mcq','msq')"/>
+                                <field name="correct_answer_json" widget="be_collapsible_text"
+                                       invisible="question_type not in ('mcq','msq')"/>
+                                <field name="dimensions_json" widget="be_collapsible_text"
+                                       invisible="question_type != 'image_ab'"/>
+                                <field name="rubric_json" widget="be_collapsible_text"
+                                       invisible="question_type not in ('subjective_rubric','image_prompt','image_label')"/>
+                                <field name="image_summary" readonly="1"
+                                       help="Images are shown above. Raw base64 is intentionally hidden."/>
+                                <field name="video_error" readonly="1"
+                                       widget="be_collapsible_text"
+                                       string="Video Error (full)"
+                                       invisible="not video_error"
+                                       help="The complete Veo failure text. The short label beside Retry Video Generation is the summary of this."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="assessments_be_prompt_question_search" model="ir.ui.view">
+        <field name="name">assessments.be.prompt.question.search</field>
+        <field name="model">assessments.be.prompt.question</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="prompt_id"/>
+                
+                <filter name="pending" string="Pending"
+                        domain="[('state','=','draft')]"/>
+                <filter name="approved" string="Approved"
+                        domain="[('state','=','approved')]"/>
+                <filter name="denied" string="Denied"
+                        domain="[('state','=','denied')]"/>
+                <separator/>
+                <filter name="group_generator" string="Generator"
+                        context="{'group_by':'prompt_id'}"/>
+                <filter name="group_state" string="Status"
+                        context="{'group_by':'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_prompt_question_pending" model="ir.actions.act_window">
+        <field name="name">Pending Approvals</field>
+        <field name="res_model">assessments.be.prompt.question</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="assessments_be_prompt_question_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No questions awaiting approval</p>
+            <p>Generated draft questions land here. Approve them to publish them
+               into the Question Bank, or deny the ones you don't want.</p>
+        </field>
+    </record>
+
+    <record id="assessments_be_question_tree_pending_button" model="ir.ui.view">
+        <field name="name">assessments.be.question.tree.pending.button</field>
+        <field name="model">assessments.be.question</field>
+        <field name="inherit_id" ref="assessments_be_question_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <header>
+                    <button name="%(action_assessments_be_prompt_question_pending)d"
+                            type="action" string="Pending Approvals"
+                            class="btn-secondary" display="always"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+</odoo>

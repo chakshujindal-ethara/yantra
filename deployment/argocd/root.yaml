@@ -1,0 +1,18 @@
+# App of apps: one Application per environment under deployment/argocd/apps.
+#   kubectl apply -f deployment/argocd/project.yaml -f deployment/argocd/root.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: yantra-root
+  namespace: argocd
+spec:
+  project: yantra
+  source:
+    repoURL: https://github.com/EtharaLabs/yantra
+    targetRevision: main
+    path: deployment/argocd/apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}

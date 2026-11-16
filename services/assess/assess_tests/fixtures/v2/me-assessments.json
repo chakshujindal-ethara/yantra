@@ -1,0 +1,58 @@
+{
+    "ok": true,
+    "data": {
+        "applicant": {
+            "id": 1,
+            "name": "Fixture Worker",
+            "email": "fixture.worker@yantra.local",
+            "has_portal_user": true
+        },
+        "buckets": {
+            "available": [
+                {
+                    "id": 1,
+                    "token": "2fb1eda8-cfdf-45fd-9efc-43c8937cb0ea",
+                    "assessment_id": 1,
+                    "name": "Transcription basics (Yantra)",
+                    "state": "available",
+                    "state_label": "Available",
+                    "status_kind": "available",
+                    "progress": {
+                        "answered": 0,
+                        "total": 2,
+                        "percent": 0
+                    },
+                    "duration_minutes": 15,
+                    "scheduled_start": "2026-11-12T11:29:15Z",
+                    "deadline": null,
+                    "server_now": "2026-11-12T11:29:19Z",
+                    "started_at": null,
+                    "submitted_at": null,
+                    "proctoring": {
+                        "is_violated": false,
+                        "violation_count": 0,
+                        "violation_limit_breached": false,
+                        "violation_reason": "",
+                        "violations": [],
+                        "ai_violation_count": 0,
+                        "ai_violation_limit_breached": false,
+                        "ai_violations": []
+                    },
+                    "auto_submitted": false,
+                    "auto_submit_reason": "",
+                    "result": {
+                        "released": false,
+                        "status": "awaiting_results",
+                        "label": "Awaiting results"
+                    },
+                    "can_review_answers": false
+                }
+            ],
+            "in_progress": [],
+            "upcoming": [],
+            "completed": [],
+            "closed": []
+        },
+        "total_count": 1
+    }
+}

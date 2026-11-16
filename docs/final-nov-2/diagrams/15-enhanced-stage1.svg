@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1290" height="964" viewBox="0 0 1290 964" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1290" height="964" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Enhanced plan: four deployables in Stage 1, ten services in the code</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Each module keeps its own schema, contract and outbox. The deployment composes them; a split later is a chart change.</text>
+<rect x="70" y="100" width="1180" height="120" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="116.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">CLIENTS</text>
+<rect x="70" y="380" width="560" height="240" rx="10" fill="#F5F8FF" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="396.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">DEPLOYABLE 2: WORK (ONE PROCESS, THREE SCHEMAS)</text>
+<rect x="650" y="380" width="400" height="240" rx="10" fill="#FFF9F3" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="662.0" y="396.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">DEPLOYABLE 3: MONEY</text>
+<rect x="70" y="780" width="1180" height="110" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="796.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">SHARED PLATFORM, ONE REGION IN INDIA</text>
+<rect x="90" y="135" width="300" height="65" rx="10" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="240.0" y="151.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Flutter app</text>
+<text x="240.0" y="170.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">workers, reviewers, candidates, ops on mobile</text>
+<text x="240.0" y="186.2" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">app/</text>
+<rect x="930" y="135" width="300" height="65" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="1080.0" y="158.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Odoo backend UI</text>
+<text x="1080.0" y="177.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">ops, finance, HR</text>
+<rect x="90" y="270" width="300" height="70" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="240.0" y="282.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">gateway</text>
+<text x="240.0" y="300.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">deployable 1: JWT, rate limits, idempotency,</text>
+<text x="240.0" y="314.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">public OpenAPI</text>
+<text x="240.0" y="330.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services/gateway</text>
+<rect x="90" y="420" width="160" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="170.0" y="430.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">market</text>
+<text x="170.0" y="449.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">projects, batches,</text>
+<text x="170.0" y="462.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">units, claims, price</text>
+<text x="170.0" y="476.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">cards, delivery gate</text>
+<text x="170.0" y="492.4" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema market</text>
+<rect x="270" y="420" width="160" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="350.0" y="430.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality</text>
+<text x="350.0" y="449.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">review claims,</text>
+<text x="350.0" y="462.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">verdicts, audit, reason</text>
+<text x="350.0" y="476.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">codes</text>
+<text x="350.0" y="492.4" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema quality</text>
+<rect x="450" y="420" width="160" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="530.0" y="444.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">notify</text>
+<text x="530.0" y="462.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">email, push, WhatsApp</text>
+<text x="530.0" y="478.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema notify</text>
+<text x="90.0" y="532.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Module rules</text>
+<text x="90.0" y="543.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">a module imports only packages/*; its own database role; events out through its</text>
+<text x="90.0" y="556.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">outbox, even to a sibling; one migration job per module</text>
+<rect x="670" y="420" width="360" height="80" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="850.0" y="437.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout</text>
+<text x="850.0" y="455.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">earnings, pay windows, holds, cost ledger, rail</text>
+<text x="850.0" y="469.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">adapters; its own release train and deploy freeze</text>
+<text x="850.0" y="485.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema payout</text>
+<rect x="670" y="520" width="360" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="850.0" y="539.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">hub, runner, tracker, analytics</text>
+<text x="850.0" y="557.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">directories with a contract and a health endpoint; not</text>
+<text x="850.0" y="571.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">deployed in Stage 1</text>
+<rect x="1070" y="420" width="160" height="170" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="1150.0" y="482.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">NATS JetStream</text>
+<text x="1150.0" y="501.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">every module publishes</text>
+<text x="1150.0" y="514.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">from its outbox;</text>
+<text x="1150.0" y="528.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">CloudEvents; replay</text>
+<rect x="370" y="660" width="580" height="80" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="660.0" y="677.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo: deployable 4, the system of record</text>
+<text x="660.0" y="695.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">worker record, bench, accounting, vendor bills with TDS, client invoices; the Assessment v2</text>
+<text x="660.0" y="709.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">engine behind the assess contract</text>
+<text x="660.0" y="725.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services/odoo, ethara_* addons</text>
+<rect x="90" y="810" width="200" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="190.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Keycloak</text>
+<text x="190.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">OIDC staff, JWT workers and</text>
+<text x="190.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services</text>
+<rect x="320" y="810" width="260" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="450.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">PostgreSQL</text>
+<text x="450.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one schema and one role per module,</text>
+<text x="450.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">PgBouncer, PITR</text>
+<rect x="610" y="810" width="180" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="700.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Redis</text>
+<text x="700.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">idempotency, sessions,</text>
+<text x="700.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">cache</text>
+<rect x="820" y="810" width="180" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="910.0" y="817.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">S3</text>
+<text x="910.0" y="836.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">payloads, documents,</text>
+<text x="910.0" y="849.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">deliveries, backups in</text>
+<text x="910.0" y="863.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">country</text>
+<rect x="1030" y="810" width="200" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1130.0" y="823.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">RazorpayX, Gemini, SMTP,</text>
+<text x="1130.0" y="838.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">FCM</text>
+<text x="1130.0" y="857.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">external providers</text>
+<path d="M240.0,200.0 L240.0,270.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="204.8" y="226.0" width="70.5" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="240.0" y="235.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">HTTPS, JWT</text>
+<path d="M1080.0,200.0 L1080.0,210.0 L1080.0,640.0 L770.0,640.0 L770.0,660.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L170.0,360.0 L170.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L350.0,360.0 L350.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L530.0,360.0 L530.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L850.0,360.0 L850.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M90.0,305.0 L40.0,305.0 L40.0,700.0 L370.0,700.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="133.4" y="691.0" width="143.1" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="205.0" y="700.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">ethara_api controllers</text>
+<path d="M1030.0,486.0 L1050.0,486.0 L1050.0,460.0 L1070.0,460.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arr)"/>
+<path d="M1150.0,590.0 L1150.0,720.0 L950.0,720.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="1105.7" y="646.0" width="88.7" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="1150.0" y="655.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">outbox bridge</text>
+<path d="M1030.0,486.0 L1060.0,486.0 L1060.0,760.0 L1130.0,760.0 L1130.0,810.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="1068.8" y="751.0" width="52.4" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="1095.0" y="760.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payouts</text>
+<rect x="40" y="927.0" width="22" height="14" rx="4" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="68.0" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Client app</text>
+<rect x="152.5" y="927.0" width="22" height="14" rx="4" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="180.5" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Service (own deployable, own database)</text>
+<rect x="434.4" y="927.0" width="22" height="14" rx="4" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="462.4" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Odoo: system of record</text>
+<rect x="619.5" y="927.0" width="22" height="14" rx="4" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="647.5" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Shared platform</text>
+<rect x="762.25" y="927.0" width="22" height="14" rx="4" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="790.2" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">External provider</text>
+<rect x="917.1" y="927.0" width="22" height="14" rx="4" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="945.1" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Stage 2 or 3</text>
+</svg>

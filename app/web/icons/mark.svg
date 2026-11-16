@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Yantra</title>
+  <!-- The Yantra mark: a magenta (#B800B8) rounded square with a white Y. web/icons/*.png and
+       web/favicon.png are rendered from this geometry by tool/render_icons.py; edit both together. -->
+  <rect width="512" height="512" rx="112" fill="#B800B8"/>
+  <path d="M156 136 L256 262 L356 136 M256 262 L256 380" fill="none" stroke="#FFFFFF" stroke-width="60"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

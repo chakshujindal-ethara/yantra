@@ -1,0 +1,21 @@
+# Vendored upstream code: rebuilt by `yantra vendor sync`, verified by `yantra vendor check`.
+# Never edit the copies by hand: add a numbered patch under the patches directory instead.
+patches = "patches"
+
+[[source]]
+name = "assessments_be_v2"
+repo = "git@github.com:Ethara-Ai/ethara-etp.git"
+commit = "fb5e1ba26d8d4a9026b2a7c72c44b93a189a7d35"
+paths = ["custom_addons/assessments_be_v2"]
+strip = "custom_addons/assessments_be_v2"
+dest = "addons/assessments_be_v2"
+tree_sha256 = "63671af121ea4b1416c31fc25dbac3ed0134927fd9ed76a9ebbf19555eb750a0"
+
+[[source]]
+name = "api_auth_gateway"
+repo = "git@github.com:Ethara-Ai/ethara-etp.git"
+commit = "fb5e1ba26d8d4a9026b2a7c72c44b93a189a7d35"
+paths = ["custom_addons/api_auth_gateway"]
+strip = "custom_addons/api_auth_gateway"
+dest = "addons/api_auth_gateway"
+tree_sha256 = "f9036088a3030ab5cb5e6dd2ec6d834a898ae734e4a0a689b7e6c0ff2107ff72"

@@ -1,0 +1,32 @@
+{
+ "ok": true,
+ "data": {
+  "models": {
+   "generation": "",
+   "detection": "",
+   "scoring": "",
+   "fallback": "",
+   "image": "",
+   "video": "veo-3.1-generate-001"
+  },
+  "scoring": {
+   "shards": 1,
+   "tick_limit": 20,
+   "batch_size": 8,
+   "llm_max_attempts": 3
+  },
+  "governance": {
+   "score_outlier_sigma": 0.0,
+   "pii_retention_days": 0,
+   "daily_llm_cap_usd": 100.0,
+   "per_evaluator_llm_cap_usd": 5.0
+  },
+  "storage": {
+   "s3_bucket": "",
+   "s3_region": "us-east-1",
+   "s3_cdn_url": "",
+   "configured": false
+  },
+  "base_url": "http://localhost:8069"
+ }
+}

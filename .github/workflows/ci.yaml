@@ -1,0 +1,322 @@
+# Yantra CI. Every pull request and push runs the checks for what changed; pushes to main (and v* tags) also
+# build, sign and attest the images, then open a pull request that promotes their digests to staging.
+# Prod promotion is a hand-made pull request copying the digests from values-staging.yaml to values-prod.yaml.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      python: ${{ steps.filter.outputs.python }}
+      flutter: ${{ steps.filter.outputs.flutter }}
+      odoo: ${{ steps.filter.outputs.odoo }}
+      helm: ${{ steps.filter.outputs.helm }}
+      containers: ${{ steps.filter.outputs.containers }}
+      vendor: ${{ steps.filter.outputs.vendor }}
+      assess-app: ${{ steps.filter.outputs.assess-app }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            python:
+              - 'packages/**'
+              - 'services/!(odoo)/**'
+              - 'deployables/**'
+              - 'tools/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - 'Dockerfile'
+              - 'deployment/local/**'
+              - 'deployment/keycloak/**'
+            flutter:
+              - 'app/**'
+            odoo:
+              - 'services/odoo/**'
+            vendor:
+              - 'services/odoo/vendor/**'
+              - 'services/assess-app/vendor/**'
+              - 'tools/yantra-cli/**'
+            assess-app:
+              - 'services/assess-app/**'
+            helm:
+              - 'deployment/**'
+            containers:
+              - 'Dockerfile'
+              - 'app/Dockerfile'
+              - 'app/docker/**'
+              - 'app/nginx.conf'
+              - 'packages/**'
+              - 'services/!(odoo)/**'
+              - 'deployables/**'
+              - 'uv.lock'
+              - 'deployment/scripts/container-smoke.sh'
+
+  python:
+    needs: changes
+    if: needs.changes.outputs.python == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.13.6"
+          enable-cache: true
+      - name: Start Postgres, Redis, the test NATS and Mailpit
+        run: docker compose -f deployment/local/compose.yaml up -d --wait postgres redis nats-test mailpit
+      - run: uv sync --all-packages
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy   # the checked paths are [tool.mypy] files in pyproject.toml, the same list everywhere
+      - name: Tests with coverage (fail under the threshold in pyproject.toml)
+        run: uv run pytest --cov --cov-report=term-missing
+      - name: The rendered local realm matches its base and overlay
+        if: hashFiles('deployment/keycloak/yantra-realm.json') != ''
+        run: uv run yantra realm-render --check
+      - name: Dependency, secret and misconfiguration scan
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2 # v0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,secret,misconfig
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          skip-dirs: app/build,.venv
+          exit-code: "1"
+
+  flutter:
+    needs: changes
+    if: needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.8"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: >-
+          flutter build web --release
+          --dart-define=GATEWAY_URL=${{ vars.STAGING_GATEWAY_URL || 'http://localhost:8090' }}
+          --dart-define=KEYCLOAK_URL=${{ vars.STAGING_KEYCLOAK_URL || 'http://localhost:8180' }}
+          --dart-define=DIRECT_LOGIN=false
+
+  odoo:
+    needs: changes
+    if: needs.changes.outputs.odoo == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: The Yantra bridges' test suites inside Odoo 19 (yantra_bridge, yantra_assess_bridge on Assessment v2)
+        run: |
+          docker compose -f services/odoo/compose.test.yaml build odoo
+          docker compose -f services/odoo/compose.test.yaml up -d --wait postgres
+          docker compose -f services/odoo/compose.test.yaml run --rm odoo odoo -d yantra_odoo_test \
+            -i yantra_bridge,yantra_assess_bridge --test-enable \
+            --test-tags=/yantra_bridge,/yantra_assess_bridge --stop-after-init
+      - if: always()
+        run: docker compose -f services/odoo/compose.test.yaml down -v
+
+  vendor:
+    needs: changes
+    if: needs.changes.outputs.vendor == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - name: The vendored copies are exactly upstream at the pinned commits plus the numbered patches
+        run: uv run yantra vendor check
+
+  assess-app:
+    needs: changes
+    if: needs.changes.outputs.assess-app == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.8"
+          channel: stable
+          cache: true
+      - name: The exam app's own suite, with the Yantra patches (test/yantra)
+        working-directory: services/assess-app/vendor/ethara-assessment-fe
+        run: |
+          flutter pub get
+          dart analyze lib/ test/
+          flutter test
+      - name: Build the bundle and the image, run it read-only, prove it serves the app and its policy
+        run: |
+          services/assess-app/build.sh
+          docker build -t yantra/assess-app:ci -f services/assess-app/Dockerfile.prebuilt services/assess-app
+          docker run -d --name assess --read-only --tmpfs /tmp --add-host odoo:127.0.0.1 -p 8096:8080 \
+            -e YANTRA_ENV=local -e STORAGE_URL=http://localhost:9000 yantra/assess-app:ci
+          for _ in $(seq 1 20); do curl -fsS -o /dev/null http://localhost:8096/ && break; sleep 1; done
+          curl -fsS -o /dev/null http://localhost:8096/yantra/launch
+          curl -fsSI http://localhost:8096/ | grep -qi "content-security-policy: default-src 'self'"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8096/api/v1/auth_token)" = 404
+      - if: always()
+        run: docker rm -f assess || true
+
+  helm:
+    needs: changes
+    if: needs.changes.outputs.helm == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint, render and validate the chart, Argo CD apps and policies; promtool on the alert rules
+        run: deployment/scripts/helm-check.sh
+
+  containers:
+    needs: changes
+    if: needs.changes.outputs.containers == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the python and app images, run them read-only as the chart does, prove each serves
+        run: deployment/scripts/container-smoke.sh
+
+  images:
+    needs: [python, flutter, helm, odoo, containers, vendor, assess-app]
+    # every check passed or had nothing to check; a failed or cancelled one stops the build
+    if: >-
+      always() && github.event_name == 'push'
+      && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+      && (needs.odoo.result == 'success' || needs.odoo.result == 'skipped')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+      id-token: write   # keyless cosign signing through GitHub's OIDC token
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - name: python
+            context: .
+            file: Dockerfile
+          - name: app
+            context: app
+            file: app/Dockerfile
+          - name: odoo
+            context: services/odoo
+            file: services/odoo/Dockerfile
+          - name: assess-app
+            context: services/assess-app
+            file: services/assess-app/Dockerfile
+    env:
+      IMAGE: ghcr.io/etharalabs/yantra/${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: build
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          push: true
+          provenance: true
+          tags: |
+            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.IMAGE }}:${{ github.ref_name }}
+          build-args: |
+            GATEWAY_URL=${{ vars.STAGING_GATEWAY_URL || 'http://localhost:8090' }}
+            KEYCLOAK_URL=${{ vars.STAGING_KEYCLOAK_URL || 'http://localhost:8180' }}
+            DIRECT_LOGIN=false
+            YANTRA_APP_URL=
+      - uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
+      - name: Sign the image (keyless)
+        run: cosign sign --yes "${IMAGE}@${{ steps.build.outputs.digest }}"
+      - name: SBOM
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          image: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          format: spdx-json
+          output-file: sbom-${{ matrix.name }}.spdx.json
+          upload-artifact: false
+      - name: Attest the SBOM
+        run: >-
+          cosign attest --yes --type spdxjson --predicate "sbom-${{ matrix.name }}.spdx.json"
+          "${IMAGE}@${{ steps.build.outputs.digest }}"
+      - name: Image scan
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2 # v0.28.0
+        with:
+          image-ref: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+      - name: Keep the digest for the promotion
+        run: echo "${{ steps.build.outputs.digest }}" > "digest-${{ matrix.name }}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: digest-${{ matrix.name }}
+          path: digest-${{ matrix.name }}
+          retention-days: 7
+
+  promote-staging:
+    needs: images
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: digest-*
+          merge-multiple: true
+      - name: Write the digests into values-staging.yaml
+        run: |
+          # image name:values key (the chart's keys are camelCase)
+          for pair in python:python app:app odoo:odoo assess-app:assessApp; do
+            digest="$(cat "digest-${pair%%:*}")"
+            yq -i ".image.${pair#*:}.digest = \"$digest\"" deployment/helm/yantra/values-staging.yaml
+          done
+          rm -f digest-*
+      - uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
+        with:
+          branch: deploy/staging-${{ github.sha }}
+          title: "deploy(staging): images from ${{ github.sha }}"
+          commit-message: "deploy(staging): images from ${{ github.sha }}"
+          body: |
+            Promotes the images built from ${{ github.sha }} to staging (Argo CD syncs on merge).
+            Signed keylessly by this workflow; SBOMs attested. Verify with:
+            `cosign verify --certificate-identity https://github.com/EtharaLabs/yantra/.github/workflows/ci.yaml@refs/heads/main --certificate-oidc-issuer https://token.actions.githubusercontent.com ghcr.io/etharalabs/yantra/python@<digest>`
+          labels: deploy

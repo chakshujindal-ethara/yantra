@@ -1,0 +1,355 @@
+# The whole Stage 1 rig on one machine: infrastructure, identity, the Python processes, the gateway, mail capture,
+# the worker app and Odoo. `docker compose -f deployment/local/compose.yaml up -d --build`.
+# Every port is published on 127.0.0.1 only: the services behind the gateway trust identity headers, so nothing
+# here may be reachable from the LAN. Passwords and the client secret are the local rig's, never real ones.
+name: yantra-local
+
+x-python: &python
+  build:
+    context: ../..
+    dockerfile: Dockerfile
+  image: yantra/python:local
+  environment: &python-env
+    YANTRA_DATABASE_URL: postgresql+psycopg://yantra:yantra@postgres:5432/yantra
+    YANTRA_NATS_URL: nats://nats:4222
+    YANTRA_SMTP_HOST: mailpit
+    YANTRA_SMTP_PORT: "1025"
+    YANTRA_PII_KEY: local-rig-pii-key   # keys the PAN and legal-name digests; a deployed environment sets a real secret
+    # object storage: MinIO. Services sign for the internal host; presigned links name the host the browser reaches
+    YANTRA_S3_ENDPOINT: http://minio:9000
+    YANTRA_S3_PUBLIC_ENDPOINT: http://localhost:9000
+    YANTRA_S3_BUCKET: yantra
+    YANTRA_S3_ACCESS_KEY: yantra
+    YANTRA_S3_SECRET_KEY: yantra-local-secret
+    YANTRA_TRACKER_RETENTION_DAYS: "30"      # activity samples and screenshot references
+    YANTRA_TRACKER_DEFAULT_CAP_HOURS: "40"   # the weekly cap when neither the worker nor the project has one
+    # the pool per process: uvicorn runs up to 40 sync requests at once, so an API process needs at least 40
+    # connections or requests queue for one (claim-storm at 64 in flight timed out on 8 + 4). 4 database
+    # processes x (30 + 20) = 200 of the rig Postgres's 300, leaving room for Keycloak, Odoo and the migrations
+    YANTRA_DB_POOL_SIZE: "30"
+    YANTRA_DB_MAX_OVERFLOW: "20"
+    YANTRA_DB_POOL_TIMEOUT: "10"
+  depends_on:
+    postgres:
+      condition: service_healthy
+    nats:
+      condition: service_started
+    migrate:
+      condition: service_completed_successfully
+    minio:
+      condition: service_healthy
+  restart: unless-stopped
+
+# The money deployable's rail: the real RazorpayX adapter against the WireMock emulator in ./wiremock (no webhooks:
+# the emulator cannot sign them, the poll jobs settle lines). Keys and the bank key are the local rig's only.
+x-money-env: &money-env
+  YANTRA_RAIL: razorpayx
+  YANTRA_RAZORPAYX_BASE_URL: http://wiremock:8080/v1
+  YANTRA_RAZORPAYX_KEY_ID: rzp_test_yantra
+  YANTRA_RAZORPAYX_KEY_SECRET: yantra-local-razorpayx-secret
+  YANTRA_RAZORPAYX_ACCOUNT_NUMBER: "2323230000000001"
+  YANTRA_BANK_KEY: "v1:bG9jYWwtcmlnLWJhbmsta2V5LTMyLWJ5dGVzLW9rISE="   # seals account numbers; local rig only
+  YANTRA_REQUIRES_BANK_KEY: "true"   # as in the chart: only money holds the key (a deployed one refuses the rig's)
+  YANTRA_PAYOUT_MAX_PER_WINDOW: "5000000"
+  YANTRA_PAYOUT_MAX_PER_WORKER: "200000"
+  YANTRA_PAYOUT_POLL_AFTER_SECONDS: "5"   # the emulator settles at once; ask about a line soon after it is sent
+
+# The work deployable's assessment engine: Ethara's Assessment v2 in this rig's Odoo, reached through the
+# `yantra_assess_bridge` addon with the confidential Keycloak client `yantra-assess` (local secret only). The
+# worker's browser opens the Assessment app on :8096 and comes back to the Yantra app on :8095.
+x-assess-env: &assess-env
+  YANTRA_ASSESS_ENGINE: v2
+  YANTRA_ASSESS_ODOO_URL: http://odoo:8069
+  YANTRA_ASSESS_APP_URL: http://localhost:8096
+  YANTRA_ASSESS_RETURN_URL: http://localhost:8095
+  YANTRA_ASSESS_KEYCLOAK_TOKEN_URL: http://keycloak:8080/realms/yantra/protocol/openid-connect/token
+  YANTRA_ASSESS_CLIENT_ID: yantra-assess
+  YANTRA_ASSESS_CLIENT_SECRET: yantra-assess-local-secret
+  YANTRA_ASSESS_SYNC_SECONDS: "15"
+
+services:
+  postgres:
+    image: postgres:16.4
+    # The rig and the test suite share this Postgres: Keycloak, Odoo and the services' pools hold about 70
+    # connections at rest, and every test session keeps a pool per module database. 300 leaves room for both;
+    # a deployed Postgres sizes this from the pools (docs/DEVELOPING.md, RUNBOOKS "Connection headroom").
+    command: ["postgres", "-c", "max_connections=300"]
+    environment:
+      POSTGRES_USER: yantra
+      POSTGRES_PASSWORD: yantra
+      POSTGRES_DB: yantra
+    ports:
+      - "127.0.0.1:5440:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+      - ../sql:/yantra-sql:ro   # roles.sql: one least-privilege role per deployable (20-roles.sh applies it)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yantra -d yantra"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  redis:
+    image: redis:7.4.1-alpine
+    ports:
+      - "127.0.0.1:6390:6379"
+
+  nats:
+    image: nats:2.10.22-alpine
+    command: ["--jetstream", "--store_dir", "/data"]
+    ports:
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8222:8222"
+    volumes:
+      - natsdata:/data
+
+  nats-test:
+    # a second NATS for the test suites: the loop tests recreate the YANTRA stream, which must never touch the rig's
+    image: nats:2.10.22-alpine
+    command: ["--jetstream"]
+    ports:
+      - "127.0.0.1:4223:4222"
+
+  wiremock:
+    # an open-source stand-in for RazorpayX: contacts, fund accounts, the penny drop and payouts (see ./wiremock)
+    image: wiremock/wiremock:3.9.2
+    command: ["--disable-banner"]
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings:ro
+    ports:
+      - "127.0.0.1:8099:8080"   # /__admin/requests shows every call the rail made
+
+  # MinIO, the object store (unit media, worker documents, deliverables). Upstream stopped publishing images to
+  # Docker Hub, so the rig pins Bitnami's build of the same server. The bucket is created at start.
+  # Console: http://localhost:9001 (yantra / yantra-local-secret).
+  minio:
+    image: bitnamilegacy/minio:2025.5.24-debian-12-r5
+    environment:
+      MINIO_ROOT_USER: yantra
+      MINIO_ROOT_PASSWORD: yantra-local-secret
+      MINIO_DEFAULT_BUCKETS: yantra,yantra-assess   # Yantra's media; Assessment v2's media and proctoring evidence
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - miniodata:/bitnami/minio/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.20.0
+    ports:
+      - "127.0.0.1:8026:8025"   # the inbox UI
+      - "127.0.0.1:1026:1025"   # SMTP, for anything on the host
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: http://localhost:8180      # the issuer in every token, however Keycloak is reached
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: yantra
+      KC_DB_PASSWORD: yantra
+    ports:
+      - "127.0.0.1:8180:8080"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  migrate:
+    <<: *python
+    command: ["python", "-m", "yantra_common.migrate"]   # every module's migrations to head, from the image
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  work:
+    <<: *python
+    command: ["uvicorn", "--factory", "yantra_work.app:default_app", "--host", "0.0.0.0", "--port", "8081", "--no-access-log"]
+    environment:
+      <<: [*python-env, *assess-env]
+      YANTRA_DATABASE_URL: postgresql+psycopg://yantra_work:yantra_work@postgres:5432/yantra   # roles.sql: work schemas only
+      YANTRA_RATE_LIMIT_PER_MINUTE: "100000"   # the gateway limits callers; this is the inner guard
+    # no host port: it trusts the gateway's identity headers, so only the gateway reaches it (compose.dev.yaml
+    # publishes 8081 for the load harness)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/ready', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  work-events:
+    <<: *python
+    command: ["python", "-m", "yantra_work.events"]
+    environment:
+      <<: [*python-env, *assess-env]
+      YANTRA_DATABASE_URL: postgresql+psycopg://yantra_work:yantra_work@postgres:5432/yantra   # roles.sql: work schemas only
+      YANTRA_EVENTS_PORT: "8085"   # /health and /ready of the relays, consumers and jobs
+    ports:
+      - "127.0.0.1:8085:8085"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8085/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+
+  money:
+    <<: *python
+    command: ["uvicorn", "--factory", "yantra_money.app:default_app", "--host", "0.0.0.0", "--port", "8082", "--no-access-log"]
+    environment:
+      <<: [*python-env, *money-env]
+      YANTRA_DATABASE_URL: postgresql+psycopg://yantra_money:yantra_money@postgres:5432/yantra   # roles.sql: payout only
+      YANTRA_RATE_LIMIT_PER_MINUTE: "100000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8082/ready', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  money-events:
+    <<: *python
+    command: ["python", "-m", "yantra_money.events"]
+    environment:
+      <<: [*python-env, *money-env]
+      YANTRA_DATABASE_URL: postgresql+psycopg://yantra_money:yantra_money@postgres:5432/yantra   # roles.sql: payout only
+      YANTRA_EVENTS_PORT: "8086"
+    ports:
+      - "127.0.0.1:8086:8086"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8086/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+
+  gateway:
+    <<: *python
+    command: ["uvicorn", "--factory", "yantra_gateway.app:default_app", "--host", "0.0.0.0", "--port", "8090", "--no-access-log"]
+    environment:
+      YANTRA_GATEWAY_KEYCLOAK_ISSUER: http://localhost:8180/realms/yantra
+      YANTRA_GATEWAY_KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/yantra/protocol/openid-connect/certs
+      YANTRA_GATEWAY_ALLOW_INSECURE_JWKS: "true"   # plain http only inside this compose network
+      YANTRA_GATEWAY_REDIS_URL: redis://redis:6379/0
+      YANTRA_GATEWAY_WORK_URL: http://work:8081
+      YANTRA_GATEWAY_MONEY_URL: http://money:8082
+      YANTRA_GATEWAY_ALLOWED_ORIGINS: '["http://localhost:8095"]'
+      YANTRA_GATEWAY_RATE_LIMIT_PER_MINUTE: "600"
+    ports:
+      - "127.0.0.1:8090:8090"
+    depends_on:
+      redis:
+        condition: service_started
+      work:
+        condition: service_healthy
+      money:
+        condition: service_healthy
+      keycloak:
+        condition: service_started   # /ready fetches the signing keys until Keycloak answers
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/ready', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  app:
+    # the worker app as a static web bundle; the Flutter toolchain runs inside the build
+    build:
+      context: ../../app
+      args:
+        GATEWAY_URL: http://localhost:8090
+        KEYCLOAK_URL: http://localhost:8180
+        DIRECT_LOGIN: "true"   # the rig keeps the password form next to the Keycloak redirect
+    image: yantra/app:local
+    environment:
+      # rendered into /config.json at start; the app prefers these over the build args above
+      GATEWAY_URL: http://localhost:8090
+      KEYCLOAK_URL: http://localhost:8180
+      DIRECT_LOGIN: "true"
+      STORAGE_URL: http://localhost:9000   # presigned media plays from and uploads to MinIO: the CSP allows it
+    ports:
+      - "127.0.0.1:8095:8080"   # nginx-unprivileged listens on 8080
+    depends_on:
+      gateway:
+        condition: service_started
+    restart: unless-stopped
+
+  odoo-init:
+    # installs the bridge addon once and seeds the rig's settings; runs on every `up`, cheap after the first
+    build: ../../services/odoo
+    image: yantra/odoo:local
+    environment: &odoo-env
+      HOST: postgres
+      USER: yantra
+      PASSWORD: yantra
+      YANTRA_GATEWAY_URL: http://gateway:8090
+      YANTRA_KEYCLOAK_URL: http://keycloak:8080
+      YANTRA_KEYCLOAK_CLIENT_ID: yantra-odoo
+      YANTRA_KEYCLOAK_CLIENT_SECRET: yantra-odoo-local-secret   # the local realm's secret; never a real one
+      # Assessment v2 (vendored in services/odoo/vendor): its exam app, MinIO and Redis on the rig
+      YANTRA_ASSESS_APP_URL: http://localhost:8096
+      YANTRA_APP_URL: http://localhost:8095
+      YANTRA_ASSESS_S3_SECRET_KEY: yantra-local-secret
+    entrypoint: ["/usr/local/bin/yantra-odoo-init"]
+    volumes:
+      - odoodata:/var/lib/odoo
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: "no"
+
+  odoo:
+    image: yantra/odoo:local
+    environment: *odoo-env
+    command: ["odoo", "--db-filter=^odoo$$"]
+    ports:
+      - "127.0.0.1:8069:8069"
+    volumes:
+      - odoodata:/var/lib/odoo
+    depends_on:
+      odoo-init:
+        condition: service_completed_successfully
+      gateway:
+        condition: service_started
+    restart: unless-stopped
+
+  assess-app:
+    # Assessment v2's exam app (vendored Flutter bundle, Yantra patches) with the API proxied to Odoo on the same
+    # origin. The bundle is built on the host (services/assess-app/build.sh -> dist/), the VM is too small for it.
+    build:
+      context: ../../services/assess-app
+      dockerfile: Dockerfile.prebuilt
+    image: yantra/assess-app:local
+    environment:
+      YANTRA_ENV: local
+      ODOO_UPSTREAM: odoo:8069
+      STORAGE_URL: http://localhost:9000   # presigned media plays from and uploads to MinIO: the CSP allows it
+    ports:
+      - "127.0.0.1:8096:8080"   # nginx-unprivileged listens on 8080
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      odoo:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  miniodata:
+  pgdata:
+  natsdata:
+  odoodata:

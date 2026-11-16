@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1616" height="702" viewBox="0 0 1616 702" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1616" height="702" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">The plan on a timeline: stages, steps and gates</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Left: the step and the number its gate must show. Right: when it runs, in weeks.</text>
+<text x="450.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W0</text>
+<text x="522.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W2</text>
+<text x="594.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W4</text>
+<text x="666.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W6</text>
+<text x="738.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W8</text>
+<text x="810.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W10</text>
+<text x="882.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W12</text>
+<text x="954.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W14</text>
+<text x="1026.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W16</text>
+<text x="1098.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W18</text>
+<text x="1170.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W20</text>
+<text x="1242.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W22</text>
+<text x="1314.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W24</text>
+<text x="1386.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W26</text>
+<text x="1458.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W28</text>
+<text x="1530.0" y="110.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">W30</text>
+<text x="40.0" y="152.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Stage 0: lock and validate</text>
+<text x="40.0" y="170.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">3 bottleneck statements; baseline sheet</text>
+<rect x="460" y="144" width="108" height="36" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="514.0" y="162.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="210.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Foundations</text>
+<text x="40.0" y="228.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">empty service deploys signed; DB under 100 connections</text>
+<rect x="496" y="202" width="72" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="532.0" y="220.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="268.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Identity, bench, onboarding</text>
+<text x="40.0" y="286.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">20 synthetic applicants ELIGIBLE, no DB edits</text>
+<rect x="568" y="260" width="72" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="604.0" y="278.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="326.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Market core and review</text>
+<text x="40.0" y="344.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">500 workers, 2,000 units: 0 double claims, p99 &lt; 500 ms</text>
+<rect x="640" y="318" width="108" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="694.0" y="336.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="384.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Money and margin</text>
+<text x="40.0" y="402.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">earnings = bills = payouts net + TDS, to the paisa</text>
+<rect x="748" y="376" width="72" height="36" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="784.0" y="394.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="442.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Delivery and dogfood</text>
+<text x="40.0" y="460.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">gate holds on one bad line; a real window paid</text>
+<rect x="820" y="434" width="36" height="36" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="838.0" y="452.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="500.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">First paying pilot</text>
+<text x="40.0" y="518.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">one batch invoiced; one pay cycle; zero deltas</text>
+<rect x="856" y="492" width="72" height="36" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="892.0" y="510.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="558.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Stage 2: Talent, Performance, Hub</text>
+<text x="40.0" y="576.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">3 dashboards retired; one vendor paying</text>
+<rect x="928" y="550" width="648" height="36" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1252.0" y="568.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle"></text>
+<text x="40.0" y="616.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Stage 3: environment factory (month 8 on)</text>
+<text x="40.0" y="634.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">first exclusive deal as a single-member entitlement</text>
+<rect x="460" y="608" width="1116" height="36" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1018.0" y="626.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle"></text>
+<path d="M460.0,124.0 L460.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M532.0,124.0 L532.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M604.0,124.0 L604.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M676.0,124.0 L676.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M748.0,124.0 L748.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M820.0,124.0 L820.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M892.0,124.0 L892.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M964.0,124.0 L964.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1036.0,124.0 L1036.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1108.0,124.0 L1108.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1180.0,124.0 L1180.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1252.0,124.0 L1252.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1324.0,124.0 L1324.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1396.0,124.0 L1396.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1468.0,124.0 L1468.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+<path d="M1540.0,124.0 L1540.0,662.0" fill="none" stroke="#ECECF0" stroke-width="1.5"/>
+</svg>

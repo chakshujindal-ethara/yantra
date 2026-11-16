@@ -1,0 +1,73 @@
+name: ethara_assessment
+description: >-
+  Assessment v2 - the operator and candidate front end for the Odoo
+  `assessments_be_v2` module. Talks to that module's REST API only; it holds no
+  business rules of its own.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The ONLY three packages this app needs. The feature was audited before the
+  # port: every `package:` import across its 42 files plus the five support
+  # files resolves to flutter, http or web. Nothing else is carried over from
+  # the host, which shipped fl_chart, pdfrx, excel and a dozen more that this
+  # app never touched.
+  http: ^1.2.2
+  # Browser interop for the CSV download (Blob + object URL) and the file
+  # picker. Web-only, reached through a conditional import so a non-web build
+  # never loads it.
+  web: ^1.1.0
+  # The brand mark is an SVG shipped by the host portal; rendering it natively
+  # keeps one identity across both products rather than a bitmap copy that
+  # blurs at 96px on the login pane.
+  flutter_svg: ^2.0.10
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+
+  # Devanagari for Hindi transcriptions (SIL OFL 1.1, assets/fonts/OFL.txt).
+  # Subset to the Devanagari blocks only (fontTools): the full file also has
+  # digits and punctuation, and as the app-wide fallback it would redraw every
+  # number in the app in its own figures.
+  fonts:
+    # Yantra (studio look): the portal faces bundled, so the app paints Plus
+    # Jakarta Sans and DM Mono as PortalType names them instead of falling back
+    # to the platform font (SIL OFL 1.1, assets/fonts/OFL-*.txt).
+    # Static instances cut from the variable font (fontTools varLib.instancer), so a
+    # plain FontWeight renders at its weight: much of this app sets fontWeight
+    # without a matching FontVariation.
+    - family: Plus Jakarta Sans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
+    - family: DM Mono
+      fonts:
+        - asset: assets/fonts/DMMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMMono-Medium.ttf
+          weight: 500
+    - family: Noto Sans Devanagari
+      fonts:
+        - asset: assets/fonts/NotoSansDevanagari-Regular.ttf

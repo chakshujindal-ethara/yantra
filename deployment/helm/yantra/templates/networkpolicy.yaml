@@ -1,0 +1,151 @@
+{{- /*
+The services behind the gateway trust X-Worker-Id / X-Role, so the network is the control: work and money accept
+traffic from the gateway (and Prometheus) only; the events processes only from Prometheus; the gateway and the app
+only from the ingress controller (and the gateway from Odoo, which calls it in-cluster).
+"Prometheus" is the pods matching monitoring.prometheusSelector inside the monitoring namespace, never the whole
+namespace. A NetworkPolicy works at the port, not the path: /metrics shares each process's HTTP port, so a
+Prometheus pod could also call the API there. Keep that selector narrow (and the monitoring namespace's own access
+control tight); path-level isolation needs a mesh AuthorizationPolicy or a separate metrics port (not in Stage 1).
+*/ -}}
+{{- if .Values.networkPolicy.enabled }}
+{{- $root := . }}
+{{- $full := include "yantra.fullname" . }}
+{{- $mon := dict "namespaceSelector" (dict "matchLabels" .Values.networkPolicy.monitoringNamespaceSelector) "podSelector" (dict "matchLabels" .Values.monitoring.prometheusSelector) }}
+{{- $ing := dict "namespaceSelector" (dict "matchLabels" .Values.networkPolicy.ingressNamespaceSelector) }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $full }}-default-deny
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes: ["Ingress"{{ if .Values.networkPolicy.egress.enabled }}, "Egress"{{ end }}]
+{{- range $name, $p := .Values.python }}
+{{- if $p.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $full }}-{{ $name }}
+  labels:
+    {{- include "yantra.labels" $root | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "yantra.selector" (dict "root" $root "component" $p.component) | nindent 6 }}
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - port: {{ $p.port }}
+          protocol: TCP
+      from:
+        - {{ toJson $mon }}
+        {{- if eq $name "gateway" }}
+        - {{ toJson $ing }}
+        - podSelector:
+            matchLabels:
+              {{- include "yantra.selector" (dict "root" $root "component" "odoo") | nindent 14 }}
+        {{- else if or (eq $name "work-api") (eq $name "money-api") }}
+        - podSelector:
+            matchLabels:
+              {{- include "yantra.selector" (dict "root" $root "component" "gateway") | nindent 14 }}
+        {{- end }}
+{{- end }}
+{{- end }}
+{{- if .Values.app.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $full }}-app
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "yantra.selector" (dict "root" . "component" "app") | nindent 6 }}
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - {port: {{ .Values.app.port }}, protocol: TCP}
+      from:
+        - {{ toJson $ing }}
+{{- end }}
+{{- if .Values.odoo.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $full }}-odoo
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "yantra.selector" (dict "root" . "component" "odoo") | nindent 6 }}
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - {port: {{ .Values.odoo.port }}, protocol: TCP}
+      from:
+        - {{ toJson $ing }}
+        {{- if .Values.assess.enabled }}
+        {{- /* the exam app proxies the API; the adapter in work-api / work-events calls it */}}
+        {{- range (list "assess-app" "work-api" "work-events") }}
+        - podSelector:
+            matchLabels:
+              {{- include "yantra.selector" (dict "root" $root "component" .) | nindent 14 }}
+        {{- end }}
+        {{- end }}
+{{- end }}
+{{- if .Values.assess.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $full }}-assess-app
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "yantra.selector" (dict "root" . "component" "assess-app") | nindent 6 }}
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - {port: {{ .Values.assess.port }}, protocol: TCP}
+      from:
+        - {{ toJson $ing }}
+{{- end }}
+{{- if .Values.networkPolicy.egress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $full }}-egress
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes: ["Egress"]
+  egress:
+    - ports:   # DNS
+        - {port: 53, protocol: UDP}
+        - {port: 53, protocol: TCP}
+    - to:      # the release's own pods (gateway -> work/money, odoo -> gateway)
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- if .Values.networkPolicy.egress.cidrs }}
+    - to:
+        {{- range .Values.networkPolicy.egress.cidrs }}
+        - ipBlock: {cidr: {{ . }}}
+        {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}

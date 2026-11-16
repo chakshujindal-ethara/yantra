@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Yantra: what is new</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f8f9fa;--surface:#ffffff;--surface2:#f3f3f5;--fg:#030213;--muted:#717182;--line:#e0e0e4;--accent:#b800b8;--accent-soft:#fbdaf7;--ring:#b800b8;--code:#f3f3f5;
+ --body:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;--mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 var(--body)}
+.shell{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);background:var(--surface);padding:28px 20px 40px max(20px,env(safe-area-inset-left,0px))}
+nav.toc .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+nav.toc .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+nav.toc .brand b{display:block;font-size:16px}
+nav.toc .brand small{display:block;color:var(--muted);font-size:12.5px}
+nav.toc .set{margin:18px 0 8px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+nav.toc a{display:block;color:var(--fg);text-decoration:none;font-size:14.5px;padding:7px 10px;border-radius:8px;line-height:1.4}
+nav.toc a:hover{background:var(--surface2)}
+nav.toc a.h3{padding-left:24px;color:var(--muted);font-size:13.5px}
+nav.toc a.doc{color:var(--muted)}
+nav.toc a.doc.on{background:var(--accent-soft);color:var(--fg);font-weight:600}
+.theme{margin:14px 0 4px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);font:500 13.5px var(--body);padding:8px 12px;border-radius:8px;cursor:pointer}
+.theme:focus-visible,nav.toc a:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+main{padding:56px max(24px,env(safe-area-inset-right,0px)) 96px max(24px,env(safe-area-inset-left,0px));min-width:0}
+article{max-width:880px;margin:0 auto}
+article h1{font-size:40px;line-height:1.15;letter-spacing:-.01em;margin:0 0 24px;text-wrap:balance}
+article h2{font-size:28px;line-height:1.25;margin:64px 0 20px;padding-top:24px;border-top:1px solid var(--line);text-wrap:balance}
+article h3{font-size:21px;margin:40px 0 14px;text-wrap:balance}
+article p{margin:0 0 18px;max-width:72ch}
+article ul,article ol{padding-left:26px;margin:0 0 20px}
+article li{margin:6px 0;max-width:70ch}
+article li p{margin:0}
+article a{color:var(--accent)}
+article strong{font-weight:600}
+article hr{display:none}
+article code{font:14.5px var(--mono);background:var(--code);padding:2px 6px;border-radius:5px}
+article pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow:auto;font:14px/1.55 var(--mono);margin:0 0 24px}
+article pre code{background:none;padding:0;font-size:inherit}
+.tablewrap{overflow-x:auto;margin:0 0 28px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+article table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.5}
+article th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2);padding:14px 16px;border-bottom:1px solid var(--line)}
+article td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+article tr:last-child td{border-bottom:0}
+article td:first-child{font-weight:600;white-space:normal;min-width:140px}
+figure.diagram{margin:8px 0 36px;background:#ffffff;border:1px solid var(--line);border-radius:14px;padding:12px;overflow-x:auto}
+figure.diagram svg{display:block;max-width:100%;height:auto}
+figure.diagram figcaption{font-size:13.5px;color:var(--muted);padding:10px 8px 2px}
+blockquote{margin:0 0 20px;padding:14px 20px;border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0}
+.foot{margin-top:72px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:980px){.shell{grid-template-columns:1fr}nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding-top:32px}article h1{font-size:32px}article h2{font-size:24px;margin-top:44px}}
+
+section.doc{padding-top:8px}
+section.doc + section.doc{margin-top:96px;border-top:3px solid var(--line);padding-top:48px}
+.doc-eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px}
+nav.toc details{margin:2px 0}
+nav.toc summary{cursor:pointer;list-style:none;color:var(--fg);font-size:14.5px;padding:7px 10px;border-radius:8px;font-weight:600}
+nav.toc summary::-webkit-details-marker{display:none}
+nav.toc summary:hover{background:var(--surface2)}
+nav.toc details[open] summary{background:var(--accent-soft)}
+.screens{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);margin:8px 0 28px;width:min(1240px,calc(100vw - 396px));margin-left:calc((min(100%,880px) - min(1240px,calc(100vw - 396px))) / 2)}
+.screens iframe{display:block;width:100%;height:1000px;border:0;background:var(--bg)}
+@media (max-width:980px){.screens{width:100%;margin-left:0}.screens iframe{height:860px}}
+.intro{font-size:19px;line-height:1.6;color:var(--muted);max-width:66ch;margin:0 0 28px}
+</style></head>
+<body id="top"><div class="shell">
+<nav class="toc" aria-label="Contents">
+  <div class="brand"><div class="mark">Y</div><div><b>Yantra</b><small>the repository and this pack, 2 November 2026</small></div></div>
+  <button type="button" class="theme" id="theme" aria-label="Toggle light or dark theme"></button>
+  <div class="set">Contents</div><a class="h2" href="#c-1-the-one-minute-answer">1. The one-minute answer</a><a class="h2" href="#c-2-what-was-kept-from-the-repository-and-why-it-stays-the-base">2. What was kept from the repository, and why it stays the base</a><a class="h2" href="#c-3-what-was-added-the-business-and-the-plan">3. What was added: the business and the plan</a><a class="h2" href="#c-4-what-was-added-the-product-and-engineering-design">4. What was added: the product and engineering design</a><a class="h2" href="#c-5-where-this-pack-proposes-a-different-choice">5. Where this pack proposes a different choice</a><a class="h2" href="#c-6-what-the-repository-has-that-this-pack-deliberately-defers">6. What the repository has that this pack deliberately defers</a><a class="h2" href="#c-7-what-the-repository-already-had-credit-where-it-is-due">7. What the repository already had (credit where it is due)</a><a class="h2" href="#c-8-the-pack-itself">8. The pack itself</a><a class="h2" href="#c-9-by-the-numbers">9. By the numbers</a>
+</nav>
+<main><article>
+<p class="doc-eyebrow">Yantra</p>
+<h1>What this pack adds to the Yantra repository</h1>
+
+<p>The Yantra repository on GitHub (README, ARCHITECTURE, DESIGN, DATAMODEL, MODULES, INFRASTRUCTURE, REQUIREMENTS, ROADMAP) is the point of truth. It is a specification: a thorough architecture and data design for a 20K onsite and 200K online worker platform, written to competitor parity, with no code yet. This pack takes that specification and adds the parts needed to start building and earning against it. This page lists, item by item, what was kept, what was added, where a different choice is proposed, and what the repository already covered so that nothing here is claimed twice.</p>
+
+<hr>
+<h2 id="c-1-the-one-minute-answer">1. The one-minute answer</h2>
+<p>The repository answers <strong>&quot;what should the platform be?&quot;</strong> at full scale: nine services, a complete data model, a six-phase roadmap to competitor parity. It does not answer <strong>&quot;what do we sell, to whom, at what margin, and what do we build in the first twelve weeks to prove it?&quot;</strong> That is what this pack adds.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Repository</th>
+<th>This pack</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>What is sold, to whom, in what order</td>
+<td>parity with four competitor platforms</td>
+<td>managed per-unit delivery on a credentialed bench to environment vendors and labs; an environment factory as a later business line; hubs as channels</td>
+</tr>
+<tr>
+<td>How money is made per unit</td>
+<td>per-unit pay to workers; client invoicing through Odoo</td>
+<td>a price frozen next to the pay, every cost line recorded at accept, a margin per batch, a floor with a recorded override, a quote formula for Stage 2</td>
+</tr>
+<tr>
+<td>What is built first</td>
+<td>Phases 1 to 3 (the internal ERP), then Phases 4 to 6 (the marketplace)</td>
+<td>a thin, working loop with real money in twelve weeks, while the ERP phases continue on the existing addons</td>
+</tr>
+<tr>
+<td>How a stage is passed</td>
+<td>per-phase verification criteria</td>
+<td>the same discipline, plus a gate per step with a measurable number, the four business numbers, and kill criteria</td>
+</tr>
+<tr>
+<td>What a worker is</td>
+<td>a freelance employee record with a vendor partner</td>
+<td>a bench member: skills with an evidence level, availability that goes stale, a return to the bench at project end, three verified people per seat, no recruiting without signed demand</td>
+</tr>
+<tr>
+<td>India</td>
+<td>GST, TDS, Razorpay as the India rail</td>
+<td>Razorpay first, DPDP consent, the Social Security Code levy priced in, PAN plus penny drop, misclassification handled by output-based contracts</td>
+</tr>
+<tr>
+<td>The team and the money to start</td>
+<td>not covered</td>
+<td>a squad of five to seven, a named DevOps owner, a finance lead, Stage 0 legal and commercial work, SOC 2 window opened early</td>
+</tr>
+</tbody></table></div>
+<p>Everything else in the pack is either the repository&#39;s design restated for a reader who is new to it, or a drawing of it.</p>
+<hr>
+<h2 id="c-2-what-was-kept-from-the-repository-and-why-it-stays-the-base">2. What was kept from the repository, and why it stays the base</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Kept as specified</th>
+<th>Where it lives in the repository</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Odoo 19 Community Edition only, OCA substitutes, no Enterprise code, licence obligations per module</td>
+<td>MODULES, README</td>
+</tr>
+<tr>
+<td>The hub-and-spoke shape: Odoo as the system of record, a ring of services, a single gateway, the Flutter app that only ever talks to the gateway</td>
+<td>ARCHITECTURE, DESIGN</td>
+</tr>
+<tr>
+<td>The nine service names and what each owns; database per service; ids rather than foreign keys across stores</td>
+<td>ARCHITECTURE, DATAMODEL</td>
+</tr>
+<tr>
+<td>Keycloak as the single identity provider; OIDC for staff, JWT for workers and services</td>
+<td>ARCHITECTURE</td>
+</tr>
+<tr>
+<td>NATS JetStream with CloudEvents; no broker client inside the Odoo process; outbox and queue-buffered writes into Odoo</td>
+<td>ARCHITECTURE, DESIGN</td>
+</tr>
+<tr>
+<td>Claims serialised with <code>SELECT ... FOR UPDATE SKIP LOCKED</code>; idempotency keys at the gateway; retry absorption</td>
+<td>ARCHITECTURE, DATAMODEL</td>
+</tr>
+<tr>
+<td>The canonical accept verdict as the only trigger for pay and billing; exactly-once money through the verdict id; the reconciliation invariant (rails equal ledger net of TDS)</td>
+<td>DESIGN, DATAMODEL</td>
+</tr>
+<tr>
+<td>Weekly pay window, first-payout hold, self-billed vendor bills with TDS in Odoo</td>
+<td>ARCHITECTURE, DATAMODEL</td>
+</tr>
+<tr>
+<td>Table and column names: worker_profile, client_project, rate_card, work_batch, work_unit, claim, submission, verdict, earning, payout_txn, pay_window</td>
+<td>DATAMODEL</td>
+</tr>
+<tr>
+<td>The Odoo deployment roles, the pgBouncer transaction-mode trap, the queue_job cron runner, Redis sessions, S3 attachments</td>
+<td>INFRASTRUCTURE</td>
+</tr>
+<tr>
+<td>The CNCF posture: Argo CD, Helm, Harbor, cosign, SBOM, Kyverno, OpenTelemetry</td>
+<td>INFRASTRUCTURE</td>
+</tr>
+<tr>
+<td>The 20K onsite and 200K online envelope as the design ceiling and the Phase 5 load test</td>
+<td>README, ROADMAP</td>
+</tr>
+<tr>
+<td>Phases 0 to 6 and their verification criteria</td>
+<td>ROADMAP</td>
+</tr>
+</tbody></table></div>
+<p>Why it stays the base: it is complete, internally consistent, and shared by leadership. Replacing it would cost months and produce a second document to reconcile. Building on it costs nothing and keeps one vocabulary.</p>
+<hr>
+<h2 id="c-3-what-was-added-the-business-and-the-plan">3. What was added: the business and the plan</h2>
+<p>Nothing in this table exists in the repository documents. Each row says what was added and why it matters to the people paying for the build.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>What this pack adds</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Who the customer is</td>
+<td>environment vendors first, then labs; later, hubs as channels for surplus; hourly engagements only behind a non-Indian entity</td>
+<td>the repository targets competitor parity in general; a build needs a first buyer with a known bottleneck</td>
+</tr>
+<tr>
+<td>What is never built</td>
+<td>a horizontal marketplace; recruiting ahead of signed demand; hourly pay by default; appraisals inside the tasking platform</td>
+<td>the repository&#39;s 200K envelope reads as a target; this pack keeps it as a ceiling and stops the build from chasing it in year one</td>
+</tr>
+<tr>
+<td>Year-one sizing</td>
+<td>1,000 to 3,000 registered, 300 to 500 concurrent, 5 to 20 claims per second, 1,000 to 20,000 units per batch, with the design response for each</td>
+<td>the repository&#39;s capacity model sizes Odoo for 20K staff; nothing sized the marketplace for its first year</td>
+</tr>
+<tr>
+<td>Stage 0</td>
+<td>the decision lock, baselines on live projects, five vendor and two lab interviews, counsel and chartered accountant opinions, the SOC 2 window, the bench flow on a spreadsheet</td>
+<td>the repository&#39;s Phase 0 is infrastructure; the commercial and legal work that lets Stage 1 build against a real pilot had no home</td>
+</tr>
+<tr>
+<td>Stage 1, the working loop</td>
+<td>six steps in twelve weeks (foundations; identity, bench and onboarding; market core and review; money and margin; delivery and dogfood; the first paying pilot), each with what it delivers and a gate with a number</td>
+<td>the repository runs Phases 1 to 3 before the marketplace; this pack puts real money through the loop first, in parallel with the ERP work</td>
+</tr>
+<tr>
+<td>Stage 2 and Stage 3</td>
+<td>Talent, Performance and the internal Hub on demand; the environment factory as a conditional business line from month 8, with its own gate</td>
+<td>the repository&#39;s Phase 6 is the AI layer; the factory and its quality gate are not in the roadmap</td>
+</tr>
+<tr>
+<td>Decisions for leadership</td>
+<td>27 decisions, each with a default so the build can start before the meeting; three marked open</td>
+<td>the repository&#39;s open-decisions table has five technical rows; the commercial ones (pay basis, legal model, rails, pricing, data ownership, positioning) were missing</td>
+</tr>
+<tr>
+<td>Measures</td>
+<td>the four business numbers (days to staff, idle cost, first-pass acceptance, cost per accepted unit), a north star (gross margin per accepted unit), platform measures per area</td>
+<td>the repository verifies phases technically; nothing measured whether the business works</td>
+</tr>
+<tr>
+<td>Kill criteria</td>
+<td>six tests that stop or redirect the build (fewer than three vendor customers in two quarters, exclusivity premium below 2x, the bench not faster on the four numbers, and so on)</td>
+<td>a plan without a stop rule runs on intent</td>
+</tr>
+<tr>
+<td>Risks</td>
+<td>21 risks with a safeguard each, including the commercial ones: misclassification, reselling data not owned, recruiting that looks like a scam, margin read as pay cuts, tracking felt as surveillance</td>
+<td>the repository&#39;s threat model is a security table; business and people risks were not covered</td>
+</tr>
+<tr>
+<td>Alternatives considered</td>
+<td>23 decisions with the options weighed and why one was chosen</td>
+<td>so a reader can disagree with a choice rather than with the whole plan</td>
+</tr>
+<tr>
+<td>Team</td>
+<td>a squad of five to seven for Stage 1 with roles, a named DevOps owner at two days a week, a finance lead, the ways of working</td>
+<td>the repository does not size the team</td>
+</tr>
+<tr>
+<td>Principles</td>
+<td>ten rules, among them: the accept verdict is the only money event; no profit lever lowers contributor pay; rates are shown before work is accepted; identity is bound to the payout account</td>
+<td>the first exists in the repository as a design rule; the rest are commitments to workers and clients that shape the product</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-4-what-was-added-the-product-and-engineering-design">4. What was added: the product and engineering design</h2>
+<p>These are additions to the repository&#39;s design, not replacements. Column names follow the repository where a table already exists.</p>
+<h3 id="c-4-1-money-and-margin">4.1 Money and margin</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Addition</th>
+<th>What the repository has today</th>
+<th>What this pack adds</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A sell-side price</td>
+<td><code>unit_pay</code> frozen at publish; client invoicing from timesheets and milestones</td>
+<td><code>unit_price</code> frozen next to <code>unit_pay</code> on the batch; the price card shows both before publish</td>
+<td>without a frozen price, margin per batch cannot be known at accept time</td>
+</tr>
+<tr>
+<td>Cost per unit</td>
+<td>pay accrues per accepted unit</td>
+<td>cost fields on the unit at accept: pay, review, audit, rail fee, levy; a cost ledger in payout</td>
+<td>margin is invoice minus every cost line, per batch and project, reported weekly</td>
+</tr>
+<tr>
+<td>Margin floor</td>
+<td>not present</td>
+<td>a batch below its floor cannot publish without a recorded approval (a warning, not a hard block, in Stage 1)</td>
+<td>a hard block with no cost history would stop the dogfood batch</td>
+</tr>
+<tr>
+<td>Quote formula</td>
+<td>rate cards by geography, domain and credential</td>
+<td>Stage 2: price equals expected cost divided by one minus the target margin, by quality tier and turnaround</td>
+<td>pricing becomes a function of observed cost, not a negotiation</td>
+</tr>
+<tr>
+<td>Levy</td>
+<td>not present</td>
+<td>the Social Security Code levy priced into every rate card as a line from day one</td>
+<td>the rate is not yet notified; pricing it in now avoids a repricing later</td>
+</tr>
+<tr>
+<td>Two-person approval</td>
+<td>a weekly payout run</td>
+<td>the finance lead plus one approver before any rail call; caps per window</td>
+<td>no single person can move money</td>
+</tr>
+<tr>
+<td>Delivery and invoice</td>
+<td>invoice from Odoo</td>
+<td>a delivery gate (every accepted unit validated against the batch schema; one bad line holds the batch), a manifest with counts, checksums, provenance and rubric versions, then the invoice</td>
+<td>the invoice is tied to what was actually delivered</td>
+</tr>
+</tbody></table></div>
+<h3 id="c-4-2-quality">4.2 Quality</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Addition</th>
+<th>What the repository has today</th>
+<th>What this pack adds</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rubric version</td>
+<td>structured rubric feedback on a verdict</td>
+<td><code>rubric_version</code> carried by every unit and every verdict; a new version when the client changes the glossary</td>
+<td>a verdict can be defended against the rubric the worker actually saw</td>
+</tr>
+<tr>
+<td>Reason codes</td>
+<td>rejection reasons as free text in the event</td>
+<td>a mandatory <code>reason_code</code> on every needs-edits and reject; client-caused codes marked billable</td>
+<td>rework caused by the client is invoiced, not absorbed</td>
+</tr>
+<tr>
+<td>Rubric unclear</td>
+<td>not present</td>
+<td>a flag with a note, routed to the TPM, answered within two days</td>
+<td>the fastest way to find a bad rubric is the reviewer who is stuck on it</td>
+</tr>
+<tr>
+<td>Stage 1 quality model</td>
+<td>a multi-stage pipeline with LLM judge, consensus, hierarchy, disputes and calibration</td>
+<td>single review plus a 10% audit sample; the auditor&#39;s verdict wins; the rest arrives in Stage 2</td>
+<td>the full pipeline needs a pool and cost history that do not exist before the first pilot</td>
+</tr>
+<tr>
+<td>Reviewer never author</td>
+<td>not stated</td>
+<td>a rule in the claim query and a test for it</td>
+<td>the cheapest fraud to prevent</td>
+</tr>
+</tbody></table></div>
+<h3 id="c-4-3-bench-and-supply">4.3 Bench and supply</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Addition</th>
+<th>What the repository has today</th>
+<th>What this pack adds</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The bench</td>
+<td>an eligible worker profile with a tier and a trust score</td>
+<td>a bench record in Odoo: skills with an evidence level, availability that goes stale after 14 days, past quality; a worker returns to the bench at project end at zero idle cost</td>
+<td>the business sells a staffed bench, not a queue of applicants</td>
+</tr>
+<tr>
+<td>Evidence level on skills</td>
+<td>skills granted from assessments</td>
+<td>claimed (resume), verified (assessment), proven (performance), never mixed in one field</td>
+<td>a client is told which it is buying</td>
+</tr>
+<tr>
+<td>Papers from the SOP</td>
+<td>survey engine assessments</td>
+<td>a paper generated from the project&#39;s standard operating procedure, proctored, with a certification tag that opens a category of work</td>
+<td>the existing Assessment v2 engine already does this; it becomes the first <code>assess</code> contract</td>
+</tr>
+<tr>
+<td>Recruiting rule</td>
+<td>a public funnel</td>
+<td>never recruit without signed demand; three verified people per committed seat; channels measured on cost per verified professional</td>
+<td>verified people with no work churn and complain publicly</td>
+</tr>
+<tr>
+<td>Identity bound to the payout account</td>
+<td>KYC in <code>assess</code>; a rail account in <code>payout</code></td>
+<td>one bank account per worker; PAN plus penny drop; step-up authentication and a 72-hour hold after any account recovery; the first-contact rule (post the work, never a direct message)</td>
+<td>the fraud and scam patterns seen on comparable platforms</td>
+</tr>
+<tr>
+<td>Consent</td>
+<td>not present</td>
+<td>DPDP consent as an onboarding item; retention purge per project</td>
+<td>India&#39;s data law applies to every worker record</td>
+</tr>
+</tbody></table></div>
+<h3 id="c-4-4-services-and-repository">4.4 Services and repository</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Addition</th>
+<th>What the repository has today</th>
+<th>What this pack adds</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>hub</code></td>
+<td>not present</td>
+<td>datasets, environments and models as versioned entries with cards, lineage to units and people, a rights field enforced in queries, entitlements with an exclusivity class, signed OCI delivery</td>
+<td>the Stage 3 business line needs a place to hold what it sells</td>
+</tr>
+<tr>
+<td><code>runner</code></td>
+<td>a code sandbox for assessments</td>
+<td>the environment quality gate: deterministic replay, a pass-rate band against a reference panel, a reward-hackability audit; a finding is a hard fail</td>
+<td>a shipped hackable environment is the one defect a lab will not forgive</td>
+</tr>
+<tr>
+<td>Shared packages</td>
+<td>one submodule per service</td>
+<td><code>packages/contracts</code> (OpenAPI per service, CloudEvents schemas, generated Dart and Python clients) and <code>packages/py-common</code> (auth, tracing, outbox publisher, idempotency, fixtures)</td>
+<td>the outbox and idempotency are written once, not per service</td>
+</tr>
+<tr>
+<td>One-repository rules</td>
+<td>contribution rules per submodule</td>
+<td>eight rules that keep one repository from becoming one application: a service imports only packages, a contract change lands with its consumers in one pull request, affected-only CI, four things every service ships, an ADR per cross-service decision</td>
+<td>the usual failure of a monorepo is named and fenced</td>
+</tr>
+<tr>
+<td>Hot-path rules</td>
+<td>hot rows kept out of Odoo</td>
+<td>the claim path writes only unit and claim rows; no counters on worker or batch rows; no chatter per claim; task lists show no counts</td>
+<td>the claim storm test passes by design, not by tuning</td>
+</tr>
+<tr>
+<td>Scale triggers</td>
+<td>a Phase 5 load test at 200K</td>
+<td>the numbers that trigger extraction: more than about 3,000 concurrently active workers, p99 claim over 1 second at the load target, review contention with claims, a second rail or country</td>
+<td>the ceiling test stays; year one is measured before anything is extracted</td>
+</tr>
+<tr>
+<td>Files</td>
+<td>S3 with <code>fs_attachment</code></td>
+<td>per-project prefixes, IAM roles, SSE-KMS, five-minute presigned links; bytes never cross Odoo or the gateway</td>
+<td>client data confidentiality is a contract term</td>
+</tr>
+<tr>
+<td>AI</td>
+<td>LLM providers as an external system</td>
+<td>Vertex Gemini through one client with a cost ledger and quota guards; no third-party proxy</td>
+<td>the proxy was the breach vector in a reported incident</td>
+</tr>
+<tr>
+<td>Operations</td>
+<td>observability stack</td>
+<td>alerts with thresholds (connections at 85%, backlog age over 48 hours, reconciliation delta of any size), a runbook per service before production, an on-call rota by the pilot</td>
+<td>a service without a runbook does not deploy</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-5-where-this-pack-proposes-a-different-choice">5. Where this pack proposes a different choice</h2>
+<p>Five places. Each stays a proposal until leadership accepts it; each is reversible, and the cost of reversing is stated.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Proposal</th>
+<th>The repository today</th>
+<th>This pack proposes</th>
+<th>Why</th>
+<th>Cost to reverse</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Order of work</td>
+<td>Phases 1 to 3 (HRMS, Finance, ITMS) before Phases 4 to 6 (the marketplace)</td>
+<td>a thin slice of Phases 0, 4 and 5 first, as a working loop with real money; Phases 1 to 3 continue in parallel on the existing addons</td>
+<td>the loop proves the business model and pays for the rest; the ERP track does not depend on it</td>
+<td>none; the phases are unchanged, only their order</td>
+</tr>
+<tr>
+<td>Repository layout</td>
+<td>one git submodule per service, eleven in all</td>
+<td>fold the submodules into one repository as directories</td>
+<td>a contract change and all its consumers land in one pull request; one CI; one place to read</td>
+<td>a day of git history surgery per service if split again later</td>
+</tr>
+<tr>
+<td>Payout rail</td>
+<td>Stripe Connect primary, Wise fallback, Razorpay for India</td>
+<td>Razorpay first; Stripe Connect when a non-Indian entity exists</td>
+<td>the paying entity is Indian; a global rail needs a non-Indian entity and adds foreign exchange and misclassification exposure</td>
+<td>the rail adapter interface is the same; adding Stripe later is one adapter</td>
+</tr>
+<tr>
+<td>Two new services</td>
+<td>nine services</td>
+<td>add <code>hub</code> and <code>runner</code></td>
+<td>the Stage 3 business line needs them; neither touches the Stage 1 loop</td>
+<td>not built until Stage 2; nothing to reverse in Stage 1</td>
+</tr>
+<tr>
+<td>Where assess runs in Stage 1</td>
+<td><code>services/assess</code> as its own service</td>
+<td>the Assessment v2 engine keeps running inside the Odoo image behind its own contract and route until Stage 2</td>
+<td>it already works there; moving it before the loop runs is cost without evidence</td>
+<td>the contract is the service boundary from day one; extraction is a deployment change</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-6-what-the-repository-has-that-this-pack-deliberately-defers">6. What the repository has that this pack deliberately defers</h2>
+<p>These are not disagreements. Each is in the repository&#39;s design and in this pack&#39;s later stages; the pack moves them out of the first twelve weeks and says why.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Repository capability</th>
+<th>When this pack builds it</th>
+<th>Why not in Stage 1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tracker</code> (activity samples, screenshots, caps)</td>
+<td>only if a client insists on hourly pay, and only behind a non-Indian entity</td>
+<td>trackers are the evidence misclassification suits use; per-unit pay does not need one</td>
+</tr>
+<tr>
+<td>Stripe Connect and Wise</td>
+<td>when a non-Indian entity exists</td>
+<td>no foreign workers or clients in year one</td>
+</tr>
+<tr>
+<td>LLM-as-judge, consensus, reviewer hierarchy with percentile promotion, calibration gating, seeded gold</td>
+<td>Stage 2</td>
+<td>they need a worker pool and cost history to calibrate against</td>
+</tr>
+<tr>
+<td>Disputes and appeals</td>
+<td>Stage 2</td>
+<td>a dispute reverses an earning as an adjustment line; the ledger must exist first</td>
+</tr>
+<tr>
+<td>Trust score, tiers</td>
+<td>Stage 2, per domain</td>
+<td>a score with no history is noise</td>
+</tr>
+<tr>
+<td>Referral earnings-share</td>
+<td>not scheduled</td>
+<td>no evidence it is wanted by the first customers</td>
+</tr>
+<tr>
+<td>AI video interviews, semantic talent search, auto-match</td>
+<td>Stage 3</td>
+<td>matching needs a pool to match across</td>
+</tr>
+<tr>
+<td><code>analytics</code> with Debezium CDC</td>
+<td>Stage 3</td>
+<td>Odoo reports and the Performance views cover year one; a stalled replication slot is a risk with no payoff yet</td>
+</tr>
+<tr>
+<td>Crunchy or Percona Postgres operator</td>
+<td>Stage 3</td>
+<td>an operator needs a platform owner; a dedicated Postgres server with PITR covers year one</td>
+</tr>
+<tr>
+<td>The 200K registered, 20K concurrent load test</td>
+<td>kept as the ceiling test</td>
+<td>year one runs at 3,000 and 500; the claim-storm harness runs at 1.5x the largest cohort from the first step</td>
+</tr>
+<tr>
+<td>Client console with live acceptance and quality reports</td>
+<td>Stage 2</td>
+<td>in Stage 1 the client gets a manifest, an invoice and a weekly report</td>
+</tr>
+<tr>
+<td>Mobile app store release with FCM</td>
+<td>Stage 2</td>
+<td>web first; the Flutter codebase makes mobile nearly free once the journeys exist</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-7-what-the-repository-already-had-credit-where-it-is-due">7. What the repository already had (credit where it is due)</h2>
+<p>A reader of this pack could take the following for new ideas. They are not; they are the repository&#39;s, and this pack keeps them unchanged.</p>
+<ul>
+<li>The claim serialised with <code>SELECT ... FOR UPDATE SKIP LOCKED</code>, the idempotency key on every mutation with a Redis dedup and a Postgres fallback, and retry absorption at the gateway.</li>
+<li>The canonical accept verdict as the single trigger for worker pay and client billing, and the exactly-once rule that reuses the verdict id as the completion event id.</li>
+<li>The weekly pay window, the 7-day first-payout hold, holds before payout rather than clawbacks after, the self-billed vendor bill with TDS, and the nightly reconciliation that alerts and never auto-adjusts.</li>
+<li>The transactional outbox with at-least-once emit and consumer-side dedup, and the rule that no broker client runs inside the Odoo process.</li>
+<li>Hidden gold units, the firewall that keeps seed hashes away from workers, and a first-class dispute workflow.</li>
+<li>The data model: every table, typed column, constraint, index, partition and retention period, for every store.</li>
+<li>The two infrastructure traps: pgBouncer session mode against the queue_job runner, and the Crunchy image licensing with the Percona fork as the exit.</li>
+<li>Worker record rules in Odoo and penetration tests at every phase gate.</li>
+</ul>
+<hr>
+<h2 id="c-8-the-pack-itself">8. The pack itself</h2>
+<p>Beyond the content, the pack adds material the repository does not try to provide.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Count</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A plain-language guide</td>
+<td>11 sections, a glossary, 12 questions with answers</td>
+<td>so a reader who has never seen the repository can follow a leadership discussion</td>
+</tr>
+<tr>
+<td>Diagrams editable in draw.io</td>
+<td>14</td>
+<td>context, containers, build and release, deployment, the closed loop, four user flows, a sequence, the data model, events, the timeline, the factory; the repository&#39;s diagrams are Mermaid text</td>
+</tr>
+<tr>
+<td>User flows with step tables and edge cases</td>
+<td>6</td>
+<td>worker, reviewer, ops and client, finance, the system view of one task, the factory</td>
+</tr>
+<tr>
+<td>Tech stack with &quot;what was not chosen&quot;</td>
+<td>4 tables</td>
+<td>every technology with its role, why, and the alternative rejected</td>
+</tr>
+<tr>
+<td>Screen mockups</td>
+<td>13</td>
+<td>one screen per journey, with a walkthrough of what to test on each</td>
+</tr>
+<tr>
+<td>Self-contained HTML</td>
+<td>1 file for everything, plus one per document</td>
+<td>shareable without a repository checkout; light and dark mode</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="c-9-by-the-numbers">9. By the numbers</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Repository</th>
+<th>This pack adds</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Services</td>
+<td>9</td>
+<td>2 proposed (hub, runner), 2 kept as scaffolds (tracker, analytics)</td>
+</tr>
+<tr>
+<td>Delivery phases or stages</td>
+<td>6 phases, technical gates</td>
+<td>4 stages, 6 Stage 1 steps, each with a measured gate; Stage 0 commercial and legal work</td>
+</tr>
+<tr>
+<td>Decisions for leadership</td>
+<td>5 technical</td>
+<td>27 with defaults, 3 open</td>
+</tr>
+<tr>
+<td>Business measures and kill criteria</td>
+<td>0</td>
+<td>4 business numbers, 1 north star, 8 measure areas, 6 kill tests</td>
+</tr>
+<tr>
+<td>Risks</td>
+<td>8 security threats</td>
+<td>21 risks with safeguards, business and people included</td>
+</tr>
+<tr>
+<td>Alternatives weighed</td>
+<td>1 (event bus)</td>
+<td>23</td>
+</tr>
+<tr>
+<td>New fields on the market and quality stores</td>
+<td></td>
+<td><code>unit_price</code>, cost fields per unit, <code>rubric_version</code>, <code>reason_code</code>, margin floor and approval, manifest</td>
+</tr>
+<tr>
+<td>Proposals that change a repository choice</td>
+<td></td>
+<td>5, each reversible, each marked in the text</td>
+</tr>
+</tbody></table></div>
+
+
+<p class="foot">Yantra, 2 November 2026. The repository documents named on this page are the Yantra repository&#x27;s own; everything else is this pack&#x27;s. Each proposal stays a proposal until leadership accepts it.</p>
+</article></main></div>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme');
+function cur(){var t=r.getAttribute('data-theme');if(t)return t;return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
+function paint(){b.textContent=cur()==='dark'?'\u263C Light mode':'\u263E Dark mode';}
+try{var s=localStorage.getItem('etp.theme');if(s==='dark'||s==='light')r.setAttribute('data-theme',s);}catch(e){}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('etp.theme',n);}catch(e){}paint();});paint();
+})();
+</script>
+</body></html>

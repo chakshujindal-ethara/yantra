@@ -1,0 +1,117 @@
+{{- /*
+A single-node MinIO for kind and staging (`minio.enabled`). Its root credentials are the release's s3 keys, so the
+services and the store agree without a second secret. Production runs MinIO through the MinIO operator (an owner
+item): set `minio.enabled: false` and point YANTRA_S3_ENDPOINT at the tenant.
+*/ -}}
+{{- if .Values.minio.enabled }}
+{{- $full := include "yantra.fullname" . }}
+{{- $sel := dict "root" . "component" "minio" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $full }}-minio
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  {{- with .Values.minio.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.minio.storage }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $full }}-minio
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+    app.kubernetes.io/component: minio
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels:
+      {{- include "yantra.selector" $sel | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "yantra.baseLabels" . | nindent 8 }}
+        {{- include "yantra.selector" $sel | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: minio
+          image: {{ include "yantra.image" (dict "img" .Values.image.minio) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom: {secretKeyRef: {name: {{ include "yantra.secretName" (dict "root" . "key" "s3-access-key") }}, key: value}}
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom: {secretKeyRef: {name: {{ include "yantra.secretName" (dict "root" . "key" "s3-secret-key") }}, key: value}}
+            - name: MINIO_DEFAULT_BUCKETS
+              value: {{ .Values.minio.bucket | quote }}
+          ports:
+            - {name: api, containerPort: 9000}
+            - {name: console, containerPort: 9001}
+          readinessProbe:
+            httpGet: {path: /minio/health/ready, port: api}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /minio/health/live, port: api}
+            periodSeconds: 20
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+          resources:
+            {{- toYaml .Values.minio.resources | nindent 12 }}
+          volumeMounts:
+            - {name: data, mountPath: /bitnami/minio/data}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: {{ $full }}-minio}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $full }}-minio
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "yantra.selector" $sel | nindent 4 }}
+  ports:
+    - {name: api, port: 9000, targetPort: api}
+    - {name: console, port: 9001, targetPort: console}
+{{- if .Values.networkPolicy.enabled }}
+---
+{{- /* The API takes the work processes (HEAD, PUT, DELETE) and the ingress (browsers follow presigned links
+through the files host); money never touches storage. The console is reached by port-forward only. */}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $full }}-minio
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "yantra.selector" $sel | nindent 6 }}
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - {port: 9000, protocol: TCP}
+      from:
+        - namespaceSelector:
+            matchLabels: {{ toJson .Values.networkPolicy.ingressNamespaceSelector }}
+        {{- range $c := list "work-api" "work-events" }}
+        - podSelector:
+            matchLabels:
+              {{- include "yantra.selector" (dict "root" $ "component" $c) | nindent 14 }}
+        {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,72 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Local tooling state: the detected build/test/start recipe and scratch notes.
+# Machine-specific, so it must not travel with the repo.
+.hermes/
+
+# Local credentials.
+#
+# This app takes its config from --dart-define (see the Makefile and the
+# Dockerfile), never from a .env file, so a .env here is only ever a
+# developer's own credentials. The deploy Dockerfile's `COPY . .` would carry
+# one into the builder layer, and without these lines it could also be
+# committed outright.
+#
+# `.env.example` stays TRACKED - tool/dev_server.py points at it as the
+# documentation for the default the app runs on.
+.env
+.env.*
+!.env.example
+
+# AI proctoring assets: ~30 MB, fetched and SHA-256 checked by
+# tool/fetch_mediapipe.sh (run by `make build` and the Dockerfile). wasm/ holds
+# the .wasm files and their two loader scripts. web/mediapipe/NOTICE.md stays
+# TRACKED: it pins every URL and hash the script reads.
+/web/mediapipe/*.mjs
+/web/mediapipe/*.tflite
+/web/mediapipe/*.task
+/web/mediapipe/wasm/
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release

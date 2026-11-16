@@ -1,0 +1,1082 @@
+{
+ "ok": true,
+ "data": [
+  {
+   "id": 7561,
+   "name": "Task: Evaluate Logical Correctness vs Attribute Accuracy",
+   "generator": {
+    "id": 25214,
+    "name": "Image evals 23/7"
+   },
+   "state": "draft",
+   "question_type": "image_ab",
+   "medium": "Image",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "A close-up of a barista's hands pouring latte art. The left hand holds a matte black ceramic cup by the handle, while the right hand pours milk from a silver pitcher. The latte art forms a perfect fern leaf.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": true,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-072517",
+   "gen_batch_label": "Run Jul 27, 07:25",
+   "dimensions": [
+    {
+     "id": 7261,
+     "label": "Instruction Following (IF)",
+     "sequence": 10,
+     "options": [
+      {
+       "id": 22906,
+       "name": "Response A",
+       "sequence": 10,
+       "is_correct": false
+      },
+      {
+       "id": 22907,
+       "name": "Response B",
+       "sequence": 20,
+       "is_correct": false
+      },
+      {
+       "id": 22908,
+       "name": "Both Good",
+       "sequence": 30,
+       "is_correct": false
+      },
+      {
+       "id": 22909,
+       "name": "Both Bad",
+       "sequence": 40,
+       "is_correct": true
+      }
+     ]
+    },
+    {
+     "id": 7262,
+     "label": "Visual Quality (VQ)",
+     "sequence": 20,
+     "options": [
+      {
+       "id": 22910,
+       "name": "Response A",
+       "sequence": 10,
+       "is_correct": false
+      },
+      {
+       "id": 22911,
+       "name": "Response B",
+       "sequence": 20,
+       "is_correct": false
+      },
+      {
+       "id": 22912,
+       "name": "Both Good",
+       "sequence": 30,
+       "is_correct": true
+      },
+      {
+       "id": 22913,
+       "name": "Both Bad",
+       "sequence": 40,
+       "is_correct": false
+      }
+     ]
+    },
+    {
+     "id": 7263,
+     "label": "Less AI Generated (LAI)",
+     "sequence": 30,
+     "options": [
+      {
+       "id": 22914,
+       "name": "Response A",
+       "sequence": 10,
+       "is_correct": false
+      },
+      {
+       "id": 22915,
+       "name": "Response B",
+       "sequence": 20,
+       "is_correct": false
+      },
+      {
+       "id": 22916,
+       "name": "Both Good",
+       "sequence": 30,
+       "is_correct": true
+      },
+      {
+       "id": 22917,
+       "name": "Both Bad",
+       "sequence": 40,
+       "is_correct": false
+      }
+     ]
+    },
+    {
+     "id": 7264,
+     "label": "Overall Choice (OC)",
+     "sequence": 40,
+     "options": [
+      {
+       "id": 22918,
+       "name": "Response A",
+       "sequence": 10,
+       "is_correct": true
+      },
+      {
+       "id": 22919,
+       "name": "Response B",
+       "sequence": 20,
+       "is_correct": false
+      }
+     ]
+    }
+   ],
+   "dimension_count": 4,
+   "has_valid_key": true
+  },
+  {
+   "id": 7562,
+   "name": "Task: Evaluate Complex Spatial Relationships",
+   "generator": {
+    "id": 25214,
+    "name": "Image evals 23/7"
+   },
+   "state": "draft",
+   "question_type": "image_ab",
+   "medium": "Image",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "A futuristic laboratory. A scientist in a blue lab coat is standing on the right side of the room, looking through a microscope. On the left side, a large transparent cylinder contains a glowing green plant. A robotic arm is suspended from the ceiling, reaching down toward the plant.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": true,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-072517",
+   "gen_batch_label": "Run Jul 27, 07:25",
+   "dimensions": [
+    {
+     "id": 7265,
+     "label": "Instruction Following (IF)",
+     "sequence": 10,
+     "options": [
+      {
+       "id": 22920,
+       "name": "Response A",
+       "sequence": 10,
+       "is_correct": false
+      },
+      {
+       "id": 22921,
+       "name": "Response B",
+       "sequence": 20,
+       "is_correct": true
+      },
+      {
+       "id": 22922,
+       "name": "Both Good",
+       "sequence": 30,
+       "is_correct": false
+      },
+      {
+       "id": 22923,
+       "name": "Both Bad",
+       "sequence": 40,
+       "is_correct": false
+      }
+     ]
+    },
+    {
+     "id": 7266,
+     "label": "Visual Quality (VQ)",
+     "sequence": 20,
+     "options": [
+      {
+       "id": 22924,
+       "name": "Response A",
+       "sequence": 10,
+       "is_correct": true
+      },
+      {
+       "id": 22925,
+       "name": "Response B",
+       "sequence": 20,
+       "is_correct": false
+      },
+      {
+       "id": 22926,
+       "name": "Both Good",
+       "sequence": 30,
+       "is_correct": false
+      },
+      {
+       "id": 22927,
+       "name": "Both Bad",
+       "sequence": 40,
+       "is_correct": false
+      }
+     ]
+    },
+    {
+     "id": 7267,
+     "label": "Less AI Generated (LAI)",
+     "sequence": 30,
+     "options": [
+      {
+       "id": 22928,
+       "name": "Response A",
+       "sequence": 10,
+       "is_correct": false
+      },
+      {
+       "id": 22929,
+       "name": "Response B",
+       "sequence": 20,
+       "is_correct": false
+      },
+      {
+       "id": 22930,
+       "name": "Both Good",
+       "sequence": 30,
+       "is_correct": true
+      },
+      {
+       "id": 22931,
+       "name": "Both Bad",
+       "sequence": 40,
+       "is_correct": false
+      }
+     ]
+    },
+    {
+     "id": 7268,
+     "label": "Overall Choice (OC)",
+     "sequence": 40,
+     "options": [
+      {
+       "id": 22932,
+       "name": "Response A",
+       "sequence": 10,
+       "is_correct": false
+      },
+      {
+       "id": 22933,
+       "name": "Response B",
+       "sequence": 20,
+       "is_correct": true
+      }
+     ]
+    }
+   ],
+   "dimension_count": 4,
+   "has_valid_key": true
+  },
+  {
+   "id": 7563,
+   "name": "Task: Evaluate Edit - Change Car Color (Zoomed)",
+   "generator": {
+    "id": 25211,
+    "name": "I2I demo 2"
+   },
+   "state": "draft",
+   "question_type": "image_prompt",
+   "medium": "Image",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "Evaluate the edited image against the original image and the instruction. Provide the Yes/No answers for Q1, Q2, and Q3, and write the instruction prompt that would produce this edit.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-072740",
+   "gen_batch_label": "Run Jul 27, 07:27",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7564,
+   "name": "Task: Mark AI defects in a busy street scene",
+   "generator": {
+    "id": 25204,
+    "name": "Q7R"
+   },
+   "state": "draft",
+   "question_type": "image_label",
+   "medium": "Image",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Carefully scan the image. Drop a dot exactly on every specific AI defect you can find. For each dot, write a short, specific, one-sentence note stating exactly what is wrong as a fact. Do not mark harmless extras or everyday objects.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-085742",
+   "gen_batch_label": "Run Jul 27, 08:57",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7565,
+   "name": "Task: Mark AI defects in an office workspace",
+   "generator": {
+    "id": 25204,
+    "name": "Q7R"
+   },
+   "state": "draft",
+   "question_type": "image_label",
+   "medium": "Image",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "Carefully scan the image. Drop a dot exactly on every specific AI defect you can find. For each dot, write a short, specific, one-sentence note stating exactly what is wrong as a fact. Do not mark harmless extras or everyday objects.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-085742",
+   "gen_batch_label": "Run Jul 27, 08:57",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7566,
+   "name": "Task: Mark AI defects in a kitchen cooking scene",
+   "generator": {
+    "id": 25204,
+    "name": "Q7R"
+   },
+   "state": "draft",
+   "question_type": "image_label",
+   "medium": "Image",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Carefully scan the image. Drop a dot exactly on every specific AI defect you can find. For each dot, write a short, specific, one-sentence note stating exactly what is wrong as a fact. Do not mark harmless extras or everyday objects.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-085742",
+   "gen_batch_label": "Run Jul 27, 08:57",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7567,
+   "name": "Task: Annotate AI Defects in Cafe Scene",
+   "generator": {
+    "id": 25204,
+    "name": "Q7R"
+   },
+   "state": "draft",
+   "question_type": "image_label",
+   "medium": "Image",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "Review the image carefully. Find every spot that reveals the image is AI-generated. Drop a dot exactly on each specific defect and write a short, concrete sentence stating what is wrong as a fact.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-095729",
+   "gen_batch_label": "Run Jul 27, 09:57",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7580,
+   "name": "Task: Annotate AI Defects (Indian Street Market)",
+   "generator": {
+    "id": 25206,
+    "name": "Q7R Demo 2"
+   },
+   "state": "draft",
+   "question_type": "image_label",
+   "medium": "Image",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Inspect the image carefully. Drop a point exactly on every visual defect that reveals the image as AI-generated, and write a specific, one-sentence description of what is wrong. Do not mark normal, plausible content.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-105921",
+   "gen_batch_label": "Run Jul 27, 10:59",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7581,
+   "name": "Task: Annotate AI Defects (Indian Train Journey)",
+   "generator": {
+    "id": 25206,
+    "name": "Q7R Demo 2"
+   },
+   "state": "draft",
+   "question_type": "image_label",
+   "medium": "Image",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "Inspect the image carefully. Drop a point exactly on every visual defect that reveals the image as AI-generated, and write a specific, one-sentence description of what is wrong. Do not mark normal, plausible content.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-105921",
+   "gen_batch_label": "Run Jul 27, 10:59",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7582,
+   "name": "Task: Annotate AI Defects (Indian Office Desk)",
+   "generator": {
+    "id": 25206,
+    "name": "Q7R Demo 2"
+   },
+   "state": "draft",
+   "question_type": "image_label",
+   "medium": "Image",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Inspect the image carefully. Drop a point exactly on every visual defect that reveals the image as AI-generated, and write a specific, one-sentence description of what is wrong. Do not mark normal, plausible content.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-105921",
+   "gen_batch_label": "Run Jul 27, 10:59",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7584,
+   "name": "Determine Valid Functionality Description",
+   "generator": {
+    "id": 25207,
+    "name": "High Res Dense Generator"
+   },
+   "state": "draft",
+   "question_type": "mcq",
+   "medium": "Text",
+   "difficulty": "easy",
+   "time_minutes": 0,
+   "prompt": "You are labeling a bounding box around a magnifying glass icon located at the top of a webpage. Which of the following is the correct way to write its functionality?",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "none",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": false,
+   "has_video_clips": false,
+   "has_dimensions": true,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112155",
+   "gen_batch_label": "Run Jul 27, 11:21",
+   "dimensions": [
+    {
+     "id": 12977,
+     "label": "Determine Valid Functionality Description",
+     "sequence": 10,
+     "options": [
+      {
+       "id": 40691,
+       "name": "Opens the search bar",
+       "sequence": 10,
+       "is_correct": true
+      },
+      {
+       "id": 40692,
+       "name": "A magnifying glass icon",
+       "sequence": 20,
+       "is_correct": false
+      },
+      {
+       "id": 40693,
+       "name": "It is used to find things on the page",
+       "sequence": 30,
+       "is_correct": false
+      },
+      {
+       "id": 40694,
+       "name": "Search",
+       "sequence": 40,
+       "is_correct": false
+      }
+     ]
+    }
+   ],
+   "dimension_count": 1,
+   "has_valid_key": true
+  },
+  {
+   "id": 7585,
+   "name": "Identify Interactive Elements",
+   "generator": {
+    "id": 25207,
+    "name": "High Res Dense Generator"
+   },
+   "state": "draft",
+   "question_type": "msq",
+   "medium": "Text",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Which of the following UI components are considered interactive elements that require a bounding box because they trigger an action or navigation? (Select all that apply)",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "none",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": false,
+   "has_video_clips": false,
+   "has_dimensions": true,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112155",
+   "gen_batch_label": "Run Jul 27, 11:21",
+   "dimensions": [
+    {
+     "id": 7296,
+     "label": "Identify Interactive Elements",
+     "sequence": 10,
+     "options": [
+      {
+       "id": 23032,
+       "name": "Upload buttons",
+       "sequence": 10,
+       "is_correct": true
+      },
+      {
+       "id": 23033,
+       "name": "Navigation elements",
+       "sequence": 20,
+       "is_correct": true
+      },
+      {
+       "id": 23034,
+       "name": "Static background images",
+       "sequence": 30,
+       "is_correct": false
+      },
+      {
+       "id": 23035,
+       "name": "Tabs",
+       "sequence": 40,
+       "is_correct": true
+      },
+      {
+       "id": 23036,
+       "name": "Plain text paragraphs",
+       "sequence": 50,
+       "is_correct": false
+      }
+     ]
+    }
+   ],
+   "dimension_count": 1,
+   "has_valid_key": true
+  },
+  {
+   "id": 7586,
+   "name": "Submission Checklist Verification",
+   "generator": {
+    "id": 25207,
+    "name": "High Res Dense Generator"
+   },
+   "state": "draft",
+   "question_type": "subjective_rubric",
+   "medium": "Text",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Review the annotator's submission for a UI screenshot labeling task. Ensure they have met all the requirements before submission.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "none",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": false,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112155",
+   "gen_batch_label": "Run Jul 27, 11:21",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7587,
+   "name": "Evaluate Bounding Box Coverage",
+   "generator": {
+    "id": 25207,
+    "name": "High Res Dense Generator"
+   },
+   "state": "draft",
+   "question_type": "image_ab",
+   "medium": "Image",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "Review the screenshot and answer Q1 and Q2.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": true,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112155",
+   "gen_batch_label": "Run Jul 27, 11:21",
+   "dimensions": [
+    {
+     "id": 7297,
+     "label": "Q1 Do you know this Application?",
+     "sequence": 10,
+     "options": [
+      {
+       "id": 23037,
+       "name": "Yes",
+       "sequence": 10,
+       "is_correct": true
+      },
+      {
+       "id": 23038,
+       "name": "No",
+       "sequence": 20,
+       "is_correct": false
+      }
+     ]
+    },
+    {
+     "id": 7298,
+     "label": "Q2 Are all interactive elements covered by boxes?",
+     "sequence": 20,
+     "options": [
+      {
+       "id": 23039,
+       "name": "Yes",
+       "sequence": 10,
+       "is_correct": false
+      },
+      {
+       "id": 23040,
+       "name": "No",
+       "sequence": 20,
+       "is_correct": true
+      }
+     ]
+    }
+   ],
+   "dimension_count": 2,
+   "has_valid_key": true
+  },
+  {
+   "id": 7588,
+   "name": "Describe Element Interaction",
+   "generator": {
+    "id": 25207,
+    "name": "High Res Dense Generator"
+   },
+   "state": "draft",
+   "question_type": "image_prompt",
+   "medium": "Image",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Write the functionality description for the UI element that was interacted with to cause the change between the reference image and the output image. Use clear, action-based language.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112155",
+   "gen_batch_label": "Run Jul 27, 11:21",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7589,
+   "name": "Describe Video UI Interaction",
+   "generator": {
+    "id": 25207,
+    "name": "High Res Dense Generator"
+   },
+   "state": "draft",
+   "question_type": "video_prompt",
+   "medium": "Video",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Watch the video showing a user interacting with a UI element. Write the functionality description for the element that was clicked, using clear, action-based language.",
+   "description": "",
+   "generation_status": "in_progress",
+   "image_state": "pending",
+   "video_state": "partial",
+   "video_error": "Unsupported clip length",
+   "has_images": false,
+   "has_video_clips": true,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112155",
+   "gen_batch_label": "Run Jul 27, 11:21",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7590,
+   "name": "Task: 3D Abstract Geometry Transformation",
+   "generator": {
+    "id": 25208,
+    "name": "Video Artistic Style Generator"
+   },
+   "state": "draft",
+   "question_type": "video_prompt",
+   "medium": "Video",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Watch both videos in the pair before writing. The first video is the STYLE REFERENCE (the look you keep); the second is the OUTPUT TARGET (the content/result you describe). In one prompt, explain how to transform the reference's style into the target video. Cover what's actually visible: artistic style, characters and their traits, what happens in the scene, background and lighting, any length change, and audio (state \"silent\" if there's none). Write in clear, plain English. Don't guess details you can't see.",
+   "description": "",
+   "generation_status": "in_progress",
+   "image_state": "pending",
+   "video_state": "rendered",
+   "video_error": "",
+   "has_images": false,
+   "has_video_clips": true,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112827",
+   "gen_batch_label": "Run Jul 27, 11:28",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7591,
+   "name": "Task: 2D Hand-Drawn Character Animation",
+   "generator": {
+    "id": 25208,
+    "name": "Video Artistic Style Generator"
+   },
+   "state": "draft",
+   "question_type": "video_prompt",
+   "medium": "Video",
+   "difficulty": "easy",
+   "time_minutes": 0,
+   "prompt": "Watch both videos in the pair before writing. The first video is the STYLE REFERENCE (the look you keep); the second is the OUTPUT TARGET (the content/result you describe). In one prompt, explain how to transform the reference's style into the target video. Cover what's actually visible: artistic style, characters and their traits, what happens in the scene, background and lighting, any length change, and audio (state \"silent\" if there's none). Write in clear, plain English. Don't guess details you can't see.",
+   "description": "",
+   "generation_status": "in_progress",
+   "image_state": "pending",
+   "video_state": "rendered",
+   "video_error": "",
+   "has_images": false,
+   "has_video_clips": true,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112827",
+   "gen_batch_label": "Run Jul 27, 11:28",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7592,
+   "name": "Task: Monochrome Doodle Scene Progression",
+   "generator": {
+    "id": 25208,
+    "name": "Video Artistic Style Generator"
+   },
+   "state": "draft",
+   "question_type": "video_prompt",
+   "medium": "Video",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "Watch both videos in the pair before writing. The first video is the STYLE REFERENCE (the look you keep); the second is the OUTPUT TARGET (the content/result you describe). In one prompt, explain how to transform the reference's style into the target video. Cover what's actually visible: artistic style, characters and their traits, what happens in the scene, background and lighting, any length change, and audio (state \"silent\" if there's none). Write in clear, plain English. Don't guess details you can't see.",
+   "description": "",
+   "generation_status": "failed",
+   "image_state": "pending",
+   "video_state": "failed",
+   "video_error": "Unsupported clip length",
+   "has_images": false,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112827",
+   "gen_batch_label": "Run Jul 27, 11:28",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7593,
+   "name": "Task: Pixel Art Object Transformation",
+   "generator": {
+    "id": 25208,
+    "name": "Video Artistic Style Generator"
+   },
+   "state": "draft",
+   "question_type": "video_prompt",
+   "medium": "Video",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "Watch both videos in the pair before writing. The first video is the STYLE REFERENCE (the look you keep); the second is the OUTPUT TARGET (the content/result you describe). In one prompt, explain how to transform the reference's style into the target video. Cover what's actually visible: artistic style, characters and their traits, what happens in the scene, background and lighting, any length change, and audio (state \"silent\" if there's none). Write in clear, plain English. Don't guess details you can't see.",
+   "description": "",
+   "generation_status": "in_progress",
+   "image_state": "pending",
+   "video_state": "partial",
+   "video_error": "Unsupported clip length",
+   "has_images": false,
+   "has_video_clips": true,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112827",
+   "gen_batch_label": "Run Jul 27, 11:28",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7594,
+   "name": "Task: Stylized Anime with Dialogue Format",
+   "generator": {
+    "id": 25208,
+    "name": "Video Artistic Style Generator"
+   },
+   "state": "draft",
+   "question_type": "video_prompt",
+   "medium": "Video",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "Watch both videos in the pair before writing. The first video is the STYLE REFERENCE (the look you keep); the second is the OUTPUT TARGET (the content/result you describe). In one prompt, explain how to transform the reference's style into the target video. Cover what's actually visible: artistic style, characters and their traits, what happens in the scene, background and lighting, any length change, and audio (state \"silent\" if there's none). Write in clear, plain English. Don't guess details you can't see.",
+   "description": "",
+   "generation_status": "in_progress",
+   "image_state": "pending",
+   "video_state": "partial",
+   "video_error": "Unsupported clip length",
+   "has_images": false,
+   "has_video_clips": true,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-112827",
+   "gen_batch_label": "Run Jul 27, 11:28",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7595,
+   "name": "Task: Wikipedia Homepage Functionality",
+   "generator": {
+    "id": 25207,
+    "name": "High Res Dense Generator"
+   },
+   "state": "draft",
+   "question_type": "image_label",
+   "medium": "Image",
+   "difficulty": "medium",
+   "time_minutes": 0,
+   "prompt": "First, answer the initial questions: Do you know this Application? (Yes/No) and Are all interactive elements covered by boxes? (Yes/No). Then, go box by box and describe what each numbered element does. Each box marks one interactive element. For every box, write what action happens when a user clicks or taps it \u2014 short, action-based phrasing like \"Opens the Store landing page\" or \"Adds item to shopping bag,\" not a description of how it looks. Zoom in if an element is small. Don't guess: if you genuinely can't tell what a box does, say so rather than inventing a function. Write one description per box.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-123901",
+   "gen_batch_label": "Run Jul 27, 12:39",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  },
+  {
+   "id": 7596,
+   "name": "Task: DuckDuckGo Homepage Missing Coverage",
+   "generator": {
+    "id": 25207,
+    "name": "High Res Dense Generator"
+   },
+   "state": "draft",
+   "question_type": "image_label",
+   "medium": "Image",
+   "difficulty": "hard",
+   "time_minutes": 0,
+   "prompt": "First, answer the initial questions: Do you know this Application? (Yes/No) and Are all interactive elements covered by boxes? (Yes/No). Then, go box by box and describe what each numbered element does. Each box marks one interactive element. For every box, write what action happens when a user clicks or taps it \u2014 short, action-based phrasing like \"Opens the Store landing page\" or \"Adds item to shopping bag,\" not a description of how it looks. Zoom in if an element is small. Don't guess: if you genuinely can't tell what a box does, say so rather than inventing a function. Write one description per box.",
+   "description": "",
+   "generation_status": "finished",
+   "image_state": "rendered",
+   "video_state": "none",
+   "video_error": "",
+   "has_images": true,
+   "has_video_clips": false,
+   "has_dimensions": false,
+   "approved_question_id": null,
+   "warnings": {
+    "revealing_option": false,
+    "source_reference": false
+   },
+   "gen_batch": "20260727-123901",
+   "gen_batch_label": "Run Jul 27, 12:39",
+   "dimensions": [],
+   "dimension_count": 0,
+   "has_valid_key": true
+  }
+ ],
+ "meta": {
+  "total": 23,
+  "limit": 40,
+  "offset": 0,
+  "has_more": false
+ }
+}

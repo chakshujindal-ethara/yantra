@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tech stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f8f9fa;--surface:#ffffff;--surface2:#f3f3f5;--fg:#030213;--muted:#717182;--line:#e0e0e4;--accent:#b800b8;--accent-soft:#fbdaf7;--ring:#b800b8;--code:#f3f3f5;
+ --body:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;--mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 var(--body)}
+.shell{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);background:var(--surface);padding:28px 20px 40px max(20px,env(safe-area-inset-left,0px))}
+nav.toc .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+nav.toc .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+nav.toc .brand b{display:block;font-size:16px}
+nav.toc .brand small{display:block;color:var(--muted);font-size:12.5px}
+nav.toc .set{margin:18px 0 8px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+nav.toc a{display:block;color:var(--fg);text-decoration:none;font-size:14.5px;padding:7px 10px;border-radius:8px;line-height:1.4}
+nav.toc a:hover{background:var(--surface2)}
+nav.toc a.h3{padding-left:24px;color:var(--muted);font-size:13.5px}
+nav.toc a.doc{color:var(--muted)}
+nav.toc a.doc.on{background:var(--accent-soft);color:var(--fg);font-weight:600}
+.theme{margin:14px 0 4px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);font:500 13.5px var(--body);padding:8px 12px;border-radius:8px;cursor:pointer}
+.theme:focus-visible,nav.toc a:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+main{padding:56px max(24px,env(safe-area-inset-right,0px)) 96px max(24px,env(safe-area-inset-left,0px));min-width:0}
+article{max-width:880px;margin:0 auto}
+article h1{font-size:40px;line-height:1.15;letter-spacing:-.01em;margin:0 0 24px;text-wrap:balance}
+article h2{font-size:28px;line-height:1.25;margin:64px 0 20px;padding-top:24px;border-top:1px solid var(--line);text-wrap:balance}
+article h3{font-size:21px;margin:40px 0 14px;text-wrap:balance}
+article p{margin:0 0 18px;max-width:72ch}
+article ul,article ol{padding-left:26px;margin:0 0 20px}
+article li{margin:6px 0;max-width:70ch}
+article li p{margin:0}
+article a{color:var(--accent)}
+article strong{font-weight:600}
+article hr{display:none}
+article code{font:14.5px var(--mono);background:var(--code);padding:2px 6px;border-radius:5px}
+article pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow:auto;font:14px/1.55 var(--mono);margin:0 0 24px}
+article pre code{background:none;padding:0;font-size:inherit}
+.tablewrap{overflow-x:auto;margin:0 0 28px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+article table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.5}
+article th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2);padding:14px 16px;border-bottom:1px solid var(--line)}
+article td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+article tr:last-child td{border-bottom:0}
+article td:first-child{font-weight:600;white-space:normal;min-width:140px}
+figure.diagram{margin:8px 0 36px;background:#ffffff;border:1px solid var(--line);border-radius:14px;padding:12px;overflow-x:auto}
+figure.diagram svg{display:block;max-width:100%;height:auto}
+figure.diagram figcaption{font-size:13.5px;color:var(--muted);padding:10px 8px 2px}
+blockquote{margin:0 0 20px;padding:14px 20px;border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0}
+.foot{margin-top:72px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:980px){.shell{grid-template-columns:1fr}nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding-top:32px}article h1{font-size:32px}article h2{font-size:24px;margin-top:44px}}
+</style></head>
+<body><div class="shell">
+<nav class="toc" aria-label="Contents">
+  <div class="brand"><div class="mark">Y</div><div><b>Yantra</b><small>plan, design and screens, 2 November 2026</small></div></div>
+  <button type="button" class="theme" id="theme" aria-label="Toggle light or dark theme"></button>
+  <div class="set">Documents</div><a class="doc" href="01-understanding-yantra.html">Understanding Yantra</a><a class="doc" href="02-system-design.html">System design</a><a class="doc" href="03-user-flows.html">User flows</a><a class="doc on" href="04-tech-stack.html">Tech stack</a><a class="doc" href="05-unified-plan.html">The unified plan</a>
+  <div class="set">On this page</div><a class="h2" href="#1-at-a-glance">1. At a glance</a><a class="h2" href="#2-application">2. Application</a><a class="h2" href="#3-platform">3. Platform</a><a class="h2" href="#4-money-ai-and-compliance">4. Money, AI and compliance</a><a class="h2" href="#5-rules-that-bind-the-stack-together">5. Rules that bind the stack together</a>
+</nav>
+<main><article>
+<h1>Tech stack</h1>
+<p>Every technology in Yantra, what it does here, why it was chosen, and what was not chosen. The repository (<code>ARCHITECTURE.md</code>, <code>INFRASTRUCTURE.md</code>, <code>MODULES.md</code>) is the point of truth; rows marked <strong>proposal</strong> differ from it.</p>
+<h2 id="1-at-a-glance">1. At a glance</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Choice</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>System of record</td>
+<td>Odoo 19 Community Edition, OCA modules, <code>ethara_*</code> addons</td>
+</tr>
+<tr>
+<td>Services</td>
+<td>Python 3.12, FastAPI, SQLAlchemy, Alembic; one <code>uv</code> workspace</td>
+</tr>
+<tr>
+<td>Client</td>
+<td>Flutter, one codebase for web and mobile</td>
+</tr>
+<tr>
+<td>Identity</td>
+<td>Keycloak (OpenID Connect for staff, JWT for workers and services)</td>
+</tr>
+<tr>
+<td>Events</td>
+<td>NATS JetStream with CloudEvents envelopes; transactional outbox per service</td>
+</tr>
+<tr>
+<td>Databases</td>
+<td>PostgreSQL, one database per service, PgBouncer, point-in-time recovery</td>
+</tr>
+<tr>
+<td>Cache</td>
+<td>Redis</td>
+</tr>
+<tr>
+<td>Files</td>
+<td>S3-compatible object storage</td>
+</tr>
+<tr>
+<td>Payments</td>
+<td>Razorpay (RazorpayX payouts), bank file fallback</td>
+</tr>
+<tr>
+<td>AI</td>
+<td>Vertex Gemini through one client with a cost ledger</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>Kubernetes, Istio ingress, Helm, Argo CD</td>
+</tr>
+<tr>
+<td>Supply chain</td>
+<td>Harbor, cosign, SBOM, Kyverno policies</td>
+</tr>
+<tr>
+<td>CI</td>
+<td>GitHub Actions with path filters</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>Prometheus, Grafana, Loki, OpenTelemetry, Sentry</td>
+</tr>
+<tr>
+<td>Stage 3</td>
+<td>OpenEnv artifact contract, Harbor-signed OCI images, Hugging Face Hub for the free tier</td>
+</tr>
+</tbody></table></div>
+<h2 id="2-application">2. Application</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Technology</th>
+<th>What it is</th>
+<th>Role in Yantra</th>
+<th>Why</th>
+<th>Not chosen</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Odoo 19 CE</strong></td>
+<td>open-source ERP in Python; Community Edition only, no Enterprise code</td>
+<td>people, skills, agreements, consent, the bench, accounting, self-billed vendor bills with TDS, client invoices, GST e-invoicing, margin report</td>
+<td>Ethara runs it today; India localisation in core; one ledger for staff and contractors; the licence posture in <code>MODULES.md</code></td>
+<td>a new ERP; a hand-built ledger; Odoo Enterprise</td>
+</tr>
+<tr>
+<td><strong>OCA modules</strong></td>
+<td>community add-ons for Odoo</td>
+<td><code>auth_oidc</code> (Keycloak login), <code>queue_job</code> (background jobs), <code>sign_oca</code> (e-signature), <code>fs_attachment</code> (S3 files), tier validation (approvals)</td>
+<td>verified on the 19.0 branches; licence obligations recorded</td>
+<td>in-house copies of the same features</td>
+</tr>
+<tr>
+<td><strong><code>ethara_*</code> addons</strong></td>
+<td>Ethara&#39;s own Odoo modules</td>
+<td><code>ethara_workforce</code> (worker record, bench), <code>ethara_api</code> (controllers the gateway calls), accounting glue</td>
+<td>the only custom code inside Odoo; everything else is a service</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Python 3.12</strong></td>
+<td>the service language</td>
+<td>every service</td>
+<td>one language with Odoo; the team&#39;s skill</td>
+<td>Go, TypeScript services (a second toolchain for a small team)</td>
+</tr>
+<tr>
+<td><strong>FastAPI</strong></td>
+<td>web framework</td>
+<td>HTTP APIs for every service; generated OpenAPI</td>
+<td>typed, fast, standard; the OpenAPI document is the contract</td>
+<td>Django REST, Flask</td>
+</tr>
+<tr>
+<td><strong>SQLAlchemy, Alembic</strong></td>
+<td>ORM and migrations</td>
+<td>service data access; versioned schema per service</td>
+<td>mature; migrations per service from zero in CI</td>
+<td>raw SQL only; a shared schema</td>
+</tr>
+<tr>
+<td><strong><code>uv</code> workspace</strong></td>
+<td>Python package and workspace manager</td>
+<td>one lockfile for the repository; <code>packages/py-common</code> and <code>packages/contracts</code> shared</td>
+<td>fast, reproducible, one command</td>
+<td>pip-tools per service; Poetry</td>
+</tr>
+<tr>
+<td><strong><code>packages/contracts</code></strong></td>
+<td>OpenAPI documents, CloudEvents schemas, generated Dart and Python clients</td>
+<td>the only way services and the app talk</td>
+<td>a contract change and its consumers in one pull request; a stale client fails the build</td>
+<td>copying types by hand</td>
+</tr>
+<tr>
+<td><strong><code>packages/py-common</code></strong></td>
+<td>shared library</td>
+<td>auth, tracing, transactional outbox, idempotency, configuration, test fixtures</td>
+<td>written once, not per service</td>
+<td>each service re-implementing the outbox</td>
+</tr>
+<tr>
+<td><strong>Flutter</strong></td>
+<td>Google&#39;s UI toolkit</td>
+<td>the worker, reviewer, onboarding and earnings app; ops on mobile</td>
+<td>the assessment app already exists in Flutter with a design system, API client and proctoring; mobile from the same code</td>
+<td>a second web stack (React) for workers</td>
+</tr>
+<tr>
+<td><strong>Ethara portal design tokens</strong></td>
+<td>the colour and type system of the assessment app</td>
+<td>every screen and mockup</td>
+<td>one look across the product</td>
+<td>a new design system</td>
+</tr>
+</tbody></table></div>
+<h2 id="3-platform">3. Platform</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Technology</th>
+<th>What it is</th>
+<th>Role in Yantra</th>
+<th>Why</th>
+<th>Not chosen</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Keycloak</strong></td>
+<td>open-source identity and access server</td>
+<td>single sign-in: staff into Odoo via OpenID Connect; JWTs for workers and service-to-service calls; one realm in Stage 1</td>
+<td>built; standard; buyer Organizations and step-up authentication later</td>
+<td>Odoo users and home-made tokens; a hosted identity service</td>
+</tr>
+<tr>
+<td><strong>NATS JetStream</strong></td>
+<td>message bus with persistence and replay</td>
+<td>carries every event between services and into Odoo; CloudEvents envelopes</td>
+<td>light to run; replay for new read models; ratified in <code>ROADMAP.md</code></td>
+<td>Kafka (documented fallback if volume demands it); RabbitMQ</td>
+</tr>
+<tr>
+<td><strong>Transactional outbox</strong></td>
+<td>a pattern: write the event in the same database transaction as the change, relay it afterwards</td>
+<td>every service and Odoo (<code>ethara.outbox</code> drained by a lease-locked cron)</td>
+<td>at-least-once delivery without a broker client inside Odoo (forbidden by <code>ARCHITECTURE.md</code>)</td>
+<td>publishing directly from request handlers</td>
+</tr>
+<tr>
+<td><strong>PostgreSQL</strong></td>
+<td>relational database</td>
+<td>one database per service; Odoo&#39;s database; <code>SKIP LOCKED</code> on the claim path</td>
+<td>the claim workload needs row locking; one engine for everything</td>
+<td>a document store for units</td>
+</tr>
+<tr>
+<td><strong>PgBouncer</strong></td>
+<td>connection pooler</td>
+<td>transaction-mode pooling in front of every database</td>
+<td>the shared primary ran out of connections before [L]; a budget per chart with an alert at 85%</td>
+<td>direct connections</td>
+</tr>
+<tr>
+<td><strong>A dedicated Postgres server now; Crunchy or Percona operator in Stage 3</strong></td>
+<td>managed server; Kubernetes operator with HA, backups, pooling</td>
+<td>year one on a dedicated server with point-in-time recovery; an operator when a platform owner exists</td>
+<td>the problem today is the shared primary, not HA</td>
+<td><strong>proposal:</strong> the repository puts the operator in Phase 0</td>
+</tr>
+<tr>
+<td><strong>Redis</strong></td>
+<td>in-memory store</td>
+<td>idempotency keys (with a unique-constraint fallback in Postgres), sessions, cache</td>
+<td>standard; small</td>
+<td>sessions in Postgres</td>
+</tr>
+<tr>
+<td><strong>S3-compatible object storage</strong></td>
+<td>file storage</td>
+<td>task payloads, documents, deliveries, artifacts; per-project prefixes; IAM roles; SSE-KMS; presigned links of five minutes</td>
+<td>bytes never cross a service or Odoo</td>
+<td>files on pods</td>
+</tr>
+<tr>
+<td><strong>Kubernetes</strong></td>
+<td>container orchestration</td>
+<td>every service and Odoo (four roles: web, websocket, cron, upgrade job)</td>
+<td>already deployed</td>
+<td>virtual machines per service</td>
+</tr>
+<tr>
+<td><strong>Istio</strong></td>
+<td>service mesh and Envoy-based ingress</td>
+<td>TLS, routes, rate-limit policies, presigned URLs masked in logs</td>
+<td>already running</td>
+<td>a second ingress (Envoy Gateway, Contour)</td>
+</tr>
+<tr>
+<td><strong>Helm</strong></td>
+<td>Kubernetes packaging</td>
+<td>one first-party chart per service</td>
+<td>consistent with the service-per-deployable layout (<code>INFRASTRUCTURE.md</code>)</td>
+<td>the deprecated Bitnami Odoo chart</td>
+</tr>
+<tr>
+<td><strong>Argo CD</strong></td>
+<td>GitOps delivery</td>
+<td>an application per service, app-of-apps per environment; the cluster follows the repository</td>
+<td>auditable deploys; rollbacks are a revert</td>
+<td>hand-run <code>kubectl</code></td>
+</tr>
+<tr>
+<td><strong>Harbor, cosign, SBOM, Kyverno</strong></td>
+<td>registry; image signing; software bill of materials; policy engine</td>
+<td>every image signed and scanned; policies block unsigned images; Stage 3 artifacts signed the same way</td>
+<td>supply-chain incidents at comparable platforms [R]</td>
+<td>unsigned public images</td>
+</tr>
+<tr>
+<td><strong>GitHub Actions</strong></td>
+<td>CI</td>
+<td>path filters (test only what changed), contract tests, fresh-database tests per service, image build, the claim-storm harness as a gate</td>
+<td>lives with the repository</td>
+<td>a separate CI server</td>
+</tr>
+<tr>
+<td><strong>Prometheus, Grafana, Loki</strong></td>
+<td>metrics, dashboards, logs</td>
+<td>the alerts in the plan (claim p99, double claims, backlog age, reconciliation deltas, connection headroom)</td>
+<td>already deployed</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>OpenTelemetry</strong></td>
+<td>tracing</td>
+<td>one trace from the app through the gateway and services to the ledger</td>
+<td>a distributed system without traces cannot be operated</td>
+<td>logs only</td>
+</tr>
+<tr>
+<td><strong>Sentry</strong></td>
+<td>error tracking</td>
+<td>services and Odoo (OCA <code>sentry</code>)</td>
+<td>already deployed</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>External Secrets</strong></td>
+<td>secrets from a vault into Kubernetes</td>
+<td>every credential; nothing in a database or an image</td>
+<td>the breach vectors at incumbents were secrets and proxies [R]</td>
+<td>secrets in environment files</td>
+</tr>
+</tbody></table></div>
+<h2 id="4-money-ai-and-compliance">4. Money, AI and compliance</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Technology</th>
+<th>What it is</th>
+<th>Role in Yantra</th>
+<th>Why</th>
+<th>Not chosen</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Razorpay (RazorpayX)</strong></td>
+<td>Indian payments provider; RazorpayX is its payout product</td>
+<td>weekly payouts to worker bank accounts; penny-drop bank verification; signed webhooks</td>
+<td>Ethara&#39;s existing provider; domestic rails; no foreign exchange</td>
+<td><strong>proposal:</strong> the repository lists Stripe Connect as primary; Connect transfers are not available to an Indian entity, so it waits for a non-Indian entity</td>
+</tr>
+<tr>
+<td><strong>Bank file</strong></td>
+<td>a payout file uploaded to the bank</td>
+<td>fallback when the rail is down, same bill numbers</td>
+<td>no window is ever stuck on a provider outage</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>NIC e-invoice (IRN)</strong></td>
+<td>India&#39;s GST e-invoicing registry</td>
+<td>client invoices for Indian clients; export invoices under LUT</td>
+<td>legal requirement; in Odoo&#39;s India localisation</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Vertex Gemini</strong></td>
+<td>Google&#39;s hosted large language model</td>
+<td>advisory pre-review in <code>quality</code>, grading help in <code>assess</code>; never the canonical verdict; task content treated as untrusted input; no PII in prompts</td>
+<td>the existing client, quota guards and cost ledger; no third-party proxy in the data path</td>
+<td>a proxy service in front of models</td>
+</tr>
+<tr>
+<td><strong>OpenEnv</strong></td>
+<td>an environment packaging standard</td>
+<td>(Stage 3) every environment pinned to an OpenEnv version</td>
+<td>what buyers already run</td>
+<td>a house format</td>
+</tr>
+<tr>
+<td><strong>Hugging Face Hub, DataVendor, Prime Intellect</strong></td>
+<td>public artifact hubs and marketplaces</td>
+<td>(Stage 3) channels for non-exclusive surplus; never the product</td>
+<td>hubs exist; building one is the wrong use of the year</td>
+<td>a Yantra marketplace</td>
+</tr>
+<tr>
+<td><strong>SOC 2 Type 2</strong></td>
+<td>an audited security attestation</td>
+<td>the window opens in Stage 0; evidence collected from day one</td>
+<td>the longest pole in any lab conversation</td>
+<td>waiting until a lab asks</td>
+</tr>
+</tbody></table></div>
+<h2 id="5-rules-that-bind-the-stack-together">5. Rules that bind the stack together</h2>
+<ul>
+<li>A service imports only <code>packages/*</code>; ids cross boundaries, foreign keys never do.</li>
+<li>Synchronous calls go through the gateway contract; asynchronous through the bus; no service calls another&#39;s database or internal URL.</li>
+<li>Every state change others care about goes through the outbox; consumers are idempotent.</li>
+<li>Every service ships a Dockerfile, a Helm chart, migrations and a runbook; without a runbook it does not reach production.</li>
+<li>Every image is signed and carries an SBOM; every secret comes from the vault; egress is an allow-list.</li>
+<li>Every request is traceable from the app to the ledger; logs carry request, worker, unit and batch ids and never tokens, payload bytes or bank details.</li>
+</ul>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1170" height="470" viewBox="0 0 1170 470" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1170" height="470" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Build and release: one repository, affected-only CI, one release train</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">A pull request that changes a contract must also change its consumers; a service without a runbook does not deploy.</text>
+<rect x="40" y="100" width="150" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="115.0" y="119.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Pull request</text>
+<text x="115.0" y="137.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">trunk-based, short</text>
+<text x="115.0" y="151.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">branch</text>
+<rect x="240" y="100" width="190" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="335.0" y="119.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">CI: path filters</text>
+<text x="335.0" y="137.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">tests only for what changed</text>
+<text x="335.0" y="153.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">GitHub Actions</text>
+<rect x="480" y="100" width="190" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="575.0" y="119.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Contract tests</text>
+<text x="575.0" y="137.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">OpenAPI and event schemas;</text>
+<text x="575.0" y="151.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">generated clients rebuilt</text>
+<rect x="720" y="100" width="190" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="815.0" y="112.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Image build</text>
+<text x="815.0" y="130.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">signed, SBOM, scanned,</text>
+<text x="815.0" y="144.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">tagged per service</text>
+<text x="815.0" y="160.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">cosign, Harbor</text>
+<rect x="960" y="100" width="170" height="70" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="1045.0" y="119.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Argo CD</text>
+<text x="1045.0" y="137.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">app per service, app-of-</text>
+<text x="1045.0" y="151.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">apps per environment</text>
+<rect x="960" y="230" width="170" height="70" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="1045.0" y="249.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Staging</text>
+<text x="1045.0" y="267.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">smoke, claim-storm</text>
+<text x="1045.0" y="281.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">harness</text>
+<rect x="960" y="360" width="170" height="70" rx="35.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="1045.0" y="386.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Production</text>
+<text x="1045.0" y="404.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">canary, runbook on file</text>
+<rect x="480" y="230" width="190" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="575.0" y="249.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Fresh-database tests</text>
+<text x="575.0" y="267.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">migrations per service from</text>
+<text x="575.0" y="281.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">zero</text>
+<rect x="720" y="230" width="190" height="70" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="815.0" y="249.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Claim-storm harness</text>
+<text x="815.0" y="267.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">1.5x the largest cohort,</text>
+<text x="815.0" y="281.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">zero errors</text>
+<path d="M190.0,135.0 L240.0,135.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M430.0,135.0 L480.0,135.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M670.0,135.0 L720.0,135.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M910.0,135.0 L960.0,135.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1045.0,170.0 L1045.0,230.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1045.0,300.0 L1045.0,360.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="1006.7" y="321.0" width="76.6" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="1045.0" y="330.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">gate passed</text>
+<path d="M335.0,170.0 L335.0,265.0 L480.0,265.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M670.0,265.0 L720.0,265.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M910.0,265.0 L960.0,265.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg><figcaption>Build and release</figcaption></figure>
+
+
+<p class="foot">Yantra, 2 November 2026. Every diagram can be edited in draw.io. Evidence tags: [D] disclosed by the company named, [R] reported by press or analysts, [E] estimate, [L] read from the company's own repositories.</p>
+</article></main></div>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme');
+function cur(){var t=r.getAttribute('data-theme');if(t)return t;return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
+function paint(){b.textContent=cur()==='dark'?'\u263C Light mode':'\u263E Dark mode';}
+try{var s=localStorage.getItem('etp.theme');if(s==='dark'||s==='light')r.setAttribute('data-theme',s);}catch(e){}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('etp.theme',n);}catch(e){}paint();});paint();
+})();
+</script>
+</body></html>

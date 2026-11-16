@@ -1,0 +1,306 @@
+{
+ "ok": true,
+ "data": {
+  "id": 7561,
+  "name": "Task: Evaluate Logical Correctness vs Attribute Accuracy",
+  "generator": {
+   "id": 25214,
+   "name": "Image evals 23/7"
+  },
+  "state": "draft",
+  "question_type": "image_ab",
+  "medium": "Image",
+  "difficulty": "hard",
+  "time_minutes": 0,
+  "prompt": "A close-up of a barista's hands pouring latte art. The left hand holds a matte black ceramic cup by the handle, while the right hand pours milk from a silver pitcher. The latte art forms a perfect fern leaf.",
+  "description": "",
+  "generation_status": "finished",
+  "image_state": "rendered",
+  "video_state": "none",
+  "video_error": "",
+  "has_images": true,
+  "has_video_clips": false,
+  "has_dimensions": true,
+  "approved_question_id": null,
+  "warnings": {
+   "revealing_option": false,
+   "source_reference": false
+  },
+  "gen_batch": "20260727-072517",
+  "gen_batch_label": "Run Jul 27, 07:25",
+  "dimensions": [
+   {
+    "id": 7261,
+    "label": "Instruction Following (IF)",
+    "sequence": 10,
+    "options": [
+     {
+      "id": 22906,
+      "name": "Response A",
+      "sequence": 10,
+      "is_correct": false
+     },
+     {
+      "id": 22907,
+      "name": "Response B",
+      "sequence": 20,
+      "is_correct": false
+     },
+     {
+      "id": 22908,
+      "name": "Both Good",
+      "sequence": 30,
+      "is_correct": false
+     },
+     {
+      "id": 22909,
+      "name": "Both Bad",
+      "sequence": 40,
+      "is_correct": true
+     }
+    ]
+   },
+   {
+    "id": 7262,
+    "label": "Visual Quality (VQ)",
+    "sequence": 20,
+    "options": [
+     {
+      "id": 22910,
+      "name": "Response A",
+      "sequence": 10,
+      "is_correct": false
+     },
+     {
+      "id": 22911,
+      "name": "Response B",
+      "sequence": 20,
+      "is_correct": false
+     },
+     {
+      "id": 22912,
+      "name": "Both Good",
+      "sequence": 30,
+      "is_correct": true
+     },
+     {
+      "id": 22913,
+      "name": "Both Bad",
+      "sequence": 40,
+      "is_correct": false
+     }
+    ]
+   },
+   {
+    "id": 7263,
+    "label": "Less AI Generated (LAI)",
+    "sequence": 30,
+    "options": [
+     {
+      "id": 22914,
+      "name": "Response A",
+      "sequence": 10,
+      "is_correct": false
+     },
+     {
+      "id": 22915,
+      "name": "Response B",
+      "sequence": 20,
+      "is_correct": false
+     },
+     {
+      "id": 22916,
+      "name": "Both Good",
+      "sequence": 30,
+      "is_correct": true
+     },
+     {
+      "id": 22917,
+      "name": "Both Bad",
+      "sequence": 40,
+      "is_correct": false
+     }
+    ]
+   },
+   {
+    "id": 7264,
+    "label": "Overall Choice (OC)",
+    "sequence": 40,
+    "options": [
+     {
+      "id": 22918,
+      "name": "Response A",
+      "sequence": 10,
+      "is_correct": true
+     },
+     {
+      "id": 22919,
+      "name": "Response B",
+      "sequence": 20,
+      "is_correct": false
+     }
+    ]
+   }
+  ],
+  "dimension_count": 4,
+  "has_valid_key": true,
+  "answer_key": {
+   "ideal_answer": "",
+   "mandatory_elements": "",
+   "penalty_rules": "",
+   "scoring_guide": "",
+   "checklist": "",
+   "constraints": "",
+   "pass_condition": ""
+  },
+  "options": [],
+  "correct_answer": null,
+  "rubric": {},
+  "solution": {
+   "instruction_following": "Both Bad",
+   "visual_quality": "Both Good",
+   "less_ai_generated": "Both Good",
+   "overall_preference": "Response A"
+  },
+  "solution_rationale": "Ground truth established by construction. Response A contains a severe physics error (milk pouring outside the cup), which the SOP classifies under Instruction Following (Logical Correctness). Response B contains a simple attribute error (wrong color pitcher). Since both fail IF, they tie as 'Both Bad' on that dimension. However, for Overall Preference, the tie-prevention rule requires selecting the image that needs fewer corrections. Correcting a color is much simpler than correcting impossible physics, making Response B the winner.",
+  "covers_elements": [
+   "if-logical-correctness",
+   "if-attributes",
+   "oc-tie-breaker"
+  ],
+  "official_reasoning": "Both images carry deliberately planted flaws (A: Pitcher is copper instead of silver | B: Milk stream pours outside the cup but lands inside (impossible physics)). Each dimension follows the worse flaw and is 'Both Bad' where both sides are equally bad; Overall Choice is decided to Response A by the correctness-before-polish tiebreak (the side needing fewer corrections to be right).",
+  "label_boxes": [],
+  "images": [
+   {
+    "id": "7561-a",
+    "slot": "a",
+    "label": "Response A",
+    "admin_url": "/etp_assessment/admin_draft_qimage/7561/a?v=1785327898",
+    "has_annotated": false,
+    "sequence": 10
+   },
+   {
+    "id": "7561-b",
+    "slot": "b",
+    "label": "Response B",
+    "admin_url": "/etp_assessment/admin_draft_qimage/7561/b?v=1785327898",
+    "has_annotated": false,
+    "sequence": 20
+   }
+  ],
+  "image_briefs": [
+   {
+    "slot": "a",
+    "label": "Response A",
+    "prompt": "A close-up of a barista's hands pouring latte art. The left hand holds a matte black ceramic cup by the handle, while the right hand pours milk from a copper pitcher. The latte art forms a perfect fern leaf. The physics and anatomy are flawless."
+   },
+   {
+    "slot": "b",
+    "label": "Response B",
+    "prompt": "A close-up of a barista's hands pouring latte art. The left hand holds a matte black ceramic cup by the handle, while the right hand pours milk from a silver pitcher. The latte art forms a perfect fern leaf. The milk stream is physically impossible, pouring completely outside the cup's rim but magically appearing inside the coffee."
+   }
+  ],
+  "video_briefs": [],
+  "video_files": [],
+  "advanced": {
+   "flaw_plan": {
+    "faithful_side": "both",
+    "flawed_side": "both",
+    "worker_prompt": "A close-up of a barista's hands pouring latte art. The left hand holds a matte black ceramic cup by the handle, while the right hand pours milk from a silver pitcher. The latte art forms a perfect fern leaf.",
+    "render_prompts": {
+     "a": "A close-up of a barista's hands pouring latte art. The left hand holds a matte black ceramic cup by the handle, while the right hand pours milk from a copper pitcher. The latte art forms a perfect fern leaf. The physics and anatomy are flawless.",
+     "b": "A close-up of a barista's hands pouring latte art. The left hand holds a matte black ceramic cup by the handle, while the right hand pours milk from a silver pitcher. The latte art forms a perfect fern leaf. The milk stream is physically impossible, pouring completely outside the cup's rim but magically appearing inside the coffee."
+    },
+    "planted": {
+     "a": [
+      "Pitcher is copper instead of silver"
+     ],
+     "b": [
+      "Milk stream pours outside the cup but lands inside (impossible physics)"
+     ]
+    },
+    "construction_keys": {
+     "IF": "Both Bad",
+     "VQ": "Both Good",
+     "LAI": "Both Good",
+     "OC": "Response A"
+    },
+    "dimension_options": {
+     "OVERALL PREFERENCE": [
+      "Response A",
+      "Response B"
+     ]
+    },
+    "dimension_labels": {
+     "IF": "Instruction Following",
+     "VQ": "Visual Quality",
+     "LAI": "Less AI-Generated",
+     "OC": "Overall Preference",
+     "OVERALL PREFERENCE": "Overall Preference is the final decision on which image is better based on all dimensions combined."
+    },
+    "clean_prompt": "A close-up of a barista's hands pouring latte art. The left hand holds a matte black ceramic cup by the handle, while the right hand pours milk from a silver pitcher. The latte art forms a perfect fern leaf.",
+    "flawed_prompt": "",
+    "injected_flaws": [
+     "Pitcher is copper instead of silver",
+     "Milk stream pours outside the cup but lands inside (impossible physics)"
+    ]
+   },
+   "verification": {
+    "enabled": true,
+    "max_regen": 2,
+    "sides": {
+     "a": {
+      "planted": [
+       "Pitcher is copper instead of silver"
+      ],
+      "regenerations": 0,
+      "confirmed": true,
+      "unavailable": false,
+      "verdicts": [
+       {
+        "flaw": "Pitcher is copper instead of silver",
+        "present": true,
+        "note": "The pitcher being used to pour the milk is clearly copper-colored, not silver."
+       }
+      ]
+     },
+     "b": {
+      "planted": [
+       "Milk stream pours outside the cup but lands inside (impossible physics)"
+      ],
+      "regenerations": 0,
+      "confirmed": true,
+      "unavailable": false,
+      "verdicts": [
+       {
+        "flaw": "Milk stream pours outside the cup but lands inside (impossible physics)",
+        "present": true,
+        "note": "The milk stream is pouring from the pitcher and appears to be falling outside the rim of the cup, yet it is shown landing inside the cup, which is physically impossible."
+       }
+      ]
+     }
+    },
+    "all_confirmed": true,
+    "needs_review": false
+   },
+   "defect_plan": null,
+   "behavioural_key": [],
+   "coverage_expected": "",
+   "omitted_element": null,
+   "label_application": "",
+   "detection_mode": "object",
+   "source_url": "",
+   "capture_config": null,
+   "omit_spec": null,
+   "image_summary": "a/Response A [rendered ~1470KB]; b/Response B [rendered ~1477KB]",
+   "image_render_attempts": 0,
+   "gen_batch": "20260727-072517",
+   "raw": {
+    "options_json": "",
+    "correct_answer_json": "",
+    "dimensions_json": "[{\"label\": \"Instruction Following (IF)\", \"options\": [\"Response A\", \"Response B\", \"Both Good\", \"Both Bad\"], \"correct\": [\"Both Bad\"]}, {\"label\": \"Visual Quality (VQ)\", \"options\": [\"Response A\", \"Response B\", \"Both Good\", \"Both Bad\"], \"correct\": [\"Both Good\"]}, {\"label\": \"Less AI Generated (LAI)\", \"options\": [\"Response A\", \"Response B\", \"Both Good\", \"Both Bad\"], \"correct\": [\"Both Good\"]}, {\"label\": \"Overall Choice (OC)\", \"options\": [\"Response A\", \"Response B\"], \"correct\": [\"Response A\"]}]",
+    "rubric_json": ""
+   }
+  }
+ }
+}

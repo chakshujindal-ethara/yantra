@@ -1,0 +1,105 @@
+{{- if .Values.app.enabled }}
+{{- if and (ne .Values.env "local") (not .Values.app.keycloakOrigin) }}
+{{- fail (printf "env=%s needs app.keycloakOrigin (https://auth.<domain>): the app refuses to start without it" .Values.env) }}
+{{- end }}
+{{- $full := include "yantra.fullname" . }}
+{{- $sel := dict "root" . "component" "app" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $full }}-app
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+spec:
+  replicas: {{ .Values.app.replicas }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      {{- include "yantra.selector" $sel | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "yantra.baseLabels" . | nindent 8 }}
+        {{- include "yantra.selector" $sel | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.app.podSecurityContext | nindent 8 }}
+      containers:
+        - name: app
+          image: {{ include "yantra.image" (dict "img" .Values.image.app) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.port }}
+          env:
+            # outside local the entrypoint refuses to start without GATEWAY_URL and KEYCLOAK_URL (its CSP names them)
+            - name: YANTRA_ENV
+              value: {{ .Values.env | quote }}
+            {{- $gateway := .Values.app.gatewayOrigin | default (printf "https://%s" (include "yantra.apiHost" .)) }}
+            - name: GATEWAY_ORIGIN
+              value: {{ $gateway | quote }}
+            - name: KEYCLOAK_ORIGIN
+              value: {{ .Values.app.keycloakOrigin | quote }}
+            # rendered into /config.json at start: one app image serves every environment
+            - name: GATEWAY_URL
+              value: {{ $gateway | quote }}
+            - name: KEYCLOAK_URL
+              value: {{ .Values.app.keycloakOrigin | quote }}
+            - name: DIRECT_LOGIN
+              value: {{ .Values.app.directLogin | toString | quote }}
+            # the content security policy allows presigned media from object storage (the browser-facing endpoint)
+            - name: STORAGE_URL
+              value: {{ .Values.config.YANTRA_S3_PUBLIC_ENDPOINT | default "" | quote }}
+          livenessProbe:
+            httpGet: {path: /, port: http}
+            periodSeconds: 20
+          readinessProbe:
+            httpGet: {path: /, port: http}
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.app.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            # nginx-unprivileged keeps its pid and caches under /tmp, and the entrypoint writes config.json and the
+            # security headers there. /etc/nginx/conf.d stays the image's: it holds the site (default.conf).
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $full }}-app
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+spec:
+  selector:
+    {{- include "yantra.selector" $sel | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.app.port }}
+      targetPort: http
+{{- if .Values.app.pdb.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $full }}-app
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.app.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "yantra.selector" $sel | nindent 6 }}
+{{- end }}
+{{- end }}

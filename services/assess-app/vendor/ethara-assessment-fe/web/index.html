@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    The URL this page LOADED at, before the app rewrites it with pushState.
+    Safe Exam Browser hashes that URL into `SafeExamBrowser.security.configKey`,
+    so the app sends this one back with the key (`seb_web.dart`). First in
+    <head> so nothing can move the address bar before it is read.
+  -->
+  <script>window.__sebBootUrl = location.href.split('#')[0];</script>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Operator console and candidate portal for Assessment v2.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Assessment v2">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png?v=1"/>
+
+  <title>Assessment v2</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <!--
+    SELF-HEAL: drop any service worker registered by an earlier build.
+
+    Flutter's service worker serves `main.dart.js` out of Cache Storage, which
+    bypasses HTTP caching headers entirely - `Cache-Control: no-store` on the
+    server cannot evict it. The backend URL is compiled INTO that bundle by
+    `--dart-define`, so a browser that cached a build made against a different
+    backend keeps calling the wrong host forever, reporting "Unexpected
+    response from /api/v1/auth_token" no matter how many times the app is
+    rebuilt or reloaded.
+
+    Builds now pass `--pwa-strategy=none`, so nothing new is ever registered.
+    This block evicts what is ALREADY registered in a browser that loaded an
+    older build - without it those users would have to clear site data by hand.
+    Safe to keep: with no service worker registered it does nothing.
+  -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        var had = regs.length > 0;
+        regs.forEach(function (r) { r.unregister(); });
+        if (had && window.caches) {
+          caches.keys().then(function (keys) {
+            return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+          }).then(function () {
+            // Reload once so the page runs the freshly fetched bundle rather
+            // than the stale one this document was already built from.
+            window.location.reload();
+          });
+        }
+      });
+    }
+  </script>
+
+  <!--
+    A YouTube/Vimeo player with NEITHER platform's own chrome - no title
+    card, no "more videos" panel, no logo, no click-through. Both SDKs will
+    show that chrome the moment their native controls are on, and neither
+    offers a "controls, minus branding" mode - the only way to have controls
+    at all with nothing else is `controls: 0`/`controls: false` and a
+    replacement control bar built here in Dart, driven by this bridge.
+
+    One call each into an external SDK, not full Dart JS-interop bindings
+    for either player: two thin external APIs, not worth typing out in full.
+  -->
+  <script>
+    window.__videoEmbed = {
+      _loaded: {},
+      _players: {},
+      _seq: 0,
+      _ytReady: null,
+
+      _loadScript: function (src) {
+        if (this._loaded[src]) return this._loaded[src];
+        var p = new Promise(function (resolve, reject) {
+          var s = document.createElement('script');
+          s.src = src;
+          s.onload = function () { resolve(); };
+          s.onerror = function () { reject(new Error('failed to load ' + src)); };
+          document.head.appendChild(s);
+        });
+        this._loaded[src] = p;
+        return p;
+      },
+
+      // YouTube signals readiness through a GLOBAL callback it calls once,
+      // not the script's own onload (the API script loads fast; the
+      // internal player runtime it then bootstraps is what `onYouTube
+      // IframeAPIReady` actually waits for) - so this is its own promise,
+      // not a re-use of `_loadScript`'s.
+      _loadYT: function () {
+        if (this._ytReady) return this._ytReady;
+        var self = this;
+        this._ytReady = new Promise(function (resolve) {
+          if (window.YT && window.YT.Player) { resolve(); return; }
+          window.onYouTubeIframeAPIReady = function () { resolve(); };
+          self._loadScript('https://www.youtube.com/iframe_api');
+        });
+        return this._ytReady;
+      },
+
+      // `el`: the (already-created, not-yet-mounted) container element -
+      // passed directly rather than an id string, so this never races
+      // Flutter's own insertion of it into the document.
+      mountYouTube: function (el, videoId) {
+        var self = this;
+        return this._loadYT().then(function () {
+          return new Promise(function (resolve) {
+            var pid = 'p' + (self._seq++);
+            var player = new YT.Player(el, {
+              videoId: videoId,
+              playerVars: {
+                controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3,
+                disablekb: 1, fs: 0, playsinline: 1, autoplay: 1, mute: 1,
+              },
+              events: {
+                onReady: function (e) {
+                  self._players[pid] = { kind: 'yt', player: e.target };
+                  e.target.mute();
+                  e.target.playVideo();
+                  // The player is driven entirely through this JS API
+                  // (play/seek/mute below) and wears the app's OWN control
+                  // bar, so the raw <iframe> never needs pointer input. On
+                  // Flutter web a platform-view iframe composites ABOVE the
+                  // canvas and swallows wheel + click events that belong to
+                  // Flutter - trapping page scroll over the frame and letting
+                  // clicks fall through any dialog drawn on top of it. Making
+                  // the frame non-interactive hands both back to Flutter.
+                  try {
+                    var f = e.target.getIframe();
+                    if (f) { f.style.pointerEvents = 'none'; }
+                  } catch (err) { /* getIframe unavailable - non-fatal */ }
+                  resolve(pid);
+                },
+              },
+            });
+          });
+        });
+      },
+
+      mountVimeo: function (el, videoId) {
+        var self = this;
+        return this._loadScript('https://player.vimeo.com/api/player.js')
+          .then(function () {
+            var player = new Vimeo.Player(el, {
+              id: videoId, controls: false, autoplay: true, muted: true,
+              background: false, dnt: true,
+            });
+            var pid = 'p' + (self._seq++);
+            // Vimeo's own getters are promise-based (`getCurrentTime()` etc
+            // each return a Promise), which a synchronous poll cannot call
+            // through - so its current values are cached from events
+            // instead, and `pollJson` below just reads the cache.
+            var cache = { t: 0, d: 0, playing: false, muted: true };
+            player.on('timeupdate', function (d) {
+              cache.t = d.seconds; cache.d = d.duration;
+            });
+            player.on('play', function () { cache.playing = true; });
+            player.on('pause', function () { cache.playing = false; });
+            player.on('volumechange', function (d) {
+              cache.muted = d.volume === 0;
+            });
+            self._players[pid] = { kind: 'vimeo', player: player, cache: cache };
+            return player.ready().then(function () {
+              // Same reason as YouTube above: the app drives Vimeo through
+              // its JS API and draws its own controls, so the iframe must
+              // not intercept the wheel/click events Flutter needs.
+              try {
+                var vf = el.querySelector('iframe');
+                if (vf) { vf.style.pointerEvents = 'none'; }
+              } catch (err) { /* no iframe yet - non-fatal */ }
+              return pid;
+            });
+          });
+      },
+
+      play: function (id) {
+        var p = this._players[id]; if (!p) return;
+        if (p.kind === 'yt') p.player.playVideo(); else p.player.play();
+      },
+      pause: function (id) {
+        var p = this._players[id]; if (!p) return;
+        if (p.kind === 'yt') p.player.pauseVideo(); else p.player.pause();
+      },
+      seek: function (id, seconds) {
+        var p = this._players[id]; if (!p) return;
+        if (p.kind === 'yt') p.player.seekTo(seconds, true);
+        else p.player.setCurrentTime(seconds);
+      },
+      setMuted: function (id, muted) {
+        var p = this._players[id]; if (!p) return;
+        if (p.kind === 'yt') { if (muted) p.player.mute(); else p.player.unMute(); }
+        else { p.player.setMuted(muted); }
+      },
+      destroy: function (id) {
+        var p = this._players[id]; if (!p) return;
+        delete this._players[id];
+        try { p.player.destroy(); } catch (e) { /* already gone */ }
+      },
+
+      // A JSON STRING, not an object: `dart:js_interop` reading arbitrary
+      // JS object properties needs either full typed bindings or manual
+      // per-field `getProperty` calls for a shape that differs by platform -
+      // a string Dart just `jsonDecode`s sidesteps both.
+      pollJson: function (id) {
+        var p = this._players[id]; if (!p) return null;
+        var data;
+        if (p.kind === 'yt') {
+          try {
+            data = {
+              t: p.player.getCurrentTime() || 0,
+              d: p.player.getDuration() || 0,
+              playing: p.player.getPlayerState() === 1,
+              muted: p.player.isMuted(),
+            };
+          } catch (e) { return null; }
+        } else {
+          data = p.cache;
+        }
+        return JSON.stringify(data);
+      },
+    };
+  </script>
+
+  <!--
+    You can customize the "flutter_bootstrap.js" script.
+    This is useful to provide a custom configuration to the Flutter loader
+    or to give the user feedback during the initialization process.
+
+    For more details:
+    * https://docs.flutter.dev/platform-integration/web/initialization
+  -->
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

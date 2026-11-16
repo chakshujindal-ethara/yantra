@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="assessments_be_dashboard_form" model="ir.ui.view">
+        <field name="name">assessments.be.dashboard.form</field>
+        <field name="model">assessments.be.dashboard</field>
+        <field name="arch" type="xml">
+            <form class="o_etp_wide_form o_etp_backend" edit="0" create="0"
+                  duplicate="0">
+                <sheet>
+                    <div class="etp-dash etp-dash-analytics">
+                        <div class="etp-dash-head">
+                            <div class="etp-dash-head-glow" aria-hidden="true"/>
+                            <div class="etp-dash-head-aurora" aria-hidden="true"/>
+                            <div class="etp-dash-head-inner">
+                                <span class="etp-dash-head-eyebrow">
+                                    <i class="fa fa-bolt"/> Assessment v2
+                                </span>
+                                <h2 class="etp-dash-head-title">Assessment Analytics</h2>
+                                <span class="etp-dash-head-sub">Live outcomes across assessments, candidates and scores</span>
+                                <span class="etp-dash-head-cap">
+                                    <i class="fa fa-circle"/> Live snapshot · refreshed on open
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="etp-sec" aria-hidden="true">
+                            <span class="etp-sec-eyebrow">Overview</span>
+                            <span class="etp-sec-rule"/>
+                        </div>
+
+                        <div class="etp-dash-hero">
+                            <div class="etp-dash-rings">
+                                <div class="etp-dash-ring">
+                                    <field name="pass_rate" widget="percentpie"
+                                           string="Pass Rate" nolabel="1"/>
+                                    <div class="etp-ring-cap">
+                                        <span class="etp-ring-cap-k">Pass Rate</span>
+                                        <span class="etp-ring-cap-d">of submissions</span>
+                                    </div>
+                                </div>
+                                <div class="etp-dash-ring">
+                                    <field name="avg_score" widget="percentpie"
+                                           string="Avg Score" nolabel="1"/>
+                                    <div class="etp-ring-cap">
+                                        <span class="etp-ring-cap-k">Avg Score</span>
+                                        <span class="etp-ring-cap-d">mean result</span>
+                                    </div>
+                                </div>
+                                <div class="etp-dash-ring">
+                                    <field name="completion_rate"
+                                           widget="percentpie"
+                                           string="Completion" nolabel="1"/>
+                                    <div class="etp-ring-cap">
+                                        <span class="etp-ring-cap-k">Completion</span>
+                                        <span class="etp-ring-cap-d">invited → done</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="etp-sec" aria-hidden="true">
+                            <span class="etp-sec-eyebrow">Key Metrics</span>
+                            <span class="etp-sec-rule"/>
+                        </div>
+
+                        <div class="etp-stat-grid">
+                            <button type="object" name="action_open_assessments"
+                                    class="etp-stat-card etp-stat-clickable">
+                                <span class="etp-stat-ico etp-ico-score">
+                                    <i class="fa fa-list-alt" role="img"
+                                       aria-label="Assessments"/>
+                                </span>
+                                <div class="etp-stat-body">
+                                    <div class="etp-stat-num">
+                                        <field name="total_assessments"
+                                               nolabel="1"/>
+                                    </div>
+                                    <div class="etp-stat-cap">Assessments</div>
+                                </div>
+                                <span class="etp-stat-go" aria-hidden="true">
+                                    <i class="fa fa-arrow-right" title="Open" role="img" aria-label="Open"/>
+                                </span>
+                            </button>
+
+                            <button type="object" name="action_open_candidates"
+                                    class="etp-stat-card etp-stat-clickable">
+                                <span class="etp-stat-ico etp-ico-subj">
+                                    <i class="fa fa-users" role="img"
+                                       aria-label="Candidates"/>
+                                </span>
+                                <div class="etp-stat-body">
+                                    <div class="etp-stat-num">
+                                        <field name="unique_candidates"
+                                               nolabel="1"/>
+                                    </div>
+                                    <div class="etp-stat-cap">Candidates</div>
+                                </div>
+                                <span class="etp-stat-go" aria-hidden="true">
+                                    <i class="fa fa-arrow-right" title="Open" role="img" aria-label="Open"/>
+                                </span>
+                            </button>
+
+                            <button type="object" name="action_open_passed"
+                                    class="etp-stat-card etp-stat-clickable etp-stat-good">
+                                <span class="etp-stat-ico etp-ico-answered">
+                                    <i class="fa fa-check-circle" role="img"
+                                       aria-label="Passed"/>
+                                </span>
+                                <div class="etp-stat-body">
+                                    <div class="etp-stat-num">
+                                        <field name="pass_count" nolabel="1"/>
+                                    </div>
+                                    <div class="etp-stat-cap">Passed</div>
+                                </div>
+                                <span class="etp-stat-go" aria-hidden="true">
+                                    <i class="fa fa-arrow-right" title="Open" role="img" aria-label="Open"/>
+                                </span>
+                            </button>
+
+                            <button type="object" name="action_open_failed"
+                                    class="etp-stat-card etp-stat-clickable etp-stat-bad">
+                                <span class="etp-stat-ico etp-ico-fail">
+                                    <i class="fa fa-times-circle" role="img"
+                                       aria-label="Failed"/>
+                                </span>
+                                <div class="etp-stat-body">
+                                    <div class="etp-stat-num">
+                                        <field name="fail_count" nolabel="1"/>
+                                    </div>
+                                    <div class="etp-stat-cap">Failed</div>
+                                </div>
+                                <span class="etp-stat-go" aria-hidden="true">
+                                    <i class="fa fa-arrow-right" title="Open" role="img" aria-label="Open"/>
+                                </span>
+                            </button>
+
+                            <button type="object" name="action_open_pending"
+                                    class="etp-stat-card etp-stat-clickable etp-stat-warn">
+                                <span class="etp-stat-ico etp-ico-warn">
+                                    <i class="fa fa-hourglass-half" role="img"
+                                       aria-label="Not started"/>
+                                </span>
+                                <div class="etp-stat-body">
+                                    <div class="etp-stat-num">
+                                        <field name="pending_count" nolabel="1"/>
+                                    </div>
+                                    <div class="etp-stat-cap">Not Started</div>
+                                </div>
+                                <span class="etp-stat-go" aria-hidden="true">
+                                    <i class="fa fa-arrow-right" title="Open" role="img" aria-label="Open"/>
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="etp-sec" aria-hidden="true">
+                            <span class="etp-sec-eyebrow">Progress</span>
+                            <span class="etp-sec-rule"/>
+                        </div>
+
+                        <div class="etp-dash-bars">
+                            <div class="etp-bar-row">
+                                <span class="etp-bar-label">
+                                    <i class="fa fa-check-circle"/> Passed</span>
+                                <field name="pass_count" widget="progressbar"
+                                       nolabel="1"
+                                       options="{'current_value': 'pass_count', 'max_value': 'submitted_count'}"/>
+                            </div>
+                            <div class="etp-bar-row">
+                                <span class="etp-bar-label">
+                                    <i class="fa fa-times-circle"/> Failed</span>
+                                <field name="fail_count" widget="progressbar"
+                                       nolabel="1"
+                                       options="{'current_value': 'fail_count', 'max_value': 'submitted_count'}"/>
+                            </div>
+                            <div class="etp-bar-row">
+                                <span class="etp-bar-label">
+                                    <i class="fa fa-paper-plane"/> Completion</span>
+                                <field name="submitted_count"
+                                       widget="progressbar" nolabel="1"
+                                       options="{'current_value': 'submitted_count', 'max_value': 'total_candidates'}"/>
+                            </div>
+                        </div>
+
+                        <div class="etp-sec" aria-hidden="true">
+                            <span class="etp-sec-eyebrow">Breakdown</span>
+                            <span class="etp-sec-rule"/>
+                        </div>
+
+                        <div class="etp-chart-grid">
+                            <div class="etp-chart-card etp-chart-wide">
+                                <div class="etp-chart-title">
+                                    <i class="fa fa-bar-chart"/> Average Score by Assessment
+                                </div>
+                                <field name="chart_by_assessment_html"
+                                       widget="html" nolabel="1" readonly="1"/>
+                            </div>
+
+                            <div class="etp-chart-card">
+                                <div class="etp-chart-title">
+                                    <i class="fa fa-pie-chart"/> Result Breakdown
+                                </div>
+                                <field name="chart_result_donut_html"
+                                       widget="html" nolabel="1" readonly="1"/>
+                            </div>
+
+                            <div class="etp-chart-card">
+                                <div class="etp-chart-title">
+                                    <i class="fa fa-signal"/> Score Distribution
+                                    <span class="text-muted"> — one bar per score band, counting attempts</span>
+                                </div>
+                                <field name="chart_score_dist_html"
+                                       widget="html" nolabel="1" readonly="1"/>
+                            </div>
+                        </div>
+
+                        <div class="etp-sec" aria-hidden="true">
+                            <span class="etp-sec-eyebrow">Detail</span>
+                            <span class="etp-sec-rule"/>
+                        </div>
+
+                        <div class="etp-detail-grid">
+                            <div class="etp-chart-card etp-detail-brk">
+                                <div class="etp-chart-title">
+                                    <i class="fa fa-table"/> Assessment Performance
+                                </div>
+                                <field name="assessment_breakdown_html"
+                                       widget="html" nolabel="1" readonly="1"/>
+                            </div>
+
+                            <div class="etp-chart-card etp-detail-feed">
+                                <div class="etp-chart-title">
+                                    <i class="fa fa-list-ul"/> Recent Submissions
+                                </div>
+                                <field name="recent_submissions_html"
+                                       widget="html" nolabel="1" readonly="1"/>
+                            </div>
+                        </div>
+
+                        <div class="etp-chart-card etp-detail-brk">
+                            <div class="etp-chart-title">
+                                <i class="fa fa-trophy"/> Candidate Leaderboard
+                                <span class="text-muted"> — one row per candidate, ranked by average across their attempts</span>
+                            </div>
+                            <field name="leaderboard_html"
+                                   widget="html" nolabel="1" readonly="1"/>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_home_dashboard"
+            model="ir.actions.act_window">
+        <field name="name">Assessment v2</field>
+        <field name="res_model">assessments.be.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="assessments_be_dashboard_form"/>
+        <field name="target">current</field>
+        <field name="context">{}</field>
+    </record>
+
+</odoo>

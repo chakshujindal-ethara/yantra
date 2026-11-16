@@ -1,0 +1,287 @@
+{
+  "displayName": "Yantra (local)",
+  "sslRequired": "none",
+  "bruteForceProtected": false,
+  "passwordPolicy": "",
+  "verifyEmail": false,
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "no-reply@yantra.local",
+    "fromDisplayName": "Yantra (local)"
+  },
+  "directGrantFlow": "direct-grant-password",
+  "authenticationFlows": [
+    {
+      "alias": "direct-grant-password",
+      "description": "Rig and staging smoke only: username and password, no OTP (the password grant never runs in production)",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "direct-grant-validate-username",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "direct-grant-validate-password",
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "yantra-app",
+      "name": "Yantra app and CLI (local: the password grant is on for the CLI and the rig's direct login)",
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:8095/*",
+        "http://localhost:8090/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8095"
+      ],
+      "attributes": {
+        "oauth2.device.authorization.grant.enabled": "true"
+      }
+    },
+    {
+      "clientId": "yantra-odoo",
+      "secret": "yantra-odoo-local-secret"
+    },
+    {
+      "clientId": "yantra-assess",
+      "secret": "yantra-assess-local-secret"
+    }
+  ],
+  "users": [
+    {
+      "id": "00000000-0000-4000-8000-00000000a001",
+      "username": "ops1",
+      "enabled": true,
+      "email": "ops1@yantra.local",
+      "firstName": "Ops",
+      "lastName": "One",
+      "realmRoles": [
+        "ops",
+        "finance"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000a002",
+      "username": "ops2",
+      "enabled": true,
+      "email": "ops2@yantra.local",
+      "firstName": "Ops",
+      "lastName": "Two",
+      "realmRoles": [
+        "ops",
+        "finance"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "username": "worker1",
+      "enabled": true,
+      "email": "worker1@yantra.local",
+      "firstName": "Worker",
+      "lastName": "One",
+      "realmRoles": [
+        "worker",
+        "reviewer"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "username": "worker2",
+      "enabled": true,
+      "email": "worker2@yantra.local",
+      "firstName": "Worker",
+      "lastName": "Two",
+      "realmRoles": [
+        "worker",
+        "reviewer"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "username": "worker3",
+      "enabled": true,
+      "email": "worker3@yantra.local",
+      "firstName": "Worker",
+      "lastName": "Three",
+      "realmRoles": [
+        "worker",
+        "reviewer"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "username": "worker4",
+      "enabled": true,
+      "email": "worker4@yantra.local",
+      "firstName": "Worker",
+      "lastName": "Four",
+      "realmRoles": [
+        "worker"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "username": "worker5",
+      "enabled": true,
+      "email": "worker5@yantra.local",
+      "firstName": "Worker",
+      "lastName": "Five",
+      "realmRoles": [
+        "worker"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000b001",
+      "username": "service-account-yantra-odoo",
+      "enabled": true,
+      "serviceAccountClientId": "yantra-odoo",
+      "realmRoles": [
+        "ops"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-0000000000c1",
+      "username": "client1",
+      "enabled": true,
+      "email": "client1@yantra.local",
+      "firstName": "Client",
+      "lastName": "One",
+      "realmRoles": [
+        "client"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-0000000000c2",
+      "username": "client2",
+      "enabled": true,
+      "email": "client2@yantra.local",
+      "firstName": "Client",
+      "lastName": "Two",
+      "realmRoles": [
+        "client"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000ad01",
+      "username": "admin1",
+      "enabled": true,
+      "email": "admin1@yantra.local",
+      "firstName": "Admin",
+      "lastName": "One",
+      "realmRoles": [
+        "admin"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000ad02",
+      "username": "noroles1",
+      "enabled": true,
+      "email": "noroles1@yantra.local",
+      "firstName": "No",
+      "lastName": "Roles",
+      "realmRoles": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yantra",
+          "temporary": false
+        }
+      ],
+      "emailVerified": true
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+ "ok": true,
+ "data": [
+  {
+   "id": 7,
+   "assessment_id": 12,
+   "assessment_name": "QB Smoke - AI-Artifact Defect Description",
+   "candidate": {
+    "id": 49,
+    "name": "QB Smoke Candidate",
+    "email": "REDACTED",
+    "has_portal_user": true
+   },
+   "state": "submitted",
+   "is_locked": true,
+   "invite_state": "sent",
+   "invite_error": "",
+   "access_token": "REDACTED",
+   "candidate_link": "REDACTED",
+   "started_at": "2026-08-02T08:03:04Z",
+   "submitted_at": "2026-08-02T08:07:10Z",
+   "deadline": "2026-08-02T10:03:04Z",
+   "total_questions": 16,
+   "answered_count": 16,
+   "score_marks": "0 / 16",
+   "score_percent": 0.0,
+   "pass_threshold": 70.0,
+   "raw_result": 0.0,
+   "result": "pending",
+   "results_released": false,
+   "objective": {
+    "score": 0,
+    "max": 0
+   },
+   "subjective": {
+    "score": 0,
+    "max": 1,
+    "pending": 1,
+    "state": "pending",
+    "error": "",
+    "scored_at": null,
+    "scoring_requested": false,
+    "has_terminal_error": false
+   },
+   "flags": {
+    "integrity_alert": false,
+    "score_outlier": false,
+    "is_violated": true,
+    "violation_count": 1,
+    "violation_reason": "Tab switched / window hidden",
+    "pii_anonymized": false
+   }
+  }
+ ],
+ "meta": {
+  "total": 1,
+  "limit": 40,
+  "offset": 0,
+  "has_more": false
+ }
+}

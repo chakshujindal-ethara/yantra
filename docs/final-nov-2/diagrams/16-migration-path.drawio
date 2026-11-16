@@ -1,0 +1,41 @@
+<mxfile host="app.diagrams.net" agent="yantra final-nov-2 build_diagrams.py" version="24.0.0">
+  <diagram id="16-migration-path" name="Moving the current platform over: the strangler path">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Moving the current platform over: the strangler path" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-60" width="900" height="30" as="geometry"/></mxCell>
+        <mxCell id="subtitle" value="Nothing live is rewritten. A project moves at its own renewal; a project that is ending never moves." style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#717182;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="0" y="-34" width="1200" height="24" as="geometry"/></mxCell>
+        <mxCell id="s" value="Today<br><span style="font-size:11px;color:#FFFFFF">113 addons, about 25 task apps, 29 dashboards on the current platform</span>" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#030213;strokeColor=#030213;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="0" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="c" value="1. Connect<br><span style="font-size:11px;color:#717182">Keycloak in front of both; one person id; an outbox addon emits events from existing projects</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="240" y="0" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="g1" value="Gate<br><span style="font-size:11px;color:#717182">a current project&#x27;s accept events on the bus within a minute; no screen changed</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#B91C1C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="480" y="0" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="r" value="2. Read models first<br><span style="font-size:11px;color:#717182">Performance views and the margin report built on events; old projects untouched</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="720" y="0" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="g2" value="Gate<br><span style="font-size:11px;color:#717182">three per-project dashboards retired; same numbers on the same weeks</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#B91C1C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="960" y="0" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="n" value="3. New projects on the engine<br><span style="font-size:11px;color:#717182">every project after the pilot is a schema and a rubric in market, not an addon</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="960" y="166" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="g3" value="Gate<br><span style="font-size:11px;color:#717182">a new project type stands up in under a week with no new addon</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#B91C1C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="720" y="166" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="p" value="4. Port at renewal<br><span style="font-size:11px;color:#717182">units imported with a dry run; reviewers on the bench; the addon retired; an ending project is archived, not ported</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B4B57;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="480" y="166" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="g4" value="Gate<br><span style="font-size:11px;color:#717182">a full pay window on Yantra with zero delta; the old addon removed from the image</span>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#B91C1C;fontColor=#030213;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="240" y="166" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="e" value="Half of all units on market<br><span style="font-size:11px;color:#FFFFFF">within six months of the pilot (assumption)</span>" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#047857;strokeColor=#047857;fontColor=#FFFFFF;fontFamily=Helvetica;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="0" y="166" width="200" height="96" as="geometry"/></mxCell>
+        <mxCell id="e0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="s" target="c"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="c" target="g1"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="g1" target="r"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="r" target="g2"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="g2" target="n"><mxGeometry relative="1" as="geometry">
+          <Array as="points"><mxPoint x="1060.0" y="131.0"/><mxPoint x="1060.0" y="131.0"/></Array>
+        </mxGeometry></mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="n" target="g3"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="g3" target="p"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="p" target="g4"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#4B4B57;strokeWidth=1.5;fontSize=11;fontColor=#4B4B57;fontFamily=Helvetica;endArrow=block;endFill=1;" edge="1" parent="1" source="g4" target="e"><mxGeometry relative="1" as="geometry">
+        </mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

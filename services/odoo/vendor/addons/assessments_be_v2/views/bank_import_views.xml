@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="assessments_be_bank_import_wizard_form" model="ir.ui.view">
+        <field name="name">assessments.be.bank.import.wizard.form</field>
+        <field name="model">assessments.be.bank.import.wizard</field>
+        <field name="arch" type="xml">
+            <!-- The app's import sheet, in its order: what this does, what can
+                 go wrong, the file, the template, the limits. One primary
+                 action; the template download is secondary, beside its format
+                 picker. -->
+            <form string="Import questions" class="o_etp_backend">
+                <sheet>
+                    <div class="oe_title">
+                        <h2>Import questions</h2>
+                        <p class="text-muted">
+                            CSV or harness JSON arrive as drafts for review; a
+                            native JSON bank export restores questions straight
+                            into the bank.
+                        </p>
+                    </div>
+                    <!-- BEFORE the picker, because it is what decides how the
+                         file is prepared, not how it is read. -->
+                    <div class="alert alert-warning" role="alert">
+                        <strong>One bad row stops the whole import.</strong>
+                        Nothing is written until every row validates. A partial
+                        import would leave you guessing which questions landed,
+                        so the file is accepted or refused as a whole.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="data_file" filename="data_filename"
+                                   widget="binary"
+                                   options="{'accepted_file_extensions': '.csv,.json'}"/>
+                            <field name="data_filename" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="generator_name"
+                                   placeholder="Defaults to the filename"/>
+                            <!-- force_save: set only by the onchange, and the
+                                 web client drops a readonly field without it
+                                 from every save - so after "Download
+                                 Template" or a failed import the reload
+                                 blanked the format and the footer flipped a
+                                 native export to "Import as drafts". -->
+                            <field name="question_count" readonly="1"
+                                   force_save="1"/>
+                            <field name="detected_format" readonly="1"
+                                   force_save="1"/>
+                        </group>
+                    </group>
+                    <div class="d-flex align-items-center gap-2 flex-wrap mt-2">
+                        <field name="template_format" nolabel="1"
+                               class="oe_inline"/>
+                        <button name="action_download_selected_template"
+                                type="object" string="Download Template"
+                                class="btn-secondary btn-sm" icon="fa-download"/>
+                        <span class="text-muted small"
+                              invisible="not template_columns">
+                            Columns: <field name="template_columns"
+                                            readonly="1" nolabel="1"
+                                            class="oe_inline"/>
+                        </span>
+                    </div>
+                    <div class="text-muted small mt-2">
+                        <field name="size_limits" readonly="1" nolabel="1"
+                               class="oe_inline"/>
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Cancel" class="btn-secondary"
+                            special="cancel"/>
+                    <!-- TWO LABELS, ONE ACTION. The format is detected from the
+                         file and the label follows it: CSV and harness JSON
+                         arrive as drafts, while a native bank export restores
+                         LIVE questions, so it says so and asks first. Two
+                         footer buttons, as in the app's sheet. -->
+                    <button name="action_import" type="object"
+                            string="Import as drafts"
+                            class="btn-primary"
+                            invisible="detected_format == 'native'"/>
+                    <button name="action_import" type="object"
+                            string="Restore into the bank"
+                            class="btn-primary"
+                            confirm="This is a native bank export. Its questions are restored straight into the live bank, not into Pending Approvals. Continue?"
+                            context="{'confirm_native_restore': True}"
+                            invisible="detected_format != 'native'"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_assessments_be_bank_import" model="ir.actions.act_window">
+        <!-- Same name as the dialog's heading. -->
+        <field name="name">Import questions</field>
+        <field name="res_model">assessments.be.bank.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1030" height="704" viewBox="0 0 1030 704" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1030" height="704" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">System context: who uses Yantra and what it talks to</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Level 1. People on the left, Yantra in the middle, external systems on the right.</text>
+<rect x="40" y="120" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="139.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Candidate / Worker</text>
+<text x="125.0" y="157.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">applies, certifies,</text>
+<text x="125.0" y="171.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">claims tasks, gets paid</text>
+<rect x="40" y="230" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="249.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Reviewer / Auditor</text>
+<text x="125.0" y="267.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">judges submissions, flags</text>
+<text x="125.0" y="281.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">unclear rubrics</text>
+<rect x="40" y="340" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="359.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Ops / TPM / Finance</text>
+<text x="125.0" y="377.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">runs projects, pay</text>
+<text x="125.0" y="391.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">windows, delivery</text>
+<rect x="40" y="450" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="469.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Client / Buyer</text>
+<text x="125.0" y="487.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">labs and environment</text>
+<text x="125.0" y="501.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">vendors</text>
+<rect x="40" y="560" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="579.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Leadership</text>
+<text x="125.0" y="597.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">the four numbers, kill</text>
+<text x="125.0" y="611.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">tests</text>
+<rect x="340" y="210" width="340" height="300" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="510.0" y="330.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Yantra</text>
+<text x="510.0" y="349.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">trusted supply and verified production of AI training</text>
+<text x="510.0" y="362.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">work: vet, bench, claim, review, pay, deliver,</text>
+<text x="510.0" y="376.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">catalogue</text>
+<text x="510.0" y="392.4" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one repository, services around Odoo 19 CE</text>
+<rect x="800" y="100" width="190" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="895.0" y="114.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Keycloak</text>
+<text x="895.0" y="132.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">identity: OIDC for staff,</text>
+<text x="895.0" y="146.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">JWT for workers</text>
+<rect x="800" y="190" width="190" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="211.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">RazorpayX</text>
+<text x="895.0" y="229.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">weekly payouts, penny drop</text>
+<rect x="800" y="280" width="190" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="301.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">NIC e-invoice (GSTN)</text>
+<text x="895.0" y="319.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">client invoices</text>
+<rect x="800" y="370" width="190" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="391.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Vertex Gemini</text>
+<text x="895.0" y="409.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">advisory pre-review, grading</text>
+<rect x="800" y="460" width="190" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="481.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Email, FCM, WhatsApp</text>
+<text x="895.0" y="499.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">notifications</text>
+<rect x="800" y="550" width="190" height="60" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="556.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">Hugging Face, DataVendor,</text>
+<text x="895.0" y="572.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">Harbor</text>
+<text x="895.0" y="590.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Stage 3 channels and</text>
+<text x="895.0" y="604.5" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">artifact registry</text>
+<path d="M210.0,155.0 L280.0,155.0 L280.0,230.0 L340.0,230.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M210.0,265.0 L280.0,265.0 L280.0,265.0 L340.0,265.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M210.0,375.0 L280.0,375.0 L280.0,375.0 L340.0,375.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M210.0,485.0 L280.0,485.0 L280.0,485.0 L340.0,485.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M210.0,595.0 L280.0,595.0 L280.0,490.0 L340.0,490.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M680.0,230.0 L700.0,230.0 L700.0,130.0 L800.0,130.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="121.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">login</text>
+<path d="M680.0,230.0 L700.0,230.0 L700.0,220.0 L800.0,220.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="211.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payout files, webhooks</text>
+<path d="M680.0,310.0 L700.0,310.0 L700.0,310.0 L800.0,310.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="301.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">e-invoice IRN</text>
+<path d="M680.0,400.0 L700.0,400.0 L700.0,400.0 L800.0,400.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="391.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">prompts, verdicts</text>
+<path d="M680.0,490.0 L700.0,490.0 L700.0,490.0 L800.0,490.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="481.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">messages</text>
+<path d="M680.0,490.0 L700.0,490.0 L700.0,580.0 L800.0,580.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="571.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">signed artifacts</text>
+<rect x="40" y="667.0" width="22" height="14" rx="4" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="68.0" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Client app</text>
+<rect x="152.5" y="667.0" width="22" height="14" rx="4" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="180.5" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Service (own deployable, own database)</text>
+<rect x="434.4" y="667.0" width="22" height="14" rx="4" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="462.4" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Odoo: system of record</text>
+<rect x="619.5" y="667.0" width="22" height="14" rx="4" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="647.5" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Shared platform</text>
+<rect x="762.25" y="667.0" width="22" height="14" rx="4" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="790.2" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">External provider</text>
+<rect x="917.1" y="667.0" width="22" height="14" rx="4" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="945.1" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Stage 2 or 3</text>
+</svg>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Labelled "Assessments v2" only so an admin can tell the two apps apart
+         while pro is still installed alongside; the menu STRUCTURE is pro's,
+         unchanged. -->
+    <menuitem id="menu_assessments_be_root"
+              name="Assessments v2"
+              sequence="100"
+              action="action_assessments_be_home_dashboard"
+              groups="assessments_be_v2.group_assessment_manager"/>
+
+
+    <menuitem id="menu_assessments_be_assessments"
+              name="Assessments"
+              parent="menu_assessments_be_root"
+              action="action_etp_assessment"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="25"/>
+
+    <menuitem id="menu_assessments_be_question"
+              name="Questions"
+              parent="menu_assessments_be_root"
+              action="action_assessments_be_question"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="15"/>
+
+    <menuitem id="menu_assessments_be_prompt"
+              name="Generators"
+              parent="menu_assessments_be_root"
+              action="action_assessments_be_prompt"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="5"/>
+
+    <menuitem id="menu_assessments_be_tags_top"
+              name="Tags"
+              parent="menu_assessments_be_root"
+              action="action_assessments_be_tag"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="10"/>
+
+    <menuitem id="menu_assessments_be_responses"
+              name="All Responses"
+              parent="menu_assessments_be_root"
+              action="action_assessments_be_response"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="40"/>
+
+    <menuitem id="menu_assessments_be_config_root"
+              name="Configuration"
+              parent="menu_assessments_be_root"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="90"/>
+
+    <menuitem id="menu_assessments_be_config"
+              name="Settings"
+              parent="menu_assessments_be_config_root"
+              action="action_assessments_be_config"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="10"/>
+
+    <!-- D3. TOP LEVEL, unlike task templates below: a form is a daily
+         authoring surface and the console gives it its own rail entry, so
+         burying it under Configuration would be a different product in the two
+         UIs rather than the same one. -->
+    <menuitem id="menu_assessments_be_forms"
+              name="Form Studio"
+              parent="menu_assessments_be_root"
+              action="action_etp_studio_form"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="45"/>
+
+    <!-- D3. Under Configuration rather than beside Generators: a template is
+         an INPUT to generation that an operator sets up once, not a daily
+         working surface, and the top-level rail is already six items long. -->
+    <menuitem id="menu_assessments_be_task_templates"
+              name="Task Templates"
+              parent="menu_assessments_be_config_root"
+              action="action_assessments_be_task_template"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="50"/>
+
+    <menuitem id="menu_assessments_be_llm_budget"
+              name="LLM Budget"
+              parent="menu_assessments_be_config_root"
+              action="action_assessments_be_llm_dashboard"
+              groups="assessments_be_v2.group_assessment_manager"
+              sequence="30"/>
+
+
+    <record id="action_my_assessments_url" model="ir.actions.act_url">
+        <field name="name">My Assessments</field>
+        <field name="url">/my/pro_assessments</field>
+        <field name="target">self</field>
+    </record>
+
+    <!-- "v2" is not decoration. etp_assessment_pro ships a menu with the same
+         name, the same sequence 99, the same base.group_user and the same
+         /my/pro_assessments target, so every internal user saw two entries
+         that were impossible to tell apart. Upstream is not ours to edit, so
+         the only lever is this label; it matches our own root menu,
+         "Assessments v2". -->
+    <!-- CANDIDATE, NOT base.group_user - and this change cannot lock anybody
+         out of an exam.
+
+         WHY IT IS SAFE ON ITS OWN. No exam route reads this menu's group. The
+         runner is reached by its token link (/api/v1/exam/<token>/...), which is
+         authorised by the token plus the candidate identity match, never by menu
+         visibility. The worst a wrong group here can do is hide a link.
+
+         IT IS ALSO A UX FIX. `base.group_user` is every internal employee in the
+         instance, so all of them carried this entry - and clicking it used to
+         render a clean but empty page, because the QWeb list resolved no
+         applicant for them. A menu that only ever leads somewhere empty is worse
+         than no menu.
+
+         Candidate is the LOWEST rung of the privilege, so Manager and Admin
+         still see it through `implied_ids` - an operator previewing the
+         candidate view does not lose the link. -->
+    <!-- THE TARGET IS NOW A REDIRECT, and is left as it is on purpose.
+
+         `/my/pro_assessments` no longer renders anything: the QWeb candidate
+         pages are retired and `controllers/legacy_redirects.py` answers that
+         path with a 301 into the Flutter client's front door. So this menu still
+         takes a candidate exactly where it always did, by way of one hop.
+
+         An `ir.actions.act_url` holds a STATIC url and cannot call
+         `_candidate_home()`, so pointing it straight at the app would mean
+         hard-coding an origin here that differs per environment - a third place
+         to get wrong, and the one nobody would think to update. Going through
+         the redirect keeps a single source of truth for where the app lives. -->
+
+    <menuitem id="menu_assessments_be_my_assessments"
+              name="My Assessments v2"
+              action="action_my_assessments_url"
+              groups="assessments_be_v2.group_assessment_candidate"
+              sequence="99"/>
+</odoo>

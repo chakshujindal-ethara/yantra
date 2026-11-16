@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>User flows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f8f9fa;--surface:#ffffff;--surface2:#f3f3f5;--fg:#030213;--muted:#717182;--line:#e0e0e4;--accent:#b800b8;--accent-soft:#fbdaf7;--ring:#b800b8;--code:#f3f3f5;
+ --body:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;--mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 var(--body)}
+.shell{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);background:var(--surface);padding:28px 20px 40px max(20px,env(safe-area-inset-left,0px))}
+nav.toc .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+nav.toc .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+nav.toc .brand b{display:block;font-size:16px}
+nav.toc .brand small{display:block;color:var(--muted);font-size:12.5px}
+nav.toc .set{margin:18px 0 8px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+nav.toc a{display:block;color:var(--fg);text-decoration:none;font-size:14.5px;padding:7px 10px;border-radius:8px;line-height:1.4}
+nav.toc a:hover{background:var(--surface2)}
+nav.toc a.h3{padding-left:24px;color:var(--muted);font-size:13.5px}
+nav.toc a.doc{color:var(--muted)}
+nav.toc a.doc.on{background:var(--accent-soft);color:var(--fg);font-weight:600}
+.theme{margin:14px 0 4px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);font:500 13.5px var(--body);padding:8px 12px;border-radius:8px;cursor:pointer}
+.theme:focus-visible,nav.toc a:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+main{padding:56px max(24px,env(safe-area-inset-right,0px)) 96px max(24px,env(safe-area-inset-left,0px));min-width:0}
+article{max-width:880px;margin:0 auto}
+article h1{font-size:40px;line-height:1.15;letter-spacing:-.01em;margin:0 0 24px;text-wrap:balance}
+article h2{font-size:28px;line-height:1.25;margin:64px 0 20px;padding-top:24px;border-top:1px solid var(--line);text-wrap:balance}
+article h3{font-size:21px;margin:40px 0 14px;text-wrap:balance}
+article p{margin:0 0 18px;max-width:72ch}
+article ul,article ol{padding-left:26px;margin:0 0 20px}
+article li{margin:6px 0;max-width:70ch}
+article li p{margin:0}
+article a{color:var(--accent)}
+article strong{font-weight:600}
+article hr{display:none}
+article code{font:14.5px var(--mono);background:var(--code);padding:2px 6px;border-radius:5px}
+article pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow:auto;font:14px/1.55 var(--mono);margin:0 0 24px}
+article pre code{background:none;padding:0;font-size:inherit}
+.tablewrap{overflow-x:auto;margin:0 0 28px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+article table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.5}
+article th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2);padding:14px 16px;border-bottom:1px solid var(--line)}
+article td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+article tr:last-child td{border-bottom:0}
+article td:first-child{font-weight:600;white-space:normal;min-width:140px}
+figure.diagram{margin:8px 0 36px;background:#ffffff;border:1px solid var(--line);border-radius:14px;padding:12px;overflow-x:auto}
+figure.diagram svg{display:block;max-width:100%;height:auto}
+figure.diagram figcaption{font-size:13.5px;color:var(--muted);padding:10px 8px 2px}
+blockquote{margin:0 0 20px;padding:14px 20px;border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0}
+.foot{margin-top:72px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:980px){.shell{grid-template-columns:1fr}nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding-top:32px}article h1{font-size:32px}article h2{font-size:24px;margin-top:44px}}
+</style></head>
+<body><div class="shell">
+<nav class="toc" aria-label="Contents">
+  <div class="brand"><div class="mark">Y</div><div><b>Yantra</b><small>plan, design and screens, 2 November 2026</small></div></div>
+  <button type="button" class="theme" id="theme" aria-label="Toggle light or dark theme"></button>
+  <div class="set">Documents</div><a class="doc" href="01-understanding-yantra.html">Understanding Yantra</a><a class="doc" href="02-system-design.html">System design</a><a class="doc on" href="03-user-flows.html">User flows</a><a class="doc" href="04-tech-stack.html">Tech stack</a><a class="doc" href="05-unified-plan.html">The unified plan</a>
+  <div class="set">On this page</div><a class="h2" href="#1-the-worker-from-first-contact-to-first-payout">1. The worker: from first contact to first payout</a><a class="h2" href="#2-the-reviewer">2. The reviewer</a><a class="h2" href="#3-ops-and-the-client-from-brief-to-invoice">3. Ops and the client: from brief to invoice</a><a class="h2" href="#4-finance-the-weekly-pay-window">4. Finance: the weekly pay window</a><a class="h2" href="#5-one-task-system-view-claim-to-pay">5. One task, system view (claim to pay)</a><a class="h2" href="#6-stage-3-the-environment-factory">6. Stage 3: the environment factory</a>
+</nav>
+<main><article>
+<h1>User flows</h1>
+<p>One flow per person. Each has a diagram (editable in draw.io), a step table that says what the person sees and what the system does, and the edge cases that must be handled. Figures are examples.</p>
+
+<hr>
+<h2 id="1-the-worker-from-first-contact-to-first-payout">1. The worker: from first contact to first payout</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1230" height="508" viewBox="0 0 1230 508" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1230" height="508" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">User flow: the worker, from first contact to first payout</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">What the person sees, in order. Red boxes are hard gates; the orange box is the only place money is created.</text>
+<rect x="40" y="100" width="190" height="76" rx="38.0" fill="#030213" stroke="#030213" stroke-width="1.5"/>
+<text x="135.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Hears about Yantra</text>
+<text x="135.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">a measured channel, never a</text>
+<text x="135.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">DM</text>
+<rect x="280" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Applies</text>
+<text x="375.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">60-second form with hard</text>
+<text x="375.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">questions</text>
+<rect x="520" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Takes the paper</text>
+<text x="615.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">generated from the project</text>
+<text x="615.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">SOP, proctored</text>
+<rect x="760" y="100" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="855.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Certified</text>
+<text x="855.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">skill verified; retake</text>
+<text x="855.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">policy applies</text>
+<rect x="1000" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="1095.0" y="115.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Onboarding checklist</text>
+<text x="1095.0" y="134.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">agreements, DPDP consent,</text>
+<text x="1095.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">documents, PAN and bank,</text>
+<text x="1095.0" y="161.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">payout setup in the app</text>
+<rect x="1000" y="246" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="1095.0" y="261.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">ELIGIBLE</text>
+<text x="1095.0" y="280.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">computed, never set by hand;</text>
+<text x="1095.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">identity bound to the payout</text>
+<text x="1095.0" y="307.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">account</text>
+<rect x="760" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="855.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">On the bench</text>
+<text x="855.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">skills with evidence level,</text>
+<text x="855.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">availability</text>
+<rect x="520" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Claims a task</text>
+<text x="615.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">pay shown first; one live</text>
+<text x="615.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">claim; TTL</text>
+<rect x="280" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="261.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Works it</text>
+<text x="375.0" y="280.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema-rendered form; rubric</text>
+<text x="375.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">version visible; can flag</text>
+<text x="375.0" y="307.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">rubric unclear</text>
+<rect x="40" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="135.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Submits</text>
+<text x="135.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">idempotent; a retry never</text>
+<text x="135.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">duplicates</text>
+<polygon points="135.0,392 230,430.0 135.0,468 40,430.0" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="135.0" y="414.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Verdict</text>
+<text x="135.0" y="432.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">accept, needs edits,</text>
+<text x="135.0" y="446.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">reject</text>
+<rect x="280" y="392" width="190" height="76" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="375.0" y="421.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Earning recorded</text>
+<text x="375.0" y="439.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">on accept only</text>
+<rect x="520" y="392" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="414.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Weekly window</text>
+<text x="615.0" y="432.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Saturday to Friday IST;</text>
+<text x="615.0" y="446.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">holds; TDS</text>
+<rect x="760" y="392" width="190" height="76" rx="38.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="855.0" y="414.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Paid Wednesday</text>
+<text x="855.0" y="432.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">RazorpayX; statement in the</text>
+<text x="855.0" y="446.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">app</text>
+<rect x="1000" y="392" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="1095.0" y="421.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Back on the bench</text>
+<text x="1095.0" y="439.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">project ends, zero idle cost</text>
+<path d="M230.0,138.0 L280.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M470.0,138.0 L520.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M710.0,138.0 L760.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M950.0,138.0 L1000.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1095.0,176.0 L1095.0,211.0 L1095.0,211.0 L1095.0,246.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1000.0,284.0 L950.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M760.0,284.0 L710.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,284.0 L470.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M280.0,284.0 L230.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M135.0,322.0 L135.0,357.0 L135.0,357.0 L135.0,392.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M230.0,430.0 L280.0,430.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M470.0,430.0 L520.0,430.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M710.0,430.0 L760.0,430.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M950.0,430.0 L1000.0,430.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M135.0,392.0 L135.0,362.0 L375.0,352.0 L375.0,322.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="216.7" y="348.0" width="76.6" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="255.0" y="357.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">needs edits</text>
+</svg><figcaption>Worker flow</figcaption></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Step</th>
+<th>The person sees</th>
+<th>The system does</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Hears about Yantra</td>
+<td>a post about the work on a measured channel; never a direct message</td>
+<td>records the channel on the application</td>
+<td>talent (Stage 2); manual in Stage 1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Applies</td>
+<td>a 60-second form with a few hard questions (language, sample task, availability)</td>
+<td>creates the candidate; screens duplicates</td>
+<td>odoo</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Takes the paper</td>
+<td>an assessment generated from the project&#39;s SOP, proctored</td>
+<td>runs the sitting; scores; emits <code>worker.skill.verified</code> with the evidence level <em>verified</em></td>
+<td>assess</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Certified</td>
+<td>pass or fail with the retake policy</td>
+<td>sets the certification tag that opens a category of work</td>
+<td>assess</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Onboarding checklist</td>
+<td>six items: agreement, DPDP consent, identity documents, PAN, bank account (penny-drop verified), payout setup</td>
+<td>stores each item; binds identity to the payout account; nothing is editable by hand</td>
+<td>odoo</td>
+</tr>
+<tr>
+<td>6</td>
+<td>ELIGIBLE</td>
+<td>a green state and the bench entry</td>
+<td>computes ELIGIBLE from the six items; emits <code>worker.eligible</code>; market builds its worker read model</td>
+<td>odoo, market</td>
+</tr>
+<tr>
+<td>7</td>
+<td>On the bench</td>
+<td>skills with evidence level, availability date, past quality</td>
+<td>availability goes stale after 14 days and reads as unknown</td>
+<td>odoo</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Claims a task</td>
+<td>the batch with pay per unit shown before the claim; one live claim; a countdown</td>
+<td>claim in one transaction with <code>SKIP LOCKED</code>; TTL; idempotency key; the worker read model decides eligibility</td>
+<td>gateway, market</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Works it</td>
+<td>the form rendered from the batch schema; the rubric version; a &quot;rubric unclear&quot; action; the payload from a five-minute presigned link</td>
+<td>serves the payload URL; no bytes pass through the services</td>
+<td>market, S3</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Submits</td>
+<td>a confirmation; a retry shows the same submission</td>
+<td>stores the answer; closes the claim; emits <code>work.unit.submitted</code></td>
+<td>market</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Verdict</td>
+<td>accept, needs edits (with a reason), or reject (with a reason)</td>
+<td>review claimed by someone else; audit sample; canonical verdict emitted</td>
+<td>quality</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Earning recorded</td>
+<td>the unit in &quot;accepted, payable&quot;</td>
+<td>one earning per accepted unit, referencing the verdict event</td>
+<td>payout</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Weekly window</td>
+<td>the week&#39;s total, holds, TDS shown</td>
+<td>window closes Friday 23:59 IST; holds applied</td>
+<td>payout</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Paid</td>
+<td>the statement; every line clicks through to its unit</td>
+<td>vendor bill with TDS in Odoo; two approvals; RazorpayX; webhook; reconciliation</td>
+<td>odoo, payout</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Back on the bench</td>
+<td>availability prompt when the batch ends</td>
+<td>project end returns the person to the bench at zero idle cost</td>
+<td>odoo</td>
+</tr>
+</tbody></table></div>
+<p>Edge cases: a claim that expires returns the unit to the pool and tells the worker; a network retry of claim or submit returns the first result; a worker who changes bank details gets step-up authentication and a 72-hour hold after any account recovery; a worker cannot see any other worker&#39;s data (record rules tested with penetration tests).</p>
+<hr>
+<h2 id="2-the-reviewer">2. The reviewer</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1230" height="362" viewBox="0 0 1230 362" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1230" height="362" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">User flow: the reviewer</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Reason codes make quality history survive a rubric change; the audit sample keeps reviewers honest.</text>
+<rect x="40" y="100" width="190" height="76" rx="38.0" fill="#030213" stroke="#030213" stroke-width="1.5"/>
+<text x="135.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Reviewer queue</text>
+<text x="135.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">next submission, never own</text>
+<text x="135.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">work</text>
+<rect x="280" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="129.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Claims a review</text>
+<text x="375.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one live review claim</text>
+<rect x="520" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Judges</text>
+<text x="615.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">side by side with the rubric</text>
+<text x="615.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">version the unit carries</text>
+<rect x="760" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="855.0" y="115.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Reason code</text>
+<text x="855.0" y="134.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">required on needs-edits and</text>
+<text x="855.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">reject; client-caused codes</text>
+<text x="855.0" y="161.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">are billable</text>
+<polygon points="1095.0,100 1190,138.0 1095.0,176 1000,138.0" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="1095.0" y="129.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Rubric unclear?</text>
+<text x="1095.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">flag goes to the TPM</text>
+<rect x="1000" y="246" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="1095.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Audit sample</text>
+<text x="1095.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">10% of accepts re-judged by</text>
+<text x="1095.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">an auditor</text>
+<rect x="760" y="246" width="190" height="76" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="855.0" y="275.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Canonical verdict</text>
+<text x="855.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">the one money event</text>
+<rect x="520" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Review earning</text>
+<text x="615.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">paid in the same weekly</text>
+<text x="615.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">window</text>
+<rect x="280" y="246" width="190" height="76" rx="38.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="375.0" y="284.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Next submission</text>
+<path d="M230.0,138.0 L280.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M470.0,138.0 L520.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M710.0,138.0 L760.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M950.0,138.0 L1000.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1095.0,176.0 L1095.0,211.0 L1095.0,211.0 L1095.0,246.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1000.0,284.0 L950.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M760.0,284.0 L710.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,284.0 L470.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg><figcaption>Reviewer flow</figcaption></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Step</th>
+<th>The person sees</th>
+<th>The system does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Queue</td>
+<td>&quot;next submission&quot;, never their own work, with the queue age</td>
+<td>review claim, one live at a time</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Judges</td>
+<td>the payload and the answer side by side; the rubric version the unit carries</td>
+<td>serves both from presigned links</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Reason code</td>
+<td>required on needs-edits and reject; client-caused codes marked billable</td>
+<td>validates the code; records the verdict with the rubric version</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Rubric unclear?</td>
+<td>a flag with a note</td>
+<td>routes to the TPM; answered within two days; a new rubric version may follow</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Audit sample</td>
+<td>10% of accepts go to an auditor before they become canonical</td>
+<td>the auditor&#39;s verdict wins; disagreements feed calibration (Stage 2)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Canonical verdict</td>
+<td>the unit leaves the queue</td>
+<td>emits <code>quality.verdict.accepted</code> or <code>.rejected</code>; the only money event</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Review earning</td>
+<td>the review pay in this week&#39;s statement</td>
+<td>one earning per review</td>
+</tr>
+</tbody></table></div>
+<p>Edge cases: a reviewer who is also a worker never draws their own submissions; a reviewer who releases a claim returns it to the queue; model pre-review (Stage 2) is advisory and never canonical alone; a dispute (Stage 2) reverses a rejection as an adjustment line, never by editing history.</p>
+<hr>
+<h2 id="3-ops-and-the-client-from-brief-to-invoice">3. Ops and the client: from brief to invoice</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1230" height="508" viewBox="0 0 1230 508" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1230" height="508" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">User flow: ops and the client, from brief to invoice</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">One project is configuration, not a new app. The export gate and the margin report close the loop with the client.</text>
+<rect x="40" y="100" width="190" height="76" rx="38.0" fill="#030213" stroke="#030213" stroke-width="1.5"/>
+<text x="135.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Client brief</text>
+<text x="135.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">task type, volume, deadline,</text>
+<text x="135.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">quality bar</text>
+<rect x="280" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Project setup</text>
+<text x="375.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">schema, rubric v1, quality</text>
+<text x="375.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">policy, rate card</text>
+<rect x="520" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="115.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Price card</text>
+<text x="615.0" y="134.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">unit price frozen next to</text>
+<text x="615.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">unit pay; margin floor</text>
+<text x="615.0" y="161.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">checked</text>
+<polygon points="855.0,100 950,138.0 855.0,176 760,138.0" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="855.0" y="129.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Below floor?</text>
+<text x="855.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">warn, record approval</text>
+<rect x="1000" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="1095.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Batch import</text>
+<text x="1095.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">dry run reports every bad</text>
+<text x="1095.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">line</text>
+<rect x="1000" y="246" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="1095.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Publish</text>
+<text x="1095.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">freezes pay and price;</text>
+<text x="1095.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">assigned or open mode</text>
+<rect x="760" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="855.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Claims and reviews</text>
+<text x="855.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">workers and reviewers, weeks</text>
+<text x="855.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">1-n</text>
+<rect x="520" y="246" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="615.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Delivery gate</text>
+<text x="615.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">every line validated; one</text>
+<text x="615.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">bad line holds the batch</text>
+<rect x="280" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Manifest</text>
+<text x="375.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">checksums, provenance,</text>
+<text x="375.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">rubric version</text>
+<rect x="40" y="246" width="190" height="76" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="135.0" y="268.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Invoice</text>
+<text x="135.0" y="286.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">accepted units x rate;</text>
+<text x="135.0" y="300.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">e-invoice if Indian</text>
+<rect x="40" y="392" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="135.0" y="414.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Margin report</text>
+<text x="135.0" y="432.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">invoice minus every cost</text>
+<text x="135.0" y="446.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">line</text>
+<rect x="280" y="392" width="190" height="76" rx="38.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="375.0" y="413.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">People return to the</text>
+<text x="375.0" y="428.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">bench</text>
+<text x="375.0" y="447.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">the four numbers update</text>
+<path d="M230.0,138.0 L280.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M470.0,138.0 L520.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M710.0,138.0 L760.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M950.0,138.0 L1000.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1095.0,176.0 L1095.0,211.0 L1095.0,211.0 L1095.0,246.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1000.0,284.0 L950.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M760.0,284.0 L710.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,284.0 L470.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M280.0,284.0 L230.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M135.0,322.0 L135.0,357.0 L135.0,357.0 L135.0,392.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M230.0,430.0 L280.0,430.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg><figcaption>Project flow</figcaption></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Step</th>
+<th>Ops sees</th>
+<th>The system does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Client brief</td>
+<td>task type, volume, deadline, quality bar</td>
+<td>creates the project shell</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Project setup</td>
+<td>schema (form fields), rubric v1, quality policy, rate card</td>
+<td>stores the configuration; a new project type stands up in under a week</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Price card</td>
+<td>unit price next to unit pay; expected cost per unit; expected margin</td>
+<td>computes expected cost from the rate card, review, audit, rail and levy lines</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Below floor?</td>
+<td>a warning and an approval field</td>
+<td>a batch under the floor cannot publish without a recorded approval</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Batch import</td>
+<td>the dry-run report: every bad line with the reason</td>
+<td>validates each line against the schema; nothing is written on a failed dry run</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Publish</td>
+<td>the frozen pay and price; open or assigned mode</td>
+<td>freezes <code>unit_pay</code> and <code>unit_price</code>; emits <code>work.unit.published</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Claims and reviews</td>
+<td>the queue: available, claimed, submitted, in review, needs edits; stuck claims</td>
+<td>releases expired claims; alerts on backlog age over 48 hours</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Delivery gate</td>
+<td>the validation report; one bad line holds the batch</td>
+<td>validates every accepted unit against the schema</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Manifest</td>
+<td>counts, checksums, provenance, rubric versions</td>
+<td>writes the manifest; emits <code>delivery.shipped</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Invoice</td>
+<td>accepted units × price (+ billable rework); e-invoice IRN for Indian clients</td>
+<td>raises the client invoice in Odoo</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Margin report</td>
+<td>invoice minus every cost line, per batch and project</td>
+<td>reads the cost ledger per unit</td>
+</tr>
+<tr>
+<td>12</td>
+<td>People return to the bench</td>
+<td>the four numbers updated</td>
+<td>closes the project; availability prompts go out</td>
+</tr>
+</tbody></table></div>
+<p>Edge cases: a client changing the glossary mid-batch produces a new rubric version and client-caused reason codes (billable); a retention purge runs per project after the agreed days; the client never gets a login in Stage 1 (manifest, invoice and a weekly report); the Stage 2 console adds live acceptance and quality reports.</p>
+<hr>
+<h2 id="4-finance-the-weekly-pay-window">4. Finance: the weekly pay window</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="990" height="362" viewBox="0 0 990 362" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="990" height="362" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">User flow: finance, the weekly pay window</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Runs every week from the first dogfood batch. Zero deltas is the gate.</text>
+<rect x="40" y="100" width="190" height="76" rx="38.0" fill="#030213" stroke="#030213" stroke-width="1.5"/>
+<text x="135.0" y="129.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Friday 23:59 IST</text>
+<text x="135.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">window closes</text>
+<rect x="280" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="115.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Apply holds</text>
+<text x="375.0" y="134.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">first payout 7 days;</text>
+<text x="375.0" y="147.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">integrity holds before</text>
+<text x="375.0" y="161.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">payout, never clawbacks</text>
+<rect x="520" y="100" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Vendor bills</text>
+<text x="615.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one self-billed bill per</text>
+<text x="615.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">worker with TDS</text>
+<rect x="760" y="100" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="855.0" y="122.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Two approvals</text>
+<text x="855.0" y="140.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">finance lead plus one; caps</text>
+<text x="855.0" y="154.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">per window</text>
+<rect x="760" y="246" width="190" height="76" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="855.0" y="275.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">RazorpayX</text>
+<text x="855.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">bank file as fallback</text>
+<rect x="520" y="246" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="275.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Webhook</text>
+<text x="615.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">signed, replay window</text>
+<rect x="280" y="246" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="375.0" y="261.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Reconciliation</text>
+<text x="375.0" y="280.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">earnings = bills = payouts</text>
+<text x="375.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">net + TDS, to the paisa;</text>
+<text x="375.0" y="307.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">alerts, never auto-adjusts</text>
+<rect x="40" y="246" width="190" height="76" rx="38.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="135.0" y="261.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Statements</text>
+<text x="135.0" y="280.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">in the app; disputes</text>
+<text x="135.0" y="293.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">answered within the next</text>
+<text x="135.0" y="307.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">window</text>
+<path d="M230.0,138.0 L280.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M470.0,138.0 L520.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M710.0,138.0 L760.0,138.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M855.0,176.0 L855.0,211.0 L855.0,211.0 L855.0,246.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M760.0,284.0 L710.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,284.0 L470.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M280.0,284.0 L230.0,284.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg><figcaption>Pay window flow</figcaption></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Step</th>
+<th>Finance sees</th>
+<th>The system does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Window closes</td>
+<td>Friday 23:59 IST; the week&#39;s earnings total</td>
+<td>freezes the window</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Holds</td>
+<td>first-payout 7-day hold; integrity holds (duplicate account, device, bank mismatch)</td>
+<td>holds happen before payout, never as clawbacks after</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Vendor bills</td>
+<td>one self-billed bill per worker with TDS computed</td>
+<td>Odoo raises the bills from <code>payout.window.closed</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Two approvals</td>
+<td>the batch total, caps per window</td>
+<td>the finance lead plus one approver; no single-person release</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Rail</td>
+<td>RazorpayX payout file; bank file as fallback</td>
+<td>idempotent rail calls; per-window caps</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Webhook</td>
+<td>paid, failed, returned</td>
+<td>signed webhook with a replay window; <code>payout.paid</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Reconciliation</td>
+<td>earnings = bills = payouts net + TDS, to the paisa; any delta as an alert</td>
+<td>nightly; alerts and never auto-adjusts</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Statements</td>
+<td>per worker, in the app; disputes answered within the next window</td>
+<td>statements only after reconciliation</td>
+</tr>
+</tbody></table></div>
+<p>Edge cases: a failed payout stays in the window with its reason and retries next window; a rail outage falls back to the bank file with the same bill numbers; TDS section and the LUT for export invoices are confirmed by the chartered accountant in Stage 0.</p>
+<hr>
+<h2 id="5-one-task-system-view-claim-to-pay">5. One task, system view (claim to pay)</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1240" height="870" viewBox="0 0 1240 870" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1240" height="870" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Sequence: one task from claim to pay, system view</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Solid arrows are synchronous calls through the gateway; dashed arrows are events on NATS.</text>
+<rect x="40" y="100" width="140" height="44" rx="10" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="110.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Flutter app</text>
+<rect x="210" y="100" width="140" height="44" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="280.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">gateway</text>
+<rect x="380" y="100" width="140" height="44" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="450.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">market</text>
+<rect x="550" y="100" width="140" height="44" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="620.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality</text>
+<rect x="720" y="100" width="140" height="44" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="790.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout</text>
+<rect x="890" y="100" width="140" height="44" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="960.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">NATS</text>
+<rect x="1060" y="100" width="140" height="44" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="1130.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo</text>
+<path d="M110.0,144.0 L110.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M280.0,144.0 L280.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M450.0,144.0 L450.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M620.0,144.0 L620.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M790.0,144.0 L790.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M960.0,144.0 L960.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M1130.0,144.0 L1130.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M110.0,190.0 L280.0,190.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="195.0" y="181.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">POST /claims (Idempotency-Key)</text>
+<path d="M280.0,225.0 L450.0,225.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="365.0" y="216.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">claim: SKIP LOCKED, TTL</text>
+<path d="M450.0,260.0 L280.0,260.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="365.0" y="251.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">unit + presigned payload URL</text>
+<path d="M280.0,295.0 L110.0,295.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="195.0" y="286.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">200, one live claim</text>
+<path d="M110.0,350.0 L280.0,350.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="195.0" y="341.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">POST /submissions</text>
+<path d="M280.0,385.0 L450.0,385.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="365.0" y="376.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">store answer, close claim</text>
+<path d="M450.0,420.0 L960.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="705.0" y="411.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">work.unit.submitted</text>
+<path d="M960.0,455.0 L620.0,455.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="790.0" y="446.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">review task created</text>
+<path d="M620.0,530.0 L960.0,530.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="790.0" y="521.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">quality.verdict.accepted (canonical)</text>
+<path d="M960.0,565.0 L790.0,565.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="875.0" y="556.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">earning recorded</text>
+<path d="M960.0,600.0 L450.0,600.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="705.0" y="591.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">unit accepted, delivery count</text>
+<path d="M790.0,660.0 L960.0,660.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="875.0" y="651.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payout.window.closed (weekly)</text>
+<path d="M960.0,695.0 L1130.0,695.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="1045.0" y="686.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">vendor bill with TDS; two approvals</text>
+<path d="M1130.0,750.0 L960.0,750.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="1045.0" y="741.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payout.paid (RazorpayX webhook)</text>
+<path d="M960.0,785.0 L110.0,785.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="535.0" y="776.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">statement updated</text>
+</svg><figcaption>Sequence</figcaption></figure>
+<p>Solid arrows are synchronous calls through the gateway. Dashed arrows are events on NATS. The only place money is created is the <code>quality.verdict.accepted</code> event consumed by <code>payout</code>; the only place money leaves is the vendor bill approved in Odoo.</p>
+<hr>
+<h2 id="6-stage-3-the-environment-factory">6. Stage 3: the environment factory</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1230" height="402" viewBox="0 0 1230 402" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1230" height="402" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Stage 3: the environment factory</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">The quality gate is the product. Nothing ships that the runner can hack.</text>
+<rect x="40" y="140" width="190" height="76" rx="38.0" fill="#030213" stroke="#030213" stroke-width="1.5"/>
+<text x="135.0" y="162.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Vertical chosen</text>
+<text x="135.0" y="180.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">after two buyer</text>
+<text x="135.0" y="194.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">conversations</text>
+<rect x="280" y="140" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="375.0" y="169.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Authoring tasks</text>
+<text x="375.0" y="187.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">agentic unit types in market</text>
+<rect x="520" y="140" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="615.0" y="162.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Environment built</text>
+<text x="615.0" y="180.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">OpenEnv-conformant, pinned</text>
+<text x="615.0" y="194.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">version</text>
+<rect x="760" y="140" width="190" height="76" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="855.0" y="148.5" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Runner gate</text>
+<text x="855.0" y="167.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">determinism replay, pass-</text>
+<text x="855.0" y="180.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">rate band, reward-hack</text>
+<text x="855.0" y="194.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">audit; a finding is a hard</text>
+<text x="855.0" y="208.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">fail</text>
+<rect x="1000" y="140" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="1095.0" y="162.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Human QA</text>
+<text x="1095.0" y="180.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">calibrated reviewers, seeded</text>
+<text x="1095.0" y="194.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">gold</text>
+<rect x="1000" y="286" width="190" height="76" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="1095.0" y="301.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Signed and listed</text>
+<text x="1095.0" y="320.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">cosign, SBOM, provenance;</text>
+<text x="1095.0" y="333.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">hub entry with lineage and</text>
+<text x="1095.0" y="347.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">rights</text>
+<polygon points="855.0,286 950,324.0 855.0,362 760,324.0" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="855.0" y="315.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Entitlement</text>
+<text x="855.0" y="333.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">exclusive or shared</text>
+<rect x="520" y="286" width="190" height="76" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/>
+<text x="615.0" y="315.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Delivered to the buyer</text>
+<text x="615.0" y="333.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Harbor-scoped pull token</text>
+<rect x="280" y="286" width="190" height="76" rx="38.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="375.0" y="308.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Listed on hubs</text>
+<text x="375.0" y="326.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">non-exclusive surplus as a</text>
+<text x="375.0" y="340.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">channel</text>
+<path d="M230.0,178.0 L280.0,178.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M470.0,178.0 L520.0,178.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M710.0,178.0 L760.0,178.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M950.0,178.0 L1000.0,178.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1095.0,216.0 L1095.0,251.0 L1095.0,251.0 L1095.0,286.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1000.0,324.0 L950.0,324.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M760.0,324.0 L710.0,324.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,324.0 L470.0,324.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M855.0,140.0 L855.0,100.0 L375.0,100.0 L375.0,140.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="597.9" y="91.0" width="34.2" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="615.0" y="100.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">fail</text>
+</svg><figcaption>Factory flow</figcaption></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Step</th>
+<th>Who</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Vertical chosen</td>
+<td>leadership, after two buyer conversations</td>
+<td>one of: Odoo-based ERP replicas, Indian finance and tax workflows, credentialed medicine or law, Indic language</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Authoring tasks</td>
+<td>bench workers with the right certification</td>
+<td>agentic unit types in <code>market</code>: trajectory, rubric, pairwise, grader check</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Environment built</td>
+<td>engineers and authors</td>
+<td>OpenEnv-conformant, pinned version, provenance recorded (contributor ids, IP assignment, OSS manifest)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Runner gate</td>
+<td><code>runner</code></td>
+<td>deterministic replay, pass-rate band against a reference panel, reward-hackability audit; a finding is a hard fail and goes back to authoring</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Human QA</td>
+<td>calibrated reviewers</td>
+<td>seeded gold; the usual review path</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Signed and listed</td>
+<td><code>hub</code></td>
+<td>cosign signature, SBOM, Harbor image; a hub entry with lineage and the rights field</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Entitlement</td>
+<td>sales, <code>hub</code></td>
+<td>exclusive (single member; other listings withdrawn) or shared</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Delivered</td>
+<td>buyer</td>
+<td>a scoped pull token from Harbor; canary seeds detect leaks</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Listed on hubs</td>
+<td><code>hub</code></td>
+<td>non-exclusive surplus on Hugging Face or DataVendor as a channel</td>
+</tr>
+</tbody></table></div>
+<p>Edge cases: an environment that escapes the gate after shipping is a severity-one defect; the OpenEnv version is pinned per artifact so a standard change does not break a delivered environment; nothing produced under a client contract is listed.</p>
+
+
+<p class="foot">Yantra, 2 November 2026. Every diagram can be edited in draw.io. Evidence tags: [D] disclosed by the company named, [R] reported by press or analysts, [E] estimate, [L] read from the company's own repositories.</p>
+</article></main></div>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme');
+function cur(){var t=r.getAttribute('data-theme');if(t)return t;return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
+function paint(){b.textContent=cur()==='dark'?'\u263C Light mode':'\u263E Dark mode';}
+try{var s=localStorage.getItem('etp.theme');if(s==='dark'||s==='light')r.setAttribute('data-theme',s);}catch(e){}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('etp.theme',n);}catch(e){}paint();});paint();
+})();
+</script>
+</body></html>

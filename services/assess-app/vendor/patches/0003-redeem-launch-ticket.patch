@@ -1,0 +1,272 @@
+# FE-2 + FE-3. ApiClient.redeemLaunchTicket (one unretried call, no refresh token) and Session.launch (redeem, then /auth/me; refusals in words that send the worker back to Yantra).
+diff --git a/ethara-assessment-fe/lib/assessment/data/api_client.dart b/ethara-assessment-fe/lib/assessment/data/api_client.dart
+index 8724829..9b5544f 100644
+--- a/ethara-assessment-fe/lib/assessment/data/api_client.dart
++++ b/ethara-assessment-fe/lib/assessment/data/api_client.dart
+@@ -172,6 +172,16 @@ Map<String, String> get mediaAuthHeaders => _mediaAuthHeaders;
+ ///
+ /// [code] is the machine-readable half of a refusal. Branch on it; the
+ /// [message] is written for a person and may be reworded at any time.
++/// What a redeemed Yantra launch ticket opens: a sitting ([examToken]) or, for
++/// staff, a page ([next]); and where "Back to Yantra" goes ([returnUrl]).
++class LaunchGrant {
++  const LaunchGrant({this.examToken, this.next, this.returnUrl});
++
++  final String? examToken;
++  final String? next;
++  final String? returnUrl;
++}
++
+ class ApiError implements Exception {
+   final String message;
+   final bool isDomain;
+@@ -792,6 +802,38 @@ class ApiClient {
+ 
+   Future<Map<String, dynamic>> whoAmI() => _call('$kApiPrefix/auth/me');
+ 
++  /// Yantra: trade a one-time launch ticket for a bearer (see
++  /// `lib/yantra_launch.dart`). Sent with no credential, never retried: a
++  /// ticket is spent by the first call that reaches the server. The bearer
++  /// has no refresh token; when it lapses, the person goes back through
++  /// Yantra.
++  Future<LaunchGrant> redeemLaunchTicket(String ticket) async {
++    final Map<String, dynamic> res = await _send(
++      '$kApiPrefix/yantra/launch/redeem',
++      <String, dynamic>{'ticket': ticket},
++      allowRetry: false,
++      as: const <String, String>{'Content-Type': 'application/json'},
++    );
++    final String token = (res['access_token'] ?? '').toString();
++    if (token.isEmpty) {
++      throw ApiError('The launch link gave no session.', isDomain: true);
++    }
++    _session = null;
++    _bearer = token;
++    _refresh = null;
++    _persistTokens();
++    return LaunchGrant(
++      examToken: _nonEmpty(res['exam_token']),
++      next: _nonEmpty(res['next']),
++      returnUrl: _nonEmpty(res['return_url']),
++    );
++  }
++
++  static String? _nonEmpty(Object? v) {
++    final String s = (v ?? '').toString();
++    return s.isEmpty ? null : s;
++  }
++
+   /// Renews an expired bearer token without making the user sign in again.
+   ///
+   /// This matters most mid-exam: a sitting can run 45 minutes or more, and a
+diff --git a/ethara-assessment-fe/lib/session.dart b/ethara-assessment-fe/lib/session.dart
+index d1a92a8..a3efbeb 100644
+--- a/ethara-assessment-fe/lib/session.dart
++++ b/ethara-assessment-fe/lib/session.dart
+@@ -4,6 +4,7 @@ import 'dart:math' show Random;
+ import 'package:flutter/foundation.dart';
+ 
+ import 'assessment/data/api_client.dart';
++import 'yantra_launch.dart' show rememberYantraReturn;
+ 
+ /// Who is signed in, and the client that speaks for them.
+ ///
+@@ -169,6 +170,62 @@ class Session extends ChangeNotifier {
+     }
+   }
+ 
++  /// Yantra: sign in with a one-time launch ticket instead of a password.
++  ///
++  /// [onGrant] runs once the ticket is redeemed and BEFORE [signedIn] flips,
++  /// so the caller can point the app at the sitting before the console is
++  /// built. Shows [Resuming] meanwhile, like [restore]. A refusal leaves the
++  /// person signed out with a sentence that sends them back to Yantra for a
++  /// fresh link; the ticket cannot be tried twice.
++  Future<bool> launch(
++    String ticket, {
++    void Function(LaunchGrant grant)? onGrant,
++  }) async {
++    _restoring = true;
++    _error = null;
++    _errorStatus = null;
++    notifyListeners();
++    try {
++      final LaunchGrant grant = await api.redeemLaunchTicket(ticket);
++      rememberYantraReturn(grant.returnUrl);
++      onGrant?.call(grant);
++      if (await _adoptWhoAmI()) {
++        api.touchStoredSession();
++        return true;
++      }
++      final ApiError? refused = _whoAmIError;
++      _error = refused == null
++          ? 'Signed in, but this account has no assessment role.'
++          : 'Signed in, but the server refused the session: '
++                '${refused.message}';
++      _errorStatus = refused?.status;
++      await api.logout();
++      return false;
++    } on ApiError catch (e) {
++      _error = _launchRefusal(e);
++      _errorStatus = e.status;
++      return false;
++    } finally {
++      _restoring = false;
++      notifyListeners();
++    }
++  }
++
++  static String _launchRefusal(ApiError e) => switch (e.code) {
++    'ticket_used' =>
++      'This link has already been used. Go back to Yantra and open the '
++          'assessment again for a new one.',
++    'ticket_expired' =>
++      'This link has expired. Go back to Yantra and open the assessment '
++          'again for a new one.',
++    'invalid_ticket' =>
++      'This link is not valid. Go back to Yantra and open the assessment '
++          'again.',
++    'account_inactive' =>
++      'Your assessment account is not active. Ask your Yantra contact.',
++    _ => '${e.message} Go back to Yantra and try again.',
++  };
++
+   /// Whether the stored token, or its refresh, still opens a session. Waits
+   /// out a server that is not answering instead of taking that for a no;
+   /// null when the person stopped waiting.
+diff --git a/ethara-assessment-fe/test/yantra/launch_session_test.dart b/ethara-assessment-fe/test/yantra/launch_session_test.dart
+new file mode 100644
+index 0000000..3968177
+--- /dev/null
++++ b/ethara-assessment-fe/test/yantra/launch_session_test.dart
+@@ -0,0 +1,130 @@
++// Trading a Yantra launch ticket for a session: one redeem, then the same
++// `/auth/me` every sign-in goes through. A spent or expired ticket says so in
++// words a worker can act on, and points back to Yantra.
++import 'dart:convert';
++
++import 'package:flutter_test/flutter_test.dart';
++import 'package:http/http.dart' as http;
++import 'package:http/testing.dart';
++
++import 'package:ethara_assessment/assessment/data/api_client.dart';
++import 'package:ethara_assessment/session.dart';
++import 'package:ethara_assessment/yantra_launch.dart';
++
++http.Response _json(int status, Object body) => http.Response(
++  jsonEncode(body),
++  status,
++  headers: <String, String>{'content-type': 'application/json'},
++);
++
++const Map<String, Object?> _grant = <String, Object?>{
++  'access_token': 'bearer-1',
++  'refresh_token': '',
++  'expires_at': '2026-11-12 12:00:00',
++  'exam_token': 'exam-1',
++  'next': null,
++  'return_url': 'http://localhost:8095/work/applications',
++};
++
++void main() {
++  setUp(() => rememberYantraReturn(null));
++
++  test('a ticket buys a bearer that every later call carries', () async {
++    final List<http.Request> seen = <http.Request>[];
++    final Session s = Session(
++      api: ApiClient(
++        baseUrl: 'http://app',
++        client: MockClient((http.Request r) async {
++          seen.add(r);
++          if (r.url.path == '/api/v1/yantra/launch/redeem') {
++            return _json(200, <String, Object?>{'ok': true, 'data': _grant});
++          }
++          return _json(200, <String, Object?>{
++            'ok': true,
++            'data': <String, Object?>{
++              'user': <String, Object?>{
++                'name': 'Worker Four',
++                'uid': 8,
++                'role': 'candidate',
++              },
++            },
++          });
++        }),
++      ),
++    );
++    LaunchGrant? granted;
++    expect(await s.launch('t-1', onGrant: (LaunchGrant g) => granted = g),
++        isTrue);
++    expect(jsonDecode(seen.first.body), <String, Object?>{'ticket': 't-1'});
++    expect(seen.first.headers['Authorization'], isNull);
++    expect(seen.last.url.path, '/api/v1/auth/me');
++    expect(seen.last.headers['Authorization'], 'Bearer bearer-1');
++    expect(granted?.examToken, 'exam-1');
++    expect(granted?.next, isNull);
++    expect(s.signedIn, isTrue);
++    expect(s.restoring, isFalse);
++    expect(s.name, 'Worker Four');
++    expect(s.api.canRenew, isFalse, reason: 'a launch has no refresh token');
++    expect(yantraReturnUrl(yantraAppUrl: ''),
++        'http://localhost:8095/work/applications');
++  });
++
++  test('a spent, expired or unknown ticket is named, and nobody is signed in',
++      () async {
++    for (final (int status, String code, String words) in <(int, String, String)>[
++      (410, 'ticket_used', 'already been used'),
++      (410, 'ticket_expired', 'expired'),
++      (404, 'invalid_ticket', 'not valid'),
++      (403, 'account_inactive', 'not active'),
++    ]) {
++      final Session s = Session(
++        api: ApiClient(
++          baseUrl: 'http://app',
++          client: MockClient((http.Request r) async => _json(status, <String, Object?>{
++            'ok': false,
++            'error': <String, Object?>{'code': code, 'message': code},
++          })),
++        ),
++      );
++      expect(await s.launch('t'), isFalse, reason: code);
++      expect(s.signedIn, isFalse);
++      expect(s.restoring, isFalse);
++      expect(s.error, contains(words), reason: code);
++      expect(s.error, contains('Yantra'), reason: code);
++    }
++  });
++
++  test('a bearer the module does not recognise is not a session', () async {
++    final Session s = Session(
++      api: ApiClient(
++        baseUrl: 'http://app',
++        client: MockClient((http.Request r) async {
++          if (r.url.path == '/api/v1/yantra/launch/redeem') {
++            return _json(200, <String, Object?>{'ok': true, 'data': _grant});
++          }
++          if (r.url.path == '/api/v1/auth/me') {
++            return _json(200, <String, Object?>{
++              'ok': true,
++              'data': <String, Object?>{'user': <String, Object?>{}},
++            });
++          }
++          return _json(200, <String, Object?>{'ok': true, 'data': {}});
++        }),
++      ),
++    );
++    expect(await s.launch('t'), isFalse);
++    expect(s.signedIn, isFalse);
++    expect(s.error, contains('no assessment role'));
++  });
++
++  test('a server that does not answer is said plainly', () async {
++    final Session s = Session(
++      api: ApiClient(
++        baseUrl: 'http://app',
++        client: MockClient((http.Request r) async => throw http.ClientException('down')),
++      ),
++    );
++    expect(await s.launch('t'), isFalse);
++    expect(s.error, contains('Could not reach'));
++  });
++}

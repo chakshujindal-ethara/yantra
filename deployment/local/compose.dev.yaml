@@ -1,0 +1,11 @@
+# Development overlay: publishes the work and money APIs on the host for tools that call them directly, past the
+# gateway (the claim-storm load harness sends its own identity headers). Those APIs trust the headers, so never use
+# this overlay anywhere but your own machine:
+#   docker compose -f deployment/local/compose.yaml -f deployment/local/compose.dev.yaml up -d
+services:
+  work:
+    ports:
+      - "127.0.0.1:8081:8081"
+  money:
+    ports:
+      - "127.0.0.1:8082:8082"

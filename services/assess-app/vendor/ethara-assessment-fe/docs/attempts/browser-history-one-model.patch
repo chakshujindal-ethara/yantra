@@ -1,0 +1,1250 @@
+diff --git a/lib/assessment/assessment_section.dart b/lib/assessment/assessment_section.dart
+index b2b9878..f4dc9db 100644
+--- a/lib/assessment/assessment_section.dart
++++ b/lib/assessment/assessment_section.dart
+@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
+ import 'domain/enums.dart';
+ import 'domain/nav_entries.dart';
+ import 'nav.dart';
++import 'navigation_history_stub.dart'
++    if (dart.library.js_interop) 'navigation_history_web.dart';
+ import 'screens/account/account_screen.dart';
+ import 'screens/admin/assessment_detail_screen.dart';
+ import 'screens/admin/assessment_list_screen.dart';
+@@ -108,7 +110,9 @@ class AssessmentSection extends StatefulWidget {
+ }
+ 
+ class _AssessmentSectionState extends State<AssessmentSection> {
+-  late final AssessmentNav _nav = AssessmentNav();
++  late final AssessmentNav _nav = AssessmentNav(
++    history: createNavigationHistory(),
++  );
+   AppStore get _store => widget.store;
+ 
+   @override
+@@ -143,6 +147,12 @@ class _AssessmentSectionState extends State<AssessmentSection> {
+     // would leave the navigator's initial placeholder sitting behind the first
+     // real page - and Back on a freshly loaded app would go somewhere the user
+     // had never been.
++    // A RELOAD ALREADY DECIDED THIS. The browser handed the page back with the
++    // entry the user was standing on, so opening the section's own destination
++    // over the top of it would undo the reload - and would leave a history entry
++    // describing a page that is no longer showing.
++    if (_nav.wasRestored) return;
++
+     final String? token = widget.examToken;
+     if (token != null && token.isNotEmpty) {
+       _nav.replaceRoot(Exam(token));
+@@ -361,6 +371,33 @@ class _AssessmentSectionState extends State<AssessmentSection> {
+       ),
+     );
+ 
++    // PIN THE RUNNER WHILE A SITTING IS UNDER WAY.
++    //
++    // Hiding the arrows stops one way out. The browser's own Back button is the
++    // other, and it cannot be hidden or disabled by a page - so the navigator is
++    // told to refuse the move instead, and puts the candidate back if the
++    // browser takes them off. Same rule, both buttons, one place.
++    //
++    // Driven from `build` because `_examIsLocked` reads the STORE as well as the
++    // route: an attempt becomes "under way" when the server says it started, and
++    // that arrives as a store notification rather than as a navigation.
++    // NOT `_examIsLocked()`, and the difference is a real one. That rule is true
++    // for the review STAGE whatever the attempt's state, which is right for
++    // hiding the rail but wrong for trapping: reopening a submitted paper to
++    // read the answers lands on the same stage, and holding somebody inside a
++    // sitting they finished last week is a cage, not a boundary.
++    //
++    // The attempt is the truth. Started and not yet done is the one situation a
++    // candidate must not navigate out of.
++    final AssessmentRoute at = _nav.current;
++    if (at is Exam && _sittingIsUnderWay(at.token)) {
++      // Anywhere inside THIS sitting is allowed, so the runner's own Next and
++      // Previous keep working; anything else is an escape and is refused.
++      _nav.pin((AssessmentRoute r) => r is Exam && r.token == at.token);
++    } else {
++      _nav.unpin();
++    }
++
+     final Widget? rail = _examIsLocked()
+         ? null
+         : widget.sidebarBuilder?.call(
+diff --git a/lib/assessment/nav.dart b/lib/assessment/nav.dart
+index 26b6ac5..6625346 100644
+--- a/lib/assessment/nav.dart
++++ b/lib/assessment/nav.dart
+@@ -19,6 +19,7 @@
+ import 'package:flutter/widgets.dart';
+ 
+ import 'domain/models.dart';
++import 'navigation_history.dart';
+ 
+ /// Where the assessment section currently is.
+ ///
+@@ -313,25 +314,54 @@ extension AssessmentNavX on BuildContext {
+ /// site's own navigation is. Only [replaceRoot] starts a fresh trail, and only
+ /// the section's entry point and the exam boundary use it.
+ class AssessmentNav extends ChangeNotifier {
++  /// [history] is the trail. Off the web, and under test, it is a list in
++  /// memory; on the web it is the browser's own stack, so its Back and Forward
++  /// buttons and the arrows in the page are two callers of one history rather
++  /// than two histories kept in step. See `navigation_history.dart`.
++  AssessmentNav({NavigationHistory? history})
++    : _history = history ?? MemoryNavigationHistory() {
++    _history.onChange = _onHistoryChanged;
++  }
++
+   /// Long enough that no real session reaches it, short enough that a tab left
+   /// open all day does not hold every page it ever showed.
+-  static const int maxEntries = 50;
++  static const int maxEntries = MemoryNavigationHistory.maxEntries;
++
++  final NavigationHistory _history;
+ 
+-  final List<AssessmentRoute> _history = <AssessmentRoute>[
+-    const AssessmentsList(),
+-  ];
+-  int _cursor = 0;
++  AssessmentRoute get current => _history.current;
+ 
+-  AssessmentRoute get current => _history[_cursor];
++  /// True when a reload restored the page the user was on. See
++  /// [NavigationHistory.wasRestored].
++  bool get wasRestored => _history.wasRestored;
+ 
+-  bool get canGoBack => _cursor > 0;
+-  bool get canGoForward => _cursor < _history.length - 1;
++  bool get canGoBack => _history.canGoBack;
++  bool get canGoForward => _history.canGoForward;
+ 
+-  /// Where Back would land, or null at the start of the trail.
+-  AssessmentRoute? get previous => canGoBack ? _history[_cursor - 1] : null;
++  @override
++  void dispose() {
++    _history.dispose();
++    super.dispose();
++  }
+ 
+-  /// Where Forward would land, or null at the end of it.
+-  AssessmentRoute? get next => canGoForward ? _history[_cursor + 1] : null;
++  /// Where Back would land, or null when that cannot be known.
++  ///
++  /// FOR A TOOLTIP, NEVER FOR CONTROL FLOW, and the difference matters now that
++  /// the browser can be the history. Its stack will not describe a neighbour -
++  /// there is no API for "what is one entry back" - so after a reload this is
++  /// null while [canGoBack] is perfectly true. The arrow is still live; its
++  /// tooltip just says "Back" instead of naming the page.
++  AssessmentRoute? get previous => switch (_history) {
++    MemoryNavigationHistory(previous: final AssessmentRoute? p) => p,
++    _ => null,
++  };
++
++  /// Where Forward would land, or null when that cannot be known. See
++  /// [previous].
++  AssessmentRoute? get next => switch (_history) {
++    MemoryNavigationHistory(next: final AssessmentRoute? n) => n,
++    _ => null,
++  };
+ 
+   /// Retained: `pop`/`canPop` were this class's original Back and are still
+   /// its public API. They are [back] and [canGoBack] now, which differ in the
+@@ -349,53 +379,104 @@ class AssessmentNav extends ChangeNotifier {
+   /// entry - otherwise clicking the lit rail row would silently charge the
+   /// user a Back press to undo.
+   void go(AssessmentRoute r) {
+-    // THE EXAM IS A BOUNDARY, in both directions.
++    // THE EXAM USED TO CLEAR THE TRAIL HERE, on entering and on leaving, and
++    // that was the "it forgets where I have been" bug. One visit to a runner
++    // destroyed every page the operator or candidate had walked through, and it
++    // could not be reconciled with the browser at all: its stack cannot be
++    // cleared, so each clear orphaned entries it was still holding.
+     //
+-    // A live attempt has server-side state - a deadline, a lock, a frozen
+-    // question order - and its own Previous/Next that moves through
+-    // `/exam/<token>/state`. Letting page history stack alongside that would
+-    // put two controls on one screen that both say "back" and mean different
+-    // things, and would offer a candidate who has submitted a Forward button
+-    // that walks into a closed attempt. Entering, moving within, and leaving
+-    // the runner each start a clean trail instead.
+-    if (r is Exam || current is Exam) {
+-      replaceRoot(r);
+-      return;
+-    }
+-
++    // The boundary itself was never the problem - throwing the history away to
++    // enforce it was. A live attempt is PINNED instead (see [pin]), which
++    // refuses the move rather than erasing the trail, and holds against the
++    // browser's own Back as well as ours.
+     if (r == current) return;
+ 
+-    if (canGoForward) _history.removeRange(_cursor + 1, _history.length);
+-    _history.add(r);
+-    if (_history.length > maxEntries) _history.removeAt(0);
+-    _cursor = _history.length - 1;
+-    notifyListeners();
++    // MOVING WITHIN ONE SITTING REPLACES, it does not stack. The runner has its
++    // own Previous and Next over questions and moves through
++    // `/exam/<token>/state` to do it; letting each stage add a history entry
++    // would grow a second, conflicting notion of "back" beside it, and would
++    // hand the browser's Back button a way to walk backwards through a paper
++    // the server thinks is moving forwards.
++    //
++    // Entering and LEAVING the runner are ordinary pushes, which is the change:
++    // the trail either side of a sitting survives it now.
++    final AssessmentRoute at = current;
++    if (r is Exam && at is Exam && r.token == at.token) {
++      _history.replace(r);
++      return;
++    }
++    _history.push(r);
+   }
+ 
+   /// A rail-level jump. An ordinary history entry - see the class docstring.
+   void reset(AssessmentRoute r) => go(r);
+ 
+-  /// Starts a fresh trail at [r], discarding what came before.
++  /// Opens [r] as the session's first page.
+   ///
+-  /// For the section's ENTRY only, and for the exam boundary. Used anywhere
+-  /// else it would silently delete the user's history.
+-  void replaceRoot(AssessmentRoute r) {
+-    _history
+-      ..clear()
+-      ..add(r);
+-    _cursor = 0;
+-    notifyListeners();
++  /// REPLACES THE ENTRY WE ARE STANDING ON; it no longer discards the trail.
++  /// The old behaviour is what the browser could never be made to match, and
++  /// the only caller that ever wanted it is the section's entry point, which
++  /// runs once on mount when there is nothing to discard anyway. A push here
++  /// would make the browser's Back undo the app's own startup - on a deep link,
++  /// straight back out of the exam it had just opened.
++  void replaceRoot(AssessmentRoute r) => _history.replace(r);
++
++  // Both arrows are callers of the history, exactly as the browser's own
++  // buttons are. Neither moves a cursor itself - the history reports where it
++  // landed and [_onHistoryChanged] is the single place that reacts.
++  void back() => _history.back();
++
++  void forward() => _history.forward();
++
++  /// Refuse to leave [route] until [unpin].
++  ///
++  /// THE EXAM BOUNDARY, and it has to be enforced here rather than by hiding
++  /// the arrows, because the browser's Back button cannot be hidden or
++  /// disabled. A candidate mid-sitting who presses it moves the browser whether
++  /// we like it or not; all we can do is notice and put them back, which is
++  /// what [_onHistoryChanged] does. Exam software calls this a history trap.
++  ///
++  /// The trail is left intact throughout - pinning refuses a move, it does not
++  /// erase where the user has been.
++  /// [stays] answers "is this route still inside the thing being held".
++  ///
++  /// A PREDICATE, NOT ONE ROUTE, and that distinction is the whole difference
++  /// between a working runner and a frozen one. A sitting is not a single page:
++  /// the candidate moves gate to question to answers to review, and every one of
++  /// those is a different `Exam` value. Pinning the exact route the candidate
++  /// stood on when the attempt started would treat the runner's own Next button
++  /// as an escape and slam them back onto the question they were on.
++  void pin(bool Function(AssessmentRoute) stays) {
++    _stays = stays;
++    _returnTo = _history.current;
+   }
+ 
+-  void back() {
+-    if (!canGoBack) return;
+-    _cursor--;
+-    notifyListeners();
++  void unpin() {
++    _stays = null;
++    _returnTo = null;
+   }
+ 
+-  void forward() {
+-    if (!canGoForward) return;
+-    _cursor++;
++  bool Function(AssessmentRoute)? _stays;
++
++  /// The furthest route still inside the pinned thing - where an escape is sent
++  /// back to. Tracks forward with the candidate, so being bounced lands them on
++  /// the question they were answering rather than the gate they started at.
++  AssessmentRoute? _returnTo;
++
++  /// The one place that reacts to the history moving, whoever moved it.
++  void _onHistoryChanged() {
++    final bool Function(AssessmentRoute)? stays = _stays;
++    final AssessmentRoute? returnTo = _returnTo;
++
++    if (stays != null && returnTo != null && !stays(_history.current)) {
++      // Pushing rather than stepping back: a step would race a browser that is
++      // still settling, and a push is the one operation whose result does not
++      // depend on where its stack currently is. The push re-enters here, this
++      // time allowed, so it runs at most twice.
++      _history.push(returnTo);
++      return;
++    }
++    if (stays != null) _returnTo = _history.current;
+     notifyListeners();
+   }
+ 
+diff --git a/test/assessment/history_nav_test.dart b/test/assessment/history_nav_test.dart
+index d3d7c21..f42b54d 100644
+--- a/test/assessment/history_nav_test.dart
++++ b/test/assessment/history_nav_test.dart
+@@ -79,20 +79,34 @@ void main() {
+       expect(nav.next, isNull);
+     });
+ 
+-    test('replaceRoot starts a trail rather than extending one', () {
+-      // What the section's entry point uses. Seeding with `reset` instead would
+-      // leave the navigator's initial placeholder sitting behind the first real
+-      // page, and Back on a freshly loaded app would go somewhere the user had
+-      // never been.
+-      final AssessmentNav nav = AssessmentNav()
+-        ..reset(const GeneratorList())
+-        ..reset(const QuestionBank())
+-        ..replaceRoot(const Analytics());
++    test('replaceRoot leaves no placeholder behind the first page', () {
++      // What the section's entry point uses, and the property that matters:
++      // seeding with `reset` would leave the navigator's initial placeholder
++      // sitting behind the first real page, and Back on a freshly loaded app
++      // would go somewhere the user had never been.
++      final AssessmentNav nav = AssessmentNav()..replaceRoot(const Analytics());
+ 
+       expect(nav.current, const Analytics());
+       expect(nav.canGoBack, isFalse);
+       expect(nav.canGoForward, isFalse);
+     });
++
++    test('replaceRoot no longer discards a trail already walked', () {
++      // DELIBERATE CHANGE. It used to clear, and clearing is what could never be
++      // reconciled with the browser: its stack cannot be cleared, so every call
++      // orphaned entries it was still holding. The only caller runs on mount,
++      // where there is nothing to discard - so replacing the entry underfoot is
++      // all it ever needed.
++      final AssessmentNav nav = AssessmentNav()
++        ..replaceRoot(const GeneratorList())
++        ..go(const QuestionBank())
++        ..replaceRoot(const Analytics());
++
++      expect(nav.current, const Analytics());
++      expect(nav.canGoBack, isTrue);
++      nav.back();
++      expect(nav.current, const GeneratorList());
++    });
+   });
+ 
+   group('Back and Forward walk the trail', () {
+@@ -249,15 +263,61 @@ void main() {
+   });
+ 
+   group('The exam is a boundary in both directions', () {
+-    test('entering the runner starts a clean trail', () {
+-      // A candidate must not be able to walk out of a live attempt with Back.
++    test('entering the runner keeps the trail it came from', () {
++      // THIS PINNED THE OPPOSITE, and the opposite was the bug. Entering an exam
++      // used to clear the history, so one sitting erased every page the user had
++      // walked through to reach it - and it could never be reconciled with the
++      // browser, whose stack cannot be cleared.
++      //
++      // The boundary is held by pinning now (see the trap tests below), which
++      // refuses the move instead of destroying the evidence of where they were.
+       final AssessmentNav nav = AssessmentNav()
+         ..replaceRoot(const MyAssessments())
++        ..go(const Analytics())
+         ..go(const Exam('tok'));
+ 
+       expect(nav.current, const Exam('tok'));
+-      expect(nav.canGoBack, isFalse);
+-      expect(nav.canGoForward, isFalse);
++      expect(nav.canGoBack, isTrue);
++    });
++
++    test('a pinned sitting refuses every way out, including the browser', () {
++      final AssessmentNav nav = AssessmentNav()
++        ..replaceRoot(const MyAssessments())
++        ..go(const Exam('tok'));
++
++      // What the section does while `_examIsLocked()` holds.
++      nav.pin((AssessmentRoute r) => r is Exam && r.token == 'tok');
++
++      // Back is the in-app arrow AND, on the web, the browser's own button:
++      // both are calls on the one history, so one test covers both.
++      nav.back();
++      expect(nav.current, const Exam('tok'));
++
++      nav.go(const MyAssessments());
++      expect(
++        nav.current,
++        const Exam('tok'),
++        reason: 'a rail jump mid-sitting is an escape too',
++      );
++
++      nav.unpin();
++      nav.back();
++      expect(nav.current, isNot(isA<Exam>()), reason: 'released once unpinned');
++    });
++
++    test('a pinned sitting still lets the runner move between stages', () {
++      final AssessmentNav nav = AssessmentNav()
++        ..replaceRoot(const MyAssessments())
++        ..go(const Exam('tok'));
++      nav.pin((AssessmentRoute r) => r is Exam && r.token == 'tok');
++
++      // The runner's own Next. Pinning one exact route rather than the sitting
++      // would read this as an escape and slam the candidate back onto the gate.
++      nav.examQuestion('tok', 3);
++      expect(nav.current, const Exam('tok', stage: ExamStage.question, questionIndex: 3));
++
++      nav.examReview('tok');
++      expect(nav.current, const Exam('tok', stage: ExamStage.review));
+     });
+ 
+     test('moving between stages replaces rather than stacks', () {
+@@ -271,20 +331,31 @@ void main() {
+       nav.examReview('tok');
+ 
+       expect(nav.current, const Exam('tok', stage: ExamStage.review));
+-      expect(nav.canGoBack, isFalse);
++      expect(
++        nav.canGoBack,
++        isTrue,
++        reason: 'the page the candidate came from is still behind them',
++      );
+     });
+ 
+-    test('leaving the runner does not leave it behind to return to', () {
+-      // A submitted attempt is closed. Offering Forward back into it would be
+-      // a button that can only fail.
+-      final AssessmentNav nav = AssessmentNav()..replaceRoot(const MyAssessments());
++    test('a whole sitting costs the trail exactly one entry', () {
++      // The stages replace each other, so a paper with forty questions does not
++      // bury the page the candidate arrived from under forty history entries.
++      final AssessmentNav nav = AssessmentNav()
++        ..replaceRoot(const MyAssessments())
++        ..go(const Analytics());
+       nav.exam('tok');
++      for (int i = 1; i <= 10; i++) {
++        nav.examQuestion('tok', i);
++      }
+       nav.examComplete('tok');
+       nav.reset(const MyAssessments());
+ 
+       expect(nav.current, const MyAssessments());
+-      expect(nav.canGoBack, isFalse);
+-      expect(nav.canGoForward, isFalse);
++      nav.back();
++      expect(nav.current, isA<Exam>(), reason: 'one entry for the whole sitting');
++      nav.back();
++      expect(nav.current, const Analytics(), reason: 'and the trail survived it');
+     });
+   });
+ 
+diff --git a/test/assessment/performance_row_opens_sitting_test.dart b/test/assessment/performance_row_opens_sitting_test.dart
+index 6a5b6c1..46a0dd0 100644
+--- a/test/assessment/performance_row_opens_sitting_test.dart
++++ b/test/assessment/performance_row_opens_sitting_test.dart
+@@ -321,19 +321,33 @@ void main() {
+       expect(find.text(kDeadLink), findsNothing);
+     });
+ 
+-    testWidgets('the runner replaces the trail rather than stacking on it', (
++    testWidgets('opening a finished sitting keeps the way back', (
+       WidgetTester t,
+     ) async {
+-      // The exam is a history boundary: a candidate must not be able to walk
+-      // back out of a sitting with the Back arrow, nor forward into one she
+-      // has left. See `history_nav_test.dart`.
++      // THIS PINNED THE OPPOSITE, and the opposite was the bug. Opening a
++      // sitting used to clear the trail, so a candidate who tapped a score
++      // breakdown lost every page behind it and had no way back to their own
++      // performance screen except the rail.
++      //
++      // The boundary that mattered was never this one. It is a LIVE sitting a
++      // candidate must not walk out of, and that is enforced by pinning while
++      // the attempt is under way - see `history_nav_test.dart`. This row opens a
++      // sitting that is already complete, so there is nothing to hold them in.
+       final AssessmentNav nav = await _openPerformance(t);
+ 
+       await t.tap(_breakdownRow());
+       await _settle(t);
+ 
+-      expect(nav.canGoBack, isFalse);
+-      expect(nav.canGoForward, isFalse);
++      expect(nav.current, isA<Exam>());
++      expect(nav.canGoBack, isTrue);
++
++      nav.back();
++      await _settle(t);
++      expect(
++        nav.current,
++        isA<MyPerformance>(),
++        reason: 'Back returns to the page the row was tapped on',
++      );
+     });
+   });
+ }
+--- new files ---
+=== lib/assessment/navigation_history.dart ===
+// ONE history, whoever is pressing the button.
+//
+// THE PROBLEM THIS SOLVES. The section used to own a trail with a cursor, and
+// the browser owns a stack of its own, and an earlier attempt kept the two in
+// step by writing to both on every navigation. That cannot be made to work, for
+// one specific reason: the browser's stack can be pushed, replaced and stepped,
+// but never cleared, never truncated and never inspected. There is no way to
+// ask it how many entries are ahead. So any app-side stack that clears itself -
+// and `AssessmentNav.replaceRoot` did, on every exam entry and exit - orphans
+// entries the browser is still holding, and from then on its buttons walk into
+// pages the app has forgotten.
+//
+// So there is no mirroring here. There is one history, behind this interface,
+// and both the in-app arrows and the browser's own buttons are callers of it.
+// On the web the implementation IS the browser's stack; everywhere else it is a
+// list. Neither the navigator nor any screen knows which it has.
+import 'nav.dart';
+
+/// The trail, and where in it we are.
+///
+/// [index] and [current] move together and are written in exactly one place per
+/// implementation - a `popstate` on the web, the step methods in memory. That
+/// single writer is the whole point: two writers is what the previous attempt
+/// had, and what made the arrows and the browser disagree.
+abstract class NavigationHistory {
+  /// Position in the trail, from zero.
+  int get index;
+
+  /// The furthest entry still reachable with [forward].
+  ///
+  /// Not `length - 1`: after a reload the browser may hold entries ahead of us
+  /// that it will not describe, so an implementation is allowed to report the
+  /// conservative answer and light the arrow only once it knows.
+  int get maxIndex;
+
+  AssessmentRoute get current;
+
+  /// True when this history came back from a page RELOAD holding a real entry.
+  ///
+  /// The section opens on a destination of its own choosing; it must not do
+  /// that over the top of a page the user was already on. Only the browser can
+  /// answer yes, and only because its stack outlives the app.
+  bool get wasRestored => false;
+
+  bool get canGoBack => index > 0;
+  bool get canGoForward => index < maxIndex;
+
+  /// Visit [route]. Appends, and abandons whatever was ahead.
+  void push(AssessmentRoute route);
+
+  /// Replace the entry we are standing on, adding no step.
+  ///
+  /// For the first route of a session only. A push there would make the
+  /// browser's Back undo the app's own startup.
+  void replace(AssessmentRoute route);
+
+  /// Ask to move. NOT guaranteed to have happened when this returns - on the
+  /// web the browser answers on a later task - so callers read [current] from
+  /// the change callback rather than the next line.
+  void back();
+  void forward();
+
+  /// Called whenever [index] or [current] changes, however it changed.
+  void Function()? onChange;
+
+  void dispose();
+}
+
+/// The trail as a plain list. What runs off the web, and under every test.
+///
+/// NOT A TEST DOUBLE. It is the real implementation for every non-browser
+/// build, which is why the navigator has no branch on which one it holds: the
+/// code path a widget test exercises is the code path that ships.
+class MemoryNavigationHistory implements NavigationHistory {
+  MemoryNavigationHistory([AssessmentRoute initial = const AssessmentsList()])
+    : _entries = <AssessmentRoute>[initial];
+
+  /// Long enough that no real session reaches it, short enough that a tab left
+  /// open all day does not hold every page it ever showed.
+  static const int maxEntries = 50;
+
+  final List<AssessmentRoute> _entries;
+  int _index = 0;
+
+  @override
+  void Function()? onChange;
+
+  @override
+  int get index => _index;
+
+  @override
+  int get maxIndex => _entries.length - 1;
+
+  @override
+  AssessmentRoute get current => _entries[_index];
+
+  /// Always false: nothing here outlives the page, so there is never an entry
+  /// to come back to.
+  @override
+  bool get wasRestored => false;
+
+  @override
+  bool get canGoBack => _index > 0;
+
+  @override
+  bool get canGoForward => _index < maxIndex;
+
+  @override
+  void push(AssessmentRoute route) {
+    if (canGoForward) _entries.removeRange(_index + 1, _entries.length);
+    _entries.add(route);
+    if (_entries.length > maxEntries) _entries.removeAt(0);
+    _index = _entries.length - 1;
+    onChange?.call();
+  }
+
+  @override
+  void replace(AssessmentRoute route) {
+    _entries[_index] = route;
+    onChange?.call();
+  }
+
+  @override
+  void back() {
+    if (!canGoBack) return;
+    _index--;
+    onChange?.call();
+  }
+
+  @override
+  void forward() {
+    if (!canGoForward) return;
+    _index++;
+    onChange?.call();
+  }
+
+  /// The entry [back] would land on, or null. For a tooltip, never for control
+  /// flow - see `AssessmentNav.previous`.
+  AssessmentRoute? get previous => canGoBack ? _entries[_index - 1] : null;
+
+  AssessmentRoute? get next => canGoForward ? _entries[_index + 1] : null;
+
+  @override
+  void dispose() => onChange = null;
+}
+=== lib/assessment/navigation_history_web.dart ===
+// The browser's own history stack, as the app's one history.
+//
+// NOT A MIRROR OF ANYTHING. An earlier attempt kept an app-side trail and the
+// browser's stack in step by writing to both, and it could not be made to work:
+// the browser's stack can be pushed, replaced and stepped, but never cleared,
+// never truncated and never inspected. This class does not keep a second copy
+// to reconcile - the browser IS the storage, and everything below reads out of
+// it.
+//
+// THE ENTRY CARRIES THE ROUTE, not an index or an id into some list this object
+// holds. That is what makes a reload a non-event: the stack survives it, the app
+// does not, and an entry that names only a slot in a vanished list is an entry
+// the new page cannot render. See `route_codec.dart`.
+import 'dart:js_interop';
+
+import 'package:web/web.dart' as web;
+
+import 'nav.dart';
+import 'navigation_history.dart';
+import 'route_codec.dart';
+
+/// Picked by the conditional import in `assessment_section.dart`.
+NavigationHistory createNavigationHistory() => BrowserNavigationHistory();
+
+/// The key our state travels under, so a state object written by anything else
+/// on this origin is recognisably not ours.
+const String _kMark = 'etharaNav';
+
+class BrowserNavigationHistory implements NavigationHistory {
+  BrowserNavigationHistory() {
+    _listener = _onPopState.toJS;
+    try {
+      web.window.addEventListener('popstate', _listener);
+    } catch (_) {
+      // Nothing to listen to. The arrows still work off `_index`/`_current`,
+      // which `push` and `replace` maintain; only the browser's own buttons go
+      // quiet, and `_writable` below will already be reporting the trouble.
+    }
+    _adoptExistingEntry();
+  }
+
+  late final JSFunction _listener;
+
+  /// Where we are, and what is here. Written by [push], [replace] and
+  /// [_onPopState] - and [_onPopState] is the browser telling us, not us
+  /// guessing. There is no other writer.
+  int _index = 0;
+  int _maxIndex = 0;
+  AssessmentRoute _current = const AssessmentsList();
+
+  /// False once a history write has been refused, and it stays false.
+  ///
+  /// A sandboxed iframe refuses them outright and a page that pushes too fast is
+  /// throttled. Either way the stack stops matching what we think, so [back] and
+  /// [forward] stop delegating and move locally instead - a degraded mode that
+  /// keeps the in-app arrows alive when the browser's buttons cannot be.
+  bool _writable = true;
+
+  @override
+  void Function()? onChange;
+
+  @override
+  int get index => _index;
+
+  @override
+  int get maxIndex => _maxIndex;
+
+  @override
+  AssessmentRoute get current => _current;
+
+  @override
+  bool get wasRestored => _restored;
+
+  bool _restored = false;
+
+  @override
+  bool get canGoBack => _index > 0;
+
+  @override
+  bool get canGoForward => _index < _maxIndex;
+
+  /// A RELOAD LANDS HERE. The browser restores its stack and hands back the
+  /// state it stored, so if this entry is ours the page comes back exactly where
+  /// it was rather than at whatever the app opens on.
+  ///
+  /// `_maxIndex` is deliberately NOT restored. The browser will not say whether
+  /// entries exist ahead of us, and lighting Forward on a guess gives the user a
+  /// button that does nothing. It comes back the moment they go back.
+  void _adoptExistingEntry() {
+    final (int, AssessmentRoute)? entry = _readState(web.window.history.state);
+    if (entry == null) return;
+    _index = entry.$1;
+    _maxIndex = entry.$1;
+    _current = entry.$2;
+    _restored = true;
+  }
+
+  (int, AssessmentRoute)? _readState(JSAny? state) {
+    if (state == null || !state.isA<JSObject>()) return null;
+    final Object? dart = state.dartify();
+    if (dart is! Map) return null;
+    if (dart[_kMark] != true) return null;
+    final Object? i = dart['i'];
+    final AssessmentRoute? route = decodeRoute(dart['r']);
+    if (i is! int || route == null) return null;
+    return (i, route);
+  }
+
+  JSAny? _writeState(int i, AssessmentRoute route) => <String, Object?>{
+    _kMark: true,
+    'i': i,
+    'r': encodeRoute(route),
+  }.jsify();
+
+  void _onPopState(web.Event event) {
+    final (int, AssessmentRoute)? entry = _readState(
+      (event as web.PopStateEvent).state,
+    );
+    // AN ENTRY WE CANNOT NAME LEAVES THE PAGE ALONE. It belongs to an older
+    // build, or to something else on this origin. Rendering a guess would show
+    // somebody a page they did not ask for.
+    if (entry == null) return;
+    _index = entry.$1;
+    _current = entry.$2;
+    if (_index > _maxIndex) _maxIndex = _index;
+    onChange?.call();
+  }
+
+  @override
+  void push(AssessmentRoute route) {
+    _index += 1;
+    // A push is exactly when the browser discards what was ahead, so the
+    // furthest reachable entry becomes this one.
+    _maxIndex = _index;
+    _current = route;
+    if (_writable) {
+      try {
+        // '' keeps the current URL. Nothing here touches the address bar: the
+        // app has no URL per screen, and inventing one is a separate change.
+        web.window.history.pushState(_writeState(_index, route), '', '');
+      } catch (_) {
+        _writable = false;
+      }
+    }
+    onChange?.call();
+  }
+
+  @override
+  void replace(AssessmentRoute route) {
+    _current = route;
+    if (_writable) {
+      try {
+        web.window.history.replaceState(_writeState(_index, route), '', '');
+      } catch (_) {
+        _writable = false;
+      }
+    }
+    onChange?.call();
+  }
+
+  @override
+  void back() {
+    if (!canGoBack) return;
+    if (!_writable) {
+      _index -= 1;
+      onChange?.call();
+      return;
+    }
+    // THE ARROW AND THE BROWSER'S OWN BUTTON ARE THE SAME CALL. Nothing moves
+    // here; `_onPopState` moves it, for both of them.
+    web.window.history.go(-1);
+  }
+
+  @override
+  void forward() {
+    if (!canGoForward) return;
+    if (!_writable) {
+      _index += 1;
+      onChange?.call();
+      return;
+    }
+    web.window.history.go(1);
+  }
+
+  @override
+  void dispose() {
+    onChange = null;
+    try {
+      web.window.removeEventListener('popstate', _listener);
+    } catch (_) {
+      // Unloading; nothing left to detach from.
+    }
+  }
+}
+=== lib/assessment/navigation_history_stub.dart ===
+/// Which history a non-web build gets.
+///
+/// The app is web-only today, so this exists to satisfy the conditional import
+/// in `assessment_section.dart` - and it is what the whole widget suite runs
+/// against, since tests execute on the Dart VM.
+///
+/// [MemoryNavigationHistory] is not a test double. It is the real
+/// implementation off the browser, behind the same interface, so the navigator
+/// has no branch on which one it holds and the code path a test exercises is
+/// the code path that ships.
+library;
+
+import 'navigation_history.dart';
+
+NavigationHistory createNavigationHistory() => MemoryNavigationHistory();
+=== lib/assessment/route_codec.dart ===
+// An `AssessmentRoute` as something the browser can hold.
+//
+// WHY THIS EXISTS. A history entry has to survive a RELOAD. The browser keeps
+// its stack across one, so if an entry carries nothing but an index or an id,
+// the app comes back up unable to say what page that entry was - and its Back
+// and Forward buttons walk into pages it cannot render. Carrying the route
+// itself is what makes a reload a non-event.
+//
+// A TAG AND ITS FIELDS, not `toString`. The tag is written out here rather than
+// taken from `runtimeType`, because a minified web build does not keep class
+// names and every route would decode as the same thing in release and not in
+// debug - a difference that would never show up in a test.
+import 'nav.dart';
+
+/// Every route that can be a history entry, by its wire tag.
+///
+/// EXHAUSTIVE BY CONSTRUCTION: [encodeRoute] switches over the sealed
+/// `AssessmentRoute` hierarchy, so a route added later fails to compile here
+/// until it is given a tag. That is the point - a missing case would otherwise
+/// surface as a page that silently will not come back after a reload.
+Map<String, Object?> encodeRoute(AssessmentRoute r) => switch (r) {
+  AssessmentsList() => <String, Object?>{'t': 'assessments'},
+  NewAssessment() => <String, Object?>{'t': 'new-assessment'},
+  QuestionBank() => <String, Object?>{'t': 'bank'},
+  GeneratorList() => <String, Object?>{'t': 'generators'},
+  ResponsesList() => <String, Object?>{'t': 'responses'},
+  TagsAdmin() => <String, Object?>{'t': 'tags'},
+  FormStudio() => <String, Object?>{'t': 'forms'},
+  BudgetAdmin() => <String, Object?>{'t': 'budget'},
+  LedgerAdmin() => <String, Object?>{'t': 'ledger'},
+  SettingsAdmin() => <String, Object?>{'t': 'settings'},
+  AccountSettings() => <String, Object?>{'t': 'account'},
+  StartHere() => <String, Object?>{'t': 'start'},
+  Analytics() => <String, Object?>{'t': 'analytics'},
+  MyAssessments() => <String, Object?>{'t': 'mine'},
+  MyPerformance() => <String, Object?>{'t': 'performance'},
+  AssessmentDetail(:final String id, :final String? tab) => <String, Object?>{
+    't': 'assessment',
+    'id': id,
+    'tab': tab,
+  },
+  GeneratorDetail(
+    :final String id,
+    :final String? tab,
+    :final bool focusName,
+  ) =>
+    <String, Object?>{
+      't': 'generator',
+      'id': id,
+      'tab': tab,
+      // Part of the route's identity, so it has to round-trip: arriving with
+      // the name ready to type into is a different page from arriving to read
+      // it, and `==` says so.
+      'focus': focusName,
+    },
+  ReviewQueue(:final String? generatorId) => <String, Object?>{
+    't': 'review',
+    'gen': generatorId,
+  },
+  ResponseDetail(:final String attemptId, :final String questionId) =>
+    <String, Object?>{'t': 'response', 'a': attemptId, 'q': questionId},
+  AttemptDetail(:final String id) => <String, Object?>{'t': 'attempt', 'id': id},
+  CandidateDetail(:final String personId) => <String, Object?>{
+    't': 'candidate',
+    'p': personId,
+  },
+  CandidatePerformance(:final String personId) => <String, Object?>{
+    't': 'candidate-performance',
+    'p': personId,
+  },
+  FormDesigner(:final String id, :final String? tab) => <String, Object?>{
+    't': 'form',
+    'id': id,
+    'tab': tab,
+  },
+  Exam(
+    :final String token,
+    :final ExamStage stage,
+    :final int questionIndex,
+  ) =>
+    <String, Object?>{
+      't': 'exam',
+      'tok': token,
+      'stage': stage.name,
+      'q': questionIndex,
+    },
+};
+
+/// The route [data] describes, or null when it describes none.
+///
+/// NULL IS A REAL ANSWER, not a failure to handle. The state may have been
+/// written by an older build of the app, or by something else on this origin
+/// entirely. A caller that cannot name the entry leaves the page where it is,
+/// which is the only safe move - guessing would show somebody a page they did
+/// not ask for.
+AssessmentRoute? decodeRoute(Object? data) {
+  if (data is! Map) return null;
+  final Object? tag = data['t'];
+  if (tag is! String) return null;
+
+  String? str(String k) => data[k] is String ? data[k] as String : null;
+
+  return switch (tag) {
+    'assessments' => const AssessmentsList(),
+    'new-assessment' => const NewAssessment(),
+    'bank' => const QuestionBank(),
+    'generators' => const GeneratorList(),
+    'responses' => const ResponsesList(),
+    'tags' => const TagsAdmin(),
+    'forms' => const FormStudio(),
+    'budget' => const BudgetAdmin(),
+    'ledger' => const LedgerAdmin(),
+    'settings' => const SettingsAdmin(),
+    'account' => const AccountSettings(),
+    'start' => const StartHere(),
+    'analytics' => const Analytics(),
+    'mine' => const MyAssessments(),
+    'performance' => const MyPerformance(),
+    'assessment' => switch (str('id')) {
+      final String id => AssessmentDetail(id, tab: str('tab')),
+      _ => null,
+    },
+    'generator' => switch (str('id')) {
+      final String id => GeneratorDetail(
+        id,
+        tab: str('tab'),
+        focusName: data['focus'] == true,
+      ),
+      _ => null,
+    },
+    'review' => ReviewQueue(generatorId: str('gen')),
+    'response' => switch ((str('a'), str('q'))) {
+      (final String a, final String q) => ResponseDetail(a, q),
+      _ => null,
+    },
+    'attempt' => switch (str('id')) {
+      final String id => AttemptDetail(id),
+      _ => null,
+    },
+    'candidate' => switch (str('p')) {
+      final String p => CandidateDetail(p),
+      _ => null,
+    },
+    'candidate-performance' => switch (str('p')) {
+      final String p => CandidatePerformance(p),
+      _ => null,
+    },
+    'form' => switch (str('id')) {
+      final String id => FormDesigner(id, tab: str('tab')),
+      _ => null,
+    },
+    'exam' => switch (str('tok')) {
+      final String tok => Exam(
+        tok,
+        stage: ExamStage.values.firstWhere(
+          (ExamStage s) => s.name == str('stage'),
+          orElse: () => ExamStage.gate,
+        ),
+        questionIndex: data['q'] is int ? data['q'] as int : 0,
+      ),
+      _ => null,
+    },
+    _ => null,
+  };
+}
+=== test/assessment/route_codec_test.dart ===
+// Every route survives the round trip into a history entry and back.
+//
+// WHAT BREAKS WITHOUT THIS. The codec is what lets a RELOAD keep working: the
+// browser hands back the state it stored, and the app has to rebuild the exact
+// page from it. A route that encodes but decodes wrong comes back as a
+// different page - or as the same page with a field dropped, which is worse,
+// because `AssessmentDetail('7', tab: 'questions')` and
+// `AssessmentDetail('7')` are different history entries by `==` and only one of
+// them is where the user was.
+//
+// So the assertion is equality on the route itself, not a spot-check of fields.
+import 'package:flutter_test/flutter_test.dart';
+import 'package:ethara_assessment/assessment/nav.dart';
+import 'package:ethara_assessment/assessment/route_codec.dart';
+
+void main() {
+  /// One of every route, including the field-carrying ones at values that would
+  /// expose a dropped or defaulted field.
+  const List<AssessmentRoute> every = <AssessmentRoute>[
+    AssessmentsList(),
+    NewAssessment(),
+    QuestionBank(),
+    GeneratorList(),
+    ResponsesList(),
+    TagsAdmin(),
+    FormStudio(),
+    BudgetAdmin(),
+    LedgerAdmin(),
+    SettingsAdmin(),
+    AccountSettings(),
+    StartHere(),
+    Analytics(),
+    MyAssessments(),
+    MyPerformance(),
+    AssessmentDetail('42'),
+    AssessmentDetail('42', tab: 'questions'),
+    GeneratorDetail('g1'),
+    GeneratorDetail('g1', tab: 'drafts'),
+    GeneratorDetail('g1', focusName: true),
+    ReviewQueue(),
+    ReviewQueue(generatorId: 'g9'),
+    ResponseDetail('att-1', 'q-2'),
+    AttemptDetail('att-3'),
+    CandidateDetail('p-4'),
+    CandidatePerformance('p-5'),
+    FormDesigner('f1'),
+    FormDesigner('f1', tab: 'preview'),
+    Exam('tok'),
+    Exam('tok', stage: ExamStage.question, questionIndex: 7),
+    Exam('tok', stage: ExamStage.review),
+    Exam('tok', stage: ExamStage.complete),
+  ];
+
+  test('every route round-trips unchanged', () {
+    for (final AssessmentRoute r in every) {
+      expect(
+        decodeRoute(encodeRoute(r)),
+        r,
+        reason: '$r did not survive the round trip',
+      );
+    }
+  });
+
+  test('the tags are stable strings, not class names', () {
+    // A minified release build does not keep class names. If a tag were ever
+    // derived from `runtimeType`, entries written by a debug build would fail to
+    // decode in release and nothing in the suite would notice.
+    expect(encodeRoute(const Analytics())['t'], 'analytics');
+    expect(encodeRoute(const Exam('tok'))['t'], 'exam');
+    expect(encodeRoute(const AssessmentDetail('1'))['t'], 'assessment');
+  });
+
+  test('a focusName generator is not the same entry as a plain one', () {
+    // They differ by `==`, so they are different history entries, so the codec
+    // has to keep them apart.
+    expect(
+      decodeRoute(encodeRoute(const GeneratorDetail('g1', focusName: true))),
+      isNot(const GeneratorDetail('g1')),
+    );
+  });
+
+  group('state this app did not write is refused, not guessed', () {
+    test('null, a non-map, and a map with no tag', () {
+      expect(decodeRoute(null), isNull);
+      expect(decodeRoute(7), isNull);
+      expect(decodeRoute('analytics'), isNull);
+      expect(decodeRoute(<String, Object?>{}), isNull);
+    });
+
+    test('a tag from a newer build', () {
+      expect(decodeRoute(<String, Object?>{'t': 'something-else'}), isNull);
+    });
+
+    test('a known tag missing the field it needs', () {
+      // Better to leave the page alone than to render a detail screen for a
+      // record id that is not there.
+      expect(decodeRoute(<String, Object?>{'t': 'assessment'}), isNull);
+      expect(decodeRoute(<String, Object?>{'t': 'exam'}), isNull);
+      expect(decodeRoute(<String, Object?>{'t': 'response', 'a': 'x'}), isNull);
+    });
+
+    test('an exam with an unknown stage falls back to the gate', () {
+      // The token is the part that matters; a stage name from a build that had
+      // more of them should still open the sitting rather than nothing.
+      expect(
+        decodeRoute(<String, Object?>{'t': 'exam', 'tok': 'k', 'stage': 'zzz'}),
+        const Exam('k'),
+      );
+    });
+  });
+}
+=== test/assessment/navigation_history_browser_test.dart ===
+@TestOn('browser')
+library;
+
+// The browser IS the history, so this is where that claim is checked.
+//
+// Everything else in the suite runs on the Dart VM against
+// `MemoryNavigationHistory`, which is the real implementation off the web but
+// cannot prove the half that only exists in a browser: that a push leaves the
+// stack the shape we think, that a real `popstate` carries the route back, and
+// that a RELOAD returns the page the user was on. The last one is what the
+// previous attempt got wrong and what no VM test could have caught.
+//
+// Run by `flutter test --platform chrome`, which the Makefile's `test` target
+// already does.
+import 'package:flutter_test/flutter_test.dart';
+import 'package:ethara_assessment/assessment/nav.dart';
+import 'package:ethara_assessment/assessment/navigation_history.dart';
+import 'package:ethara_assessment/assessment/navigation_history_web.dart';
+
+/// Wait for the browser to deliver `popstate`.
+///
+/// `history.go` resolves on a later task and hands back no future, so an
+/// assertion on the next line reads the state before the move. Running out of
+/// budget is itself a result: "nothing happened" is exactly the reported bug.
+Future<void> settle(AssessmentNav nav, AssessmentRoute until) async {
+  for (int i = 0; i < 60; i++) {
+    if (nav.current == until) return;
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+  }
+}
+
+void main() {
+  late AssessmentNav nav;
+
+  setUp(() {
+    nav = AssessmentNav(history: BrowserNavigationHistory());
+  });
+
+  tearDown(() => nav.dispose());
+
+  test('the arrow and the browser button are the same call', () async {
+    nav.replaceRoot(const Analytics());
+    nav.go(const TagsAdmin());
+    nav.go(const QuestionBank());
+
+    // The in-app arrow. It does not move the cursor itself - it asks the
+    // browser, and `popstate` moves it. So this IS the browser's Back button,
+    // exercised through the arrow.
+    nav.back();
+    await settle(nav, const TagsAdmin());
+    expect(nav.current, const TagsAdmin());
+
+    nav.forward();
+    await settle(nav, const QuestionBank());
+    expect(nav.current, const QuestionBank());
+  });
+
+  test('Forward keeps working over repeated rounds', () async {
+    nav.replaceRoot(const Analytics());
+    nav.go(const TagsAdmin());
+    nav.go(const QuestionBank());
+
+    for (int round = 0; round < 3; round++) {
+      nav.back();
+      await settle(nav, const TagsAdmin());
+      expect(nav.current, const TagsAdmin(), reason: 'round $round back');
+
+      nav.forward();
+      await settle(nav, const QuestionBank());
+      expect(nav.current, const QuestionBank(), reason: 'round $round forward');
+    }
+  });
+
+  test('a new page after Back abandons the forward branch', () async {
+    nav.replaceRoot(const Analytics());
+    nav.go(const TagsAdmin());
+    nav.back();
+    await settle(nav, const Analytics());
+
+    nav.go(const QuestionBank());
+    expect(nav.current, const QuestionBank());
+    expect(
+      nav.canGoForward,
+      isFalse,
+      reason: 'the browser discards what was ahead on a push, and so must we',
+    );
+  });
+
+  test('a reload comes back on the page the user was on', () async {
+    nav.replaceRoot(const Analytics());
+    nav.go(const GeneratorDetail('g7', tab: 'drafts'));
+
+    // A reload: the browser keeps its stack and hands the entry back, the app
+    // does not survive. A fresh history over the same window is exactly what the
+    // page gets on the way back up.
+    final BrowserNavigationHistory reborn = BrowserNavigationHistory();
+    addTearDown(reborn.dispose);
+
+    expect(
+      reborn.wasRestored,
+      isTrue,
+      reason: 'the entry is ours, so the section must not open over the top',
+    );
+    expect(
+      reborn.current,
+      const GeneratorDetail('g7', tab: 'drafts'),
+      reason: 'including the tab - a dropped field is a different entry',
+    );
+  });
+
+  test('a pinned sitting is held against the browser too', () async {
+    nav.replaceRoot(const MyAssessments());
+    nav.go(const Exam('tok'));
+    nav.pin((AssessmentRoute r) => r is Exam && r.token == 'tok');
+
+    nav.back();
+    // Give the browser every chance to take the candidate out; the trap has to
+    // put them back.
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+
+    expect(
+      nav.current,
+      const Exam('tok'),
+      reason: 'a live sitting refuses the browser Back button as well as ours',
+    );
+  });
+}

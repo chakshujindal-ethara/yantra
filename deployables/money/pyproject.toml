@@ -1,0 +1,18 @@
+[project]
+name = "yantra-money"
+version = "0.1.0"
+description = "The money deployable: the payout module on its own release train, with its own deploy freeze."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "yantra-common",
+  "yantra-payout",
+  "fastapi==0.115.5",
+  "uvicorn[standard]==0.32.0",
+]
+
+[build-system]
+requires = ["hatchling==1.26.3"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["yantra_money"]

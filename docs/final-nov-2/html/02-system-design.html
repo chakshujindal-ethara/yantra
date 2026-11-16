@@ -1,0 +1,1594 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Yantra system design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f8f9fa;--surface:#ffffff;--surface2:#f3f3f5;--fg:#030213;--muted:#717182;--line:#e0e0e4;--accent:#b800b8;--accent-soft:#fbdaf7;--ring:#b800b8;--code:#f3f3f5;
+ --body:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;--mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0a0d;--surface:#18181c;--surface2:#222228;--fg:#ececf0;--muted:#a0a0ac;--line:#2f2f35;--accent:#c552bc;--accent-soft:#2a1427;--ring:#d66ecd;--code:#222228;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 var(--body)}
+.shell{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);background:var(--surface);padding:28px 20px 40px max(20px,env(safe-area-inset-left,0px))}
+nav.toc .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+nav.toc .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+nav.toc .brand b{display:block;font-size:16px}
+nav.toc .brand small{display:block;color:var(--muted);font-size:12.5px}
+nav.toc .set{margin:18px 0 8px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+nav.toc a{display:block;color:var(--fg);text-decoration:none;font-size:14.5px;padding:7px 10px;border-radius:8px;line-height:1.4}
+nav.toc a:hover{background:var(--surface2)}
+nav.toc a.h3{padding-left:24px;color:var(--muted);font-size:13.5px}
+nav.toc a.doc{color:var(--muted)}
+nav.toc a.doc.on{background:var(--accent-soft);color:var(--fg);font-weight:600}
+.theme{margin:14px 0 4px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);font:500 13.5px var(--body);padding:8px 12px;border-radius:8px;cursor:pointer}
+.theme:focus-visible,nav.toc a:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+main{padding:56px max(24px,env(safe-area-inset-right,0px)) 96px max(24px,env(safe-area-inset-left,0px));min-width:0}
+article{max-width:880px;margin:0 auto}
+article h1{font-size:40px;line-height:1.15;letter-spacing:-.01em;margin:0 0 24px;text-wrap:balance}
+article h2{font-size:28px;line-height:1.25;margin:64px 0 20px;padding-top:24px;border-top:1px solid var(--line);text-wrap:balance}
+article h3{font-size:21px;margin:40px 0 14px;text-wrap:balance}
+article p{margin:0 0 18px;max-width:72ch}
+article ul,article ol{padding-left:26px;margin:0 0 20px}
+article li{margin:6px 0;max-width:70ch}
+article li p{margin:0}
+article a{color:var(--accent)}
+article strong{font-weight:600}
+article hr{display:none}
+article code{font:14.5px var(--mono);background:var(--code);padding:2px 6px;border-radius:5px}
+article pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow:auto;font:14px/1.55 var(--mono);margin:0 0 24px}
+article pre code{background:none;padding:0;font-size:inherit}
+.tablewrap{overflow-x:auto;margin:0 0 28px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+article table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.5}
+article th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2);padding:14px 16px;border-bottom:1px solid var(--line)}
+article td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+article tr:last-child td{border-bottom:0}
+article td:first-child{font-weight:600;white-space:normal;min-width:140px}
+figure.diagram{margin:8px 0 36px;background:#ffffff;border:1px solid var(--line);border-radius:14px;padding:12px;overflow-x:auto}
+figure.diagram svg{display:block;max-width:100%;height:auto}
+figure.diagram figcaption{font-size:13.5px;color:var(--muted);padding:10px 8px 2px}
+blockquote{margin:0 0 20px;padding:14px 20px;border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0}
+.foot{margin-top:72px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:980px){.shell{grid-template-columns:1fr}nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding-top:32px}article h1{font-size:32px}article h2{font-size:24px;margin-top:44px}}
+</style></head>
+<body><div class="shell">
+<nav class="toc" aria-label="Contents">
+  <div class="brand"><div class="mark">Y</div><div><b>Yantra</b><small>plan, design and screens, 2 November 2026</small></div></div>
+  <button type="button" class="theme" id="theme" aria-label="Toggle light or dark theme"></button>
+  <div class="set">Documents</div><a class="doc" href="01-understanding-yantra.html">Understanding Yantra</a><a class="doc on" href="02-system-design.html">System design</a><a class="doc" href="03-user-flows.html">User flows</a><a class="doc" href="04-tech-stack.html">Tech stack</a><a class="doc" href="05-unified-plan.html">The unified plan</a>
+  <div class="set">On this page</div><a class="h2" href="#1-goals-and-constraints">1. Goals and constraints</a><a class="h2" href="#2-context">2. Context</a><a class="h2" href="#3-containers-the-ring-of-services">3. Containers: the ring of services</a><a class="h2" href="#4-repository-build-and-release">4. Repository, build and release</a><a class="h2" href="#5-runtime-topology-and-sizing">5. Runtime topology and sizing</a><a class="h2" href="#6-data-model-and-ownership">6. Data model and ownership</a><a class="h2" href="#7-events">7. Events</a><a class="h2" href="#8-key-sequences">8. Key sequences</a><a class="h2" href="#9-api-surface">9. API surface</a><a class="h2" href="#10-security-and-privacy">10. Security and privacy</a><a class="h2" href="#11-scalability-and-performance">11. Scalability and performance</a><a class="h2" href="#12-reliability-operations-observability">12. Reliability, operations, observability</a><a class="h2" href="#13-non-functional-requirements">13. Non-functional requirements</a><a class="h2" href="#14-open-decisions">14. Open decisions</a>
+</nav>
+<main><article>
+<h1>Yantra system design</h1>
+<p>The design behind the unified plan: one repository, a ring of services around Odoo 19 Community Edition, a Flutter app, Keycloak, NATS. The repository documents (<code>ARCHITECTURE.md</code>, <code>INFRASTRUCTURE.md</code>, <code>DATAMODEL.md</code>, <code>MODULES.md</code>) are the point of truth; sections 3 and 4 mark the two proposals this design adds (one repository instead of submodules; <code>hub</code> and <code>runner</code> as services). Every diagram can be edited in draw.io.</p>
+
+<hr>
+<h2 id="1-goals-and-constraints">1. Goals and constraints</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Measure</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Run the closed loop with real money in twelve weeks: vet, onboard, claim, review, pay, deliver, invoice</td>
+<td>the Stage 1 gates in the plan</td>
+</tr>
+<tr>
+<td>Isolate the hot path (claims and submissions) from the system of record</td>
+<td>the claim path never touches an Odoo table; p99 claim under 500 ms at 500 concurrent workers</td>
+</tr>
+<tr>
+<td>Make every money movement reconstructable</td>
+<td>zero double claims; zero double pay; reconciliation to the paisa nightly</td>
+</tr>
+<tr>
+<td>Keep the repository&#39;s architecture</td>
+<td>same services, same integration rules, same identity and bus</td>
+</tr>
+<tr>
+<td>Fit a squad of five to seven</td>
+<td>shared code in one package; one CI; one release train</td>
+</tr>
+</tbody></table></div>
+<p>Constraints: Odoo 19 Community Edition only (no Enterprise code); Indian entity (Razorpay rails, TDS, GST, DPDP); existing Flutter assessment app and Keycloak; year-one envelope of 3,000 registered and 500 concurrent workers inside the repository&#39;s 200K ceiling.</p>
+<hr>
+<h2 id="2-context">2. Context</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1030" height="704" viewBox="0 0 1030 704" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1030" height="704" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">System context: who uses Yantra and what it talks to</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Level 1. People on the left, Yantra in the middle, external systems on the right.</text>
+<rect x="40" y="120" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="139.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Candidate / Worker</text>
+<text x="125.0" y="157.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">applies, certifies,</text>
+<text x="125.0" y="171.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">claims tasks, gets paid</text>
+<rect x="40" y="230" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="249.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Reviewer / Auditor</text>
+<text x="125.0" y="267.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">judges submissions, flags</text>
+<text x="125.0" y="281.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">unclear rubrics</text>
+<rect x="40" y="340" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="359.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Ops / TPM / Finance</text>
+<text x="125.0" y="377.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">runs projects, pay</text>
+<text x="125.0" y="391.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">windows, delivery</text>
+<rect x="40" y="450" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="469.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Client / Buyer</text>
+<text x="125.0" y="487.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">labs and environment</text>
+<text x="125.0" y="501.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">vendors</text>
+<rect x="40" y="560" width="170" height="70" rx="10" fill="#FFFFFF" stroke="#030213" stroke-width="2"/>
+<text x="125.0" y="579.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Leadership</text>
+<text x="125.0" y="597.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">the four numbers, kill</text>
+<text x="125.0" y="611.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">tests</text>
+<rect x="340" y="210" width="340" height="300" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="510.0" y="330.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Yantra</text>
+<text x="510.0" y="349.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">trusted supply and verified production of AI training</text>
+<text x="510.0" y="362.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">work: vet, bench, claim, review, pay, deliver,</text>
+<text x="510.0" y="376.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">catalogue</text>
+<text x="510.0" y="392.4" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one repository, services around Odoo 19 CE</text>
+<rect x="800" y="100" width="190" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="895.0" y="114.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Keycloak</text>
+<text x="895.0" y="132.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">identity: OIDC for staff,</text>
+<text x="895.0" y="146.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">JWT for workers</text>
+<rect x="800" y="190" width="190" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="211.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">RazorpayX</text>
+<text x="895.0" y="229.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">weekly payouts, penny drop</text>
+<rect x="800" y="280" width="190" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="301.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">NIC e-invoice (GSTN)</text>
+<text x="895.0" y="319.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">client invoices</text>
+<rect x="800" y="370" width="190" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="391.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Vertex Gemini</text>
+<text x="895.0" y="409.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">advisory pre-review, grading</text>
+<rect x="800" y="460" width="190" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="481.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Email, FCM, WhatsApp</text>
+<text x="895.0" y="499.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">notifications</text>
+<rect x="800" y="550" width="190" height="60" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="895.0" y="556.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">Hugging Face, DataVendor,</text>
+<text x="895.0" y="572.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">Harbor</text>
+<text x="895.0" y="590.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Stage 3 channels and</text>
+<text x="895.0" y="604.5" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">artifact registry</text>
+<path d="M210.0,155.0 L280.0,155.0 L280.0,230.0 L340.0,230.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M210.0,265.0 L280.0,265.0 L280.0,265.0 L340.0,265.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M210.0,375.0 L280.0,375.0 L280.0,375.0 L340.0,375.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M210.0,485.0 L280.0,485.0 L280.0,485.0 L340.0,485.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M210.0,595.0 L280.0,595.0 L280.0,490.0 L340.0,490.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M680.0,230.0 L700.0,230.0 L700.0,130.0 L800.0,130.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="121.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">login</text>
+<path d="M680.0,230.0 L700.0,230.0 L700.0,220.0 L800.0,220.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="211.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payout files, webhooks</text>
+<path d="M680.0,310.0 L700.0,310.0 L700.0,310.0 L800.0,310.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="301.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">e-invoice IRN</text>
+<path d="M680.0,400.0 L700.0,400.0 L700.0,400.0 L800.0,400.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="391.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">prompts, verdicts</text>
+<path d="M680.0,490.0 L700.0,490.0 L700.0,490.0 L800.0,490.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="481.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">messages</text>
+<path d="M680.0,490.0 L700.0,490.0 L700.0,580.0 L800.0,580.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="750.0" y="571.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">signed artifacts</text>
+<rect x="40" y="667.0" width="22" height="14" rx="4" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="68.0" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Client app</text>
+<rect x="152.5" y="667.0" width="22" height="14" rx="4" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="180.5" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Service (own deployable, own database)</text>
+<rect x="434.4" y="667.0" width="22" height="14" rx="4" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="462.4" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Odoo: system of record</text>
+<rect x="619.5" y="667.0" width="22" height="14" rx="4" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="647.5" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Shared platform</text>
+<rect x="762.25" y="667.0" width="22" height="14" rx="4" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="790.2" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">External provider</text>
+<rect x="917.1" y="667.0" width="22" height="14" rx="4" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="945.1" y="674.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Stage 2 or 3</text>
+</svg><figcaption>System context</figcaption></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Actor</th>
+<th>Through</th>
+<th>Needs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Candidate and worker</td>
+<td>Flutter app</td>
+<td>apply, certify, onboard, claim, work, submit, see earnings and statements</td>
+</tr>
+<tr>
+<td>Reviewer and auditor</td>
+<td>Flutter app</td>
+<td>claim the next submission, judge with the rubric version, give reason codes, audit samples</td>
+</tr>
+<tr>
+<td>Ops, TPM, finance</td>
+<td>Odoo backend UI and app</td>
+<td>projects, batches, the bench, pay windows, deliveries, invoices, margin</td>
+</tr>
+<tr>
+<td>Client and buyer</td>
+<td>manifest and invoice; Stage 2 console</td>
+<td>deliveries, acceptance, quality, feedback</td>
+</tr>
+<tr>
+<td>Leadership</td>
+<td>the four numbers</td>
+<td>continue, change course, stop</td>
+</tr>
+</tbody></table></div>
+<p>External systems: Keycloak (identity), RazorpayX (payouts), NIC e-invoice (GST), Vertex Gemini (advisory AI), email, FCM and WhatsApp (messages), Harbor and the public hubs (Stage 3 artifacts).</p>
+<hr>
+<h2 id="3-containers-the-ring-of-services">3. Containers: the ring of services</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1290" height="964" viewBox="0 0 1290 964" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1290" height="964" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Containers: one repository, a ring of services around Odoo</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Level 2. Every service is its own deployable with its own database. The app reaches services only through the gateway.</text>
+<rect x="70" y="100" width="1180" height="120" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="116.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">CLIENTS</text>
+<rect x="70" y="380" width="1180" height="230" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="396.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">SERVICE RING: ONE DEPLOYABLE AND ONE POSTGRESQL DATABASE EACH</text>
+<rect x="70" y="780" width="1180" height="110" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="82.0" y="796.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">SHARED PLATFORM</text>
+<rect x="90" y="135" width="300" height="65" rx="10" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="240.0" y="151.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Flutter app</text>
+<text x="240.0" y="170.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">workers, reviewers, candidates, ops on mobile</text>
+<text x="240.0" y="186.2" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">app/</text>
+<rect x="930" y="135" width="300" height="65" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="1080.0" y="158.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Odoo backend UI</text>
+<text x="1080.0" y="177.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">ops, finance, HR</text>
+<rect x="90" y="270" width="300" height="70" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="240.0" y="282.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">gateway</text>
+<text x="240.0" y="300.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Keycloak JWT, rate limits, idempotency keys,</text>
+<text x="240.0" y="314.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">public OpenAPI</text>
+<text x="240.0" y="330.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services/gateway</text>
+<rect x="90" y="420" width="180" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="180.0" y="437.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">assess</text>
+<text x="180.0" y="455.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">papers, certification,</text>
+<text x="180.0" y="469.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">skills write-back</text>
+<text x="180.0" y="485.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">in the Odoo image (Stage 1)</text>
+<rect x="290" y="420" width="180" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="380.0" y="437.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">market</text>
+<text x="380.0" y="456.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">projects, batches, units,</text>
+<text x="380.0" y="469.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">claims, price cards,</text>
+<text x="380.0" y="483.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">delivery gate</text>
+<rect x="490" y="420" width="180" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="580.0" y="444.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality</text>
+<text x="580.0" y="462.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">review claims, verdicts,</text>
+<text x="580.0" y="476.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">audit, reason codes</text>
+<rect x="690" y="420" width="180" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="780.0" y="444.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout</text>
+<text x="780.0" y="462.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">earnings, pay windows, cost</text>
+<text x="780.0" y="476.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">ledger, rails</text>
+<rect x="890" y="420" width="160" height="80" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="970.0" y="451.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">notify</text>
+<text x="970.0" y="469.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">email, push, WhatsApp</text>
+<rect x="90" y="520" width="180" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="180.0" y="532.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">hub</text>
+<text x="180.0" y="550.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">artifacts, lineage, rights,</text>
+<text x="180.0" y="564.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">entitlements</text>
+<text x="180.0" y="580.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Stage 2</text>
+<rect x="290" y="520" width="180" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="380.0" y="539.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">runner</text>
+<text x="380.0" y="557.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">environment quality gate</text>
+<text x="380.0" y="573.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">Stage 2 prototype</text>
+<rect x="490" y="520" width="180" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="580.0" y="539.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">tracker</text>
+<text x="580.0" y="557.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">hourly evidence</text>
+<text x="580.0" y="573.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">scaffold</text>
+<rect x="690" y="520" width="180" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="780.0" y="539.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">analytics</text>
+<text x="780.0" y="557.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">CDC read models</text>
+<text x="780.0" y="573.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">scaffold</text>
+<rect x="1070" y="420" width="160" height="170" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="1150.0" y="482.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">NATS JetStream</text>
+<text x="1150.0" y="501.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">every service publishes</text>
+<text x="1150.0" y="514.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">from its outbox and</text>
+<text x="1150.0" y="528.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">subscribes; CloudEvents</text>
+<rect x="490" y="660" width="380" height="80" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="680.0" y="677.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo: system of record</text>
+<text x="680.0" y="695.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">worker record, bench, skills, accounting, vendor bills with</text>
+<text x="680.0" y="709.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">TDS, client invoices</text>
+<text x="680.0" y="725.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services/odoo, ethara_* addons</text>
+<rect x="90" y="810" width="200" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="190.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Keycloak</text>
+<text x="190.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">OIDC staff, JWT workers and</text>
+<text x="190.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">services</text>
+<rect x="320" y="810" width="260" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="450.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">PostgreSQL</text>
+<text x="450.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one database per service, PgBouncer,</text>
+<text x="450.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">PITR</text>
+<rect x="610" y="810" width="180" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="700.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Redis</text>
+<text x="700.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">idempotency, sessions,</text>
+<text x="700.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">cache</text>
+<rect x="820" y="810" width="180" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="910.0" y="824.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">S3</text>
+<text x="910.0" y="842.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">payloads, documents,</text>
+<text x="910.0" y="856.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">deliveries</text>
+<rect x="1030" y="810" width="200" height="60" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1130.0" y="823.3" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">RazorpayX, Gemini, SMTP,</text>
+<text x="1130.0" y="838.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">FCM</text>
+<text x="1130.0" y="857.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">external providers</text>
+<path d="M240.0,200.0 L240.0,270.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="204.8" y="226.0" width="70.5" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="240.0" y="235.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">HTTPS, JWT</text>
+<path d="M1080.0,200.0 L1080.0,210.0 L1080.0,640.0 L770.0,640.0 L770.0,660.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L180.0,360.0 L180.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L380.0,360.0 L380.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L580.0,360.0 L580.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L780.0,360.0 L780.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M240.0,340.0 L240.0,360.0 L970.0,360.0 L970.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M90.0,305.0 L40.0,305.0 L40.0,700.0 L490.0,700.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="193.4" y="691.0" width="143.1" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="265.0" y="700.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">ethara_api controllers</text>
+<path d="M1050.0,486.0 L1060.0,486.0 L1060.0,460.0 L1070.0,460.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arr)"/>
+<path d="M1150.0,590.0 L1150.0,720.0 L870.0,720.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="965.7" y="711.0" width="88.7" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="1010.0" y="720.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">outbox bridge</text>
+<path d="M780.0,500.0 L780.0,760.0 L1130.0,760.0 L1130.0,810.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="928.8" y="751.0" width="52.4" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="955.0" y="760.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payouts</text>
+<rect x="40" y="927.0" width="22" height="14" rx="4" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="68.0" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Client app</text>
+<rect x="152.5" y="927.0" width="22" height="14" rx="4" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="180.5" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Service (own deployable, own database)</text>
+<rect x="434.4" y="927.0" width="22" height="14" rx="4" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="462.4" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Odoo: system of record</text>
+<rect x="619.5" y="927.0" width="22" height="14" rx="4" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="647.5" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Shared platform</text>
+<rect x="762.25" y="927.0" width="22" height="14" rx="4" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="790.2" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">External provider</text>
+<rect x="917.1" y="927.0" width="22" height="14" rx="4" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="945.1" y="934.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Stage 2 or 3</text>
+</svg><figcaption>Containers</figcaption></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Container</th>
+<th>Owns</th>
+<th>Stage 1 state</th>
+<th>Later</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>app</code> (Flutter)</td>
+<td>every worker, reviewer and candidate journey; ops on mobile; gateway-only networking</td>
+<td>web</td>
+<td>mobile build with FCM in Stage 2</td>
+</tr>
+<tr>
+<td><code>gateway</code></td>
+<td>Keycloak JWT validation; per-worker rate limits (429 with Retry-After); idempotency keys for every mutation with a Redis dedup table and a unique-constraint fallback; retry absorption; the public OpenAPI document</td>
+<td>built in full</td>
+<td>buyer Organizations and step-up for the client console</td>
+</tr>
+<tr>
+<td><code>assess</code></td>
+<td>papers generated from the project SOP; proctored sittings; certification tag and retake policy; outcome events; skills write-back with evidence level</td>
+<td>the Assessment v2 engine behind its own contract and route; runtime inside the Odoo image (<strong>proposal</strong>, the one exception to a service per deployable)</td>
+<td>own deployable in Stage 2; credential checks against issuers; AI interviews in Stage 3</td>
+</tr>
+<tr>
+<td><code>market</code></td>
+<td>client projects, batches, work units, claims with <code>SKIP LOCKED</code> and TTL, submissions, import with dry run, price card with <code>unit_price</code> frozen at publish, assigned mode, rubric version on every unit, delivery gate and manifest, the worker read model</td>
+<td>built in full</td>
+<td>quote engine with tiers; agentic unit types in Stage 2; authoring tasks in Stage 3</td>
+</tr>
+<tr>
+<td><code>quality</code></td>
+<td>review claims (never own work), single review plus a 10% audit sample, the canonical verdict, reason codes, the &quot;rubric unclear&quot; flag, billable client rework, review earnings</td>
+<td>built in full</td>
+<td>calibration, seeded gold, advisory LLM pre-review, disputes, trust per domain in Stage 2; the runner verdict as a stage in Stage 3</td>
+</tr>
+<tr>
+<td><code>payout</code></td>
+<td>earnings on the accept event, weekly window (Saturday to Friday IST), holds, cost ledger per unit (pay, review, audit, rail fee, levy), statements; rail adapters (RazorpayX, bank file)</td>
+<td>built in full; vendor bills and reconciliation through Odoo</td>
+<td>a second rail or country</td>
+</tr>
+<tr>
+<td><code>notify</code></td>
+<td>the only holder of messaging credentials; templates; delivery log</td>
+<td>email</td>
+<td>FCM and WhatsApp with mobile</td>
+</tr>
+<tr>
+<td><code>odoo</code></td>
+<td>the system of record: worker record, agreements, DPDP consent, documents, the bench (skills with evidence level, availability stale after 14 days, past quality), accounting, self-billed vendor bills with TDS, client invoices, margin report; <code>ethara_workforce</code>, <code>ethara_api</code>, accounting glue</td>
+<td>a separate <code>yantra</code> deployment of the existing image</td>
+<td>OCA <code>queue_job</code>, <code>sign_oca</code>, <code>fs_attachment</code> after the licence audit</td>
+</tr>
+<tr>
+<td><code>hub</code> (<strong>proposal</strong>)</td>
+<td>datasets, environments and models as versioned entries with cards, lineage to units and people, a rights field enforced in queries, delivery mappings, entitlements with an exclusivity class, signed OCI delivery, OpenEnv conformance</td>
+<td>not built</td>
+<td>internal catalogue in Stage 2; storefront and entitlements in Stage 3</td>
+</tr>
+<tr>
+<td><code>runner</code> (<strong>proposal</strong>)</td>
+<td>the environment quality gate: deterministic replay, pass-rate band against a reference panel, reward-hackability audit; sandboxed execution</td>
+<td>not built</td>
+<td>standalone prototype in Stage 2; production in Stage 3</td>
+</tr>
+<tr>
+<td><code>tracker</code></td>
+<td>activity ingestion, screenshots to S3, caps, anomaly flags</td>
+<td>scaffold (chart and health endpoint)</td>
+<td>only if a client insists on hourly pay</td>
+</tr>
+<tr>
+<td><code>analytics</code></td>
+<td>CDC read models, BI</td>
+<td>scaffold</td>
+<td>Stage 3</td>
+</tr>
+</tbody></table></div>
+<p>Shared platform: Keycloak, NATS JetStream, PostgreSQL (one database per service), Redis, S3, Istio, observability.</p>
+<h3 id="integration-rules">Integration rules</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Worker mutation</td>
+<td>app → gateway (idempotency key) → service database → outbox → NATS → Odoo ledger; never a synchronous write from the app into Odoo tables</td>
+</tr>
+<tr>
+<td>Events out of Odoo</td>
+<td><code>ethara.outbox</code> rows written by <code>ethara_*</code> models, drained by a lease-locked cron into NATS; no broker client inside the Odoo process</td>
+</tr>
+<tr>
+<td>Calls into Odoo</td>
+<td>native <code>@http.route</code> controllers in <code>ethara_api</code> secured by Keycloak JWT; no in-Odoo REST framework; XML-RPC forbidden for new work</td>
+</tr>
+<tr>
+<td>Data ownership</td>
+<td>Odoo owns people, finance and project entities; each service owns its bounded context and syncs master data from events; a service never writes another&#39;s tables</td>
+</tr>
+<tr>
+<td>Hot paths</td>
+<td>the claim path writes only unit and claim rows; no counters on worker or batch rows; no chatter per claim; task lists show no counts</td>
+</tr>
+<tr>
+<td>Contention</td>
+<td>retries with backoff on Odoo lock errors; hot rows live in service databases</td>
+</tr>
+<tr>
+<td>Money</td>
+<td>the <code>quality.verdict.accepted</code> event is the only trigger for an earning in <code>payout</code> and a bill in <code>odoo</code>; nightly reconciliation alerts and never auto-adjusts</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="4-repository-build-and-release">4. Repository, build and release</h2>
+<p><strong>Proposal:</strong> fold the eleven submodules (app, nine services, deployment) into the hub repository as directories. Service names, the database-per-service rule and the charts are unchanged.</p>
+<pre><code>yantra/
+  app/                    Flutter
+  services/
+    gateway/  assess/  market/  quality/  payout/  notify/  odoo/
+    hub/  runner/         Stage 2 and 3
+    tracker/  analytics/  scaffolds until their trigger
+  packages/
+    contracts/            OpenAPI per service, CloudEvents schemas, generated Dart and Python clients
+    py-common/            auth, tracing, outbox publisher, idempotency, config, test fixtures
+  deployment/
+    charts/&lt;service&gt;/     one Helm chart per deployable
+    argocd/  policies/  terraform/
+  tools/                  claim-storm harness, fixtures, data generators
+  docs/                   plans, ADRs, runbooks
+</code></pre>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A service imports only <code>packages/*</code></td>
+<td>never another service&#39;s code; ids cross boundaries, foreign keys never do</td>
+</tr>
+<tr>
+<td>Database per service</td>
+<td>each service owns its schema and migrations; no cross-database joins; read models from events</td>
+</tr>
+<tr>
+<td>Sync through the gateway contract, async through the bus</td>
+<td>no service calls another&#39;s database or internal URL</td>
+</tr>
+<tr>
+<td>Transactional outbox everywhere</td>
+<td>the change and its event in one transaction; a relay publishes; consumers are idempotent</td>
+</tr>
+<tr>
+<td>A contract change and all its consumers in one pull request</td>
+<td>generated clients rebuilt in CI; a stale consumer fails the build</td>
+</tr>
+<tr>
+<td>Affected-only CI, one release train</td>
+<td>path filters; contract tests; fresh-database tests per service; every image signed, with an SBOM, tagged per service</td>
+</tr>
+<tr>
+<td>Four things per service</td>
+<td>Dockerfile, Helm chart, migrations, runbook; no runbook, no production</td>
+</tr>
+<tr>
+<td>Decisions written down</td>
+<td>an ADR in <code>docs/adr</code> for anything that constrains more than one service</td>
+</tr>
+</tbody></table></div>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1170" height="470" viewBox="0 0 1170 470" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1170" height="470" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Build and release: one repository, affected-only CI, one release train</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">A pull request that changes a contract must also change its consumers; a service without a runbook does not deploy.</text>
+<rect x="40" y="100" width="150" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="115.0" y="119.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Pull request</text>
+<text x="115.0" y="137.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">trunk-based, short</text>
+<text x="115.0" y="151.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">branch</text>
+<rect x="240" y="100" width="190" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="335.0" y="119.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">CI: path filters</text>
+<text x="335.0" y="137.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">tests only for what changed</text>
+<text x="335.0" y="153.7" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">GitHub Actions</text>
+<rect x="480" y="100" width="190" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="575.0" y="119.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Contract tests</text>
+<text x="575.0" y="137.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">OpenAPI and event schemas;</text>
+<text x="575.0" y="151.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">generated clients rebuilt</text>
+<rect x="720" y="100" width="190" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="815.0" y="112.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Image build</text>
+<text x="815.0" y="130.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">signed, SBOM, scanned,</text>
+<text x="815.0" y="144.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">tagged per service</text>
+<text x="815.0" y="160.6" font-family="Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">cosign, Harbor</text>
+<rect x="960" y="100" width="170" height="70" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="1045.0" y="119.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Argo CD</text>
+<text x="1045.0" y="137.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">app per service, app-of-</text>
+<text x="1045.0" y="151.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">apps per environment</text>
+<rect x="960" y="230" width="170" height="70" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="1045.0" y="249.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Staging</text>
+<text x="1045.0" y="267.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">smoke, claim-storm</text>
+<text x="1045.0" y="281.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">harness</text>
+<rect x="960" y="360" width="170" height="70" rx="35.0" fill="#047857" stroke="#047857" stroke-width="1.5"/>
+<text x="1045.0" y="386.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Production</text>
+<text x="1045.0" y="404.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">canary, runbook on file</text>
+<rect x="480" y="230" width="190" height="70" rx="10" fill="#FFFFFF" stroke="#4B4B57" stroke-width="1.5"/>
+<text x="575.0" y="249.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Fresh-database tests</text>
+<text x="575.0" y="267.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">migrations per service from</text>
+<text x="575.0" y="281.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">zero</text>
+<rect x="720" y="230" width="190" height="70" rx="10" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.5"/>
+<text x="815.0" y="249.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Claim-storm harness</text>
+<text x="815.0" y="267.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">1.5x the largest cohort,</text>
+<text x="815.0" y="281.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">zero errors</text>
+<path d="M190.0,135.0 L240.0,135.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M430.0,135.0 L480.0,135.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M670.0,135.0 L720.0,135.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M910.0,135.0 L960.0,135.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1045.0,170.0 L1045.0,230.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1045.0,300.0 L1045.0,360.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="1006.7" y="321.0" width="76.6" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="1045.0" y="330.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">gate passed</text>
+<path d="M335.0,170.0 L335.0,265.0 L480.0,265.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M670.0,265.0 L720.0,265.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M910.0,265.0 L960.0,265.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg><figcaption>Build and release</figcaption></figure>
+<p>Environments: staging and production, each an Argo CD app-of-apps. Promotion is a pull request that bumps image tags; the staging gate runs smoke tests and the claim-storm harness at 1.5x the largest cohort.</p>
+<hr>
+<h2 id="5-runtime-topology-and-sizing">5. Runtime topology and sizing</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1200" height="764" viewBox="0 0 1200 764" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1200" height="764" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Deployment: Kubernetes topology for one environment</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Istio ingress, a Deployment per service, Odoo in four roles, shared platform services. Sized for year one; extraction triggers in the plan.</text>
+<rect x="60" y="190" width="1100" height="200" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="72.0" y="206.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">NAMESPACE YANTRA: SERVICES (DEPLOYMENT + HPA + CHART EACH)</text>
+<rect x="60" y="420" width="1100" height="120" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="72.0" y="436.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">NAMESPACE YANTRA-PLATFORM</text>
+<rect x="60" y="570" width="1100" height="120" rx="10" fill="#FAFAFB" stroke="#D8D8DE" stroke-dasharray="4 3"/>
+<text x="72.0" y="586.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#717182" text-anchor="start" dominant-baseline="middle">MANAGED OUTSIDE THE CLUSTER</text>
+<rect x="60" y="100" width="1100" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="610.0" y="130.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Istio ingress (Envoy): TLS, routes, rate limit policies, presigned URLs masked in logs</text>
+<rect x="80" y="230" width="165" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="162.5" y="251.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">gateway</text>
+<text x="162.5" y="269.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">2-4 pods</text>
+<rect x="260" y="230" width="165" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="342.5" y="251.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">market</text>
+<text x="342.5" y="269.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">2-4 pods</text>
+<rect x="440" y="230" width="165" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="522.5" y="251.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality</text>
+<text x="522.5" y="269.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">2 pods</text>
+<rect x="620" y="230" width="165" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="702.5" y="251.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout</text>
+<text x="702.5" y="269.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">2 pods + cron job</text>
+<rect x="800" y="230" width="165" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="882.5" y="251.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">notify</text>
+<text x="882.5" y="269.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">1-2 pods</text>
+<rect x="980" y="230" width="165" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="1062.5" y="251.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">assess</text>
+<text x="1062.5" y="269.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">in the Odoo image</text>
+<rect x="80" y="310" width="250" height="60" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="205.0" y="331.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo-web</text>
+<text x="205.0" y="349.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">prefork workers, HPA</text>
+<rect x="350" y="310" width="250" height="60" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="475.0" y="331.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo-gevent</text>
+<text x="475.0" y="349.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">websocket, no CPU HPA</text>
+<rect x="620" y="310" width="250" height="60" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="745.0" y="331.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo-cron</text>
+<text x="745.0" y="349.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">lease-locked jobs, outbox drain</text>
+<rect x="890" y="310" width="250" height="60" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="1015.0" y="331.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo-upgrade</text>
+<text x="1015.0" y="349.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one-shot migration job</text>
+<rect x="80" y="450" width="200" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="180.0" y="471.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">NATS JetStream</text>
+<text x="180.0" y="489.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">3 nodes, file store</text>
+<rect x="300" y="450" width="200" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="400.0" y="471.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Keycloak</text>
+<text x="400.0" y="489.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one realm</text>
+<rect x="520" y="450" width="200" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="620.0" y="471.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Redis</text>
+<text x="620.0" y="489.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">idempotency, sessions</text>
+<rect x="740" y="450" width="400" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="940.0" y="471.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Prometheus, Grafana, Loki, OpenTelemetry, Sentry</text>
+<text x="940.0" y="489.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">a trace from app to ledger</text>
+<rect x="80" y="600" width="420" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="290.0" y="614.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">PostgreSQL server</text>
+<text x="290.0" y="632.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">one database per service, PgBouncer transaction mode, PITR;</text>
+<text x="290.0" y="646.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">operator in Stage 3</text>
+<rect x="520" y="600" width="300" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="670.0" y="621.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">S3</text>
+<text x="670.0" y="639.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">per-project prefixes, IAM roles, SSE-KMS</text>
+<rect x="840" y="600" width="300" height="60" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="990.0" y="621.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Harbor</text>
+<text x="990.0" y="639.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">signed images, SBOM; Stage 3 artifacts</text>
+<path d="M162.0,160.0 L162.0,180.0 L162.0,230.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M60.0,130.0 L40.0,130.0 L40.0,340.0 L80.0,340.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="40" y="727.0" width="22" height="14" rx="4" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="68.0" y="734.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Client app</text>
+<rect x="152.5" y="727.0" width="22" height="14" rx="4" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="180.5" y="734.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Service (own deployable, own database)</text>
+<rect x="434.4" y="727.0" width="22" height="14" rx="4" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="462.4" y="734.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Odoo: system of record</text>
+<rect x="619.5" y="727.0" width="22" height="14" rx="4" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="647.5" y="734.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Shared platform</text>
+<rect x="762.25" y="727.0" width="22" height="14" rx="4" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="790.2" y="734.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">External provider</text>
+<rect x="917.1" y="727.0" width="22" height="14" rx="4" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="945.1" y="734.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="start" dominant-baseline="middle">Stage 2 or 3</text>
+</svg><figcaption>Deployment</figcaption></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Year-one shape</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Istio ingress</td>
+<td>TLS, routes, rate-limit policies, presigned URLs masked in access logs</td>
+<td>already deployed</td>
+</tr>
+<tr>
+<td>Services</td>
+<td>a Deployment with HPA per service; gateway and market 2 to 4 pods; quality, payout, notify 1 to 2; payout also a cron job for the window</td>
+<td>one chart each</td>
+</tr>
+<tr>
+<td>Odoo</td>
+<td>four roles: <code>odoo-web</code> (prefork workers, HPA), <code>odoo-gevent</code> (websocket, no CPU HPA), <code>odoo-cron</code> (lease-locked jobs, outbox drain), <code>odoo-upgrade</code> (one-shot migration job before rollout)</td>
+<td>per <code>INFRASTRUCTURE.md</code></td>
+</tr>
+<tr>
+<td>NATS JetStream</td>
+<td>3 nodes, file store, one stream per domain</td>
+<td></td>
+</tr>
+<tr>
+<td>Keycloak</td>
+<td>one realm; staff OIDC into Odoo; worker and service JWTs</td>
+<td>built</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>idempotency, sessions, cache</td>
+<td>small instance</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td>a dedicated server, one database per service plus Odoo&#39;s, PgBouncer in transaction mode, PITR; connection budget per chart; alert at 85%</td>
+<td>an operator (Crunchy or Percona) in Stage 3 when a platform owner exists</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>per-project prefixes, IAM roles, SSE-KMS, lifecycle rules</td>
+<td></td>
+</tr>
+<tr>
+<td>Harbor</td>
+<td>signed images and SBOMs; Stage 3 artifacts</td>
+<td></td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>Prometheus, Grafana, Loki, OpenTelemetry traces across gateway and ring, Sentry</td>
+<td>one trace from app to ledger</td>
+</tr>
+</tbody></table></div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Year-one assumption</th>
+<th>Design response</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Registered workers</td>
+<td>1,000 to 3,000</td>
+<td>worker rows off the hot path; read model in <code>market</code></td>
+</tr>
+<tr>
+<td>Concurrent active workers</td>
+<td>300 to 500</td>
+<td>claim = one short transaction</td>
+</tr>
+<tr>
+<td>Peak claims per second</td>
+<td>5 to 20</td>
+<td>indexed available set; <code>SKIP LOCKED</code>; p99 under 500 ms</td>
+</tr>
+<tr>
+<td>Units per batch</td>
+<td>1,000 to 20,000</td>
+<td>background import; paginated views; chunked export</td>
+</tr>
+<tr>
+<td>Reviews per day</td>
+<td>5,000 to 20,000</td>
+<td>bounded JSON answers; artifacts in S3</td>
+</tr>
+<tr>
+<td>Pay window</td>
+<td>weekly, 1,000 to 3,000 workers</td>
+<td>chunked job under a lease; vendor bills in chunks of 200</td>
+</tr>
+<tr>
+<td>Database connections</td>
+<td>reserved pool per service; Odoo web 4 pods × 4 workers × 2</td>
+<td><code>db_maxconn &lt;= max_client_conn &lt;= max_connections</code>; alert at 85%</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="6-data-model-and-ownership">6. Data model and ownership</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1340" height="550" viewBox="0 0 1340 550" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1340" height="550" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Data model: the entities that carry the loop</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Names follow DATAMODEL.md; rubric_version, reason_code, unit_price and the cost fields are this plan&#x27;s additions. Ids cross boundaries, foreign keys never do.</text>
+<rect x="40" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="40" y1="128" x2="260" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="150.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">worker (odoo)</text>
+<text x="50.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">id, partner_ref, status</text>
+<text x="50.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">agreements, consent</text>
+<text x="50.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">bank_account (one)</text>
+<text x="50.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">payout_identity_bound</text>
+<rect x="40" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="40" y1="278" x2="260" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="150.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">worker_skill (odoo)</text>
+<text x="50.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">worker_id, skill</text>
+<text x="50.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">evidence: claimed |</text>
+<text x="50.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle"> verified | proven</text>
+<text x="50.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">availability_until</text>
+<rect x="40" y="400" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="400" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="40" y="420" width="220" height="8" fill="#EFF6FF"/>
+<line x1="40" y1="428" x2="260" y2="428" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="150.0" y="414.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">worker_profile (market)</text>
+<text x="50.0" y="442.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">read model from events</text>
+<text x="50.0" y="457.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">odoo_partner_ref</text>
+<text x="50.0" y="472.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">cert gates, tier</text>
+<text x="50.0" y="487.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">eligible</text>
+<rect x="300" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="300" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="300" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="300" y1="128" x2="520" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="410.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">client_project (market)</text>
+<text x="310.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">id, client_org_id</text>
+<text x="310.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">schema, quality_policy</text>
+<text x="310.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rubric_version</text>
+<text x="310.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rate_card_id</text>
+<rect x="300" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="300" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="300" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="300" y1="278" x2="520" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="410.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">work_batch (market)</text>
+<text x="310.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">project_id, mode</text>
+<text x="310.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">unit_pay, unit_price (frozen)</text>
+<text x="310.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">margin_floor, approval</text>
+<text x="310.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">status</text>
+<rect x="560" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="560" y1="128" x2="780" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="670.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">work_unit (market)</text>
+<text x="570.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">batch_id, payload_uri</text>
+<text x="570.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rubric_version</text>
+<text x="570.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">status, cost fields</text>
+<text x="570.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">accepted_at</text>
+<rect x="560" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="560" y1="278" x2="780" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="670.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">claim + submission (market)</text>
+<text x="570.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">unit_id, worker_id</text>
+<text x="570.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">idempotency_key (unique)</text>
+<text x="570.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">expires_at</text>
+<text x="570.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">submission version</text>
+<rect x="820" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="820" y1="128" x2="1040" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="930.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">review (quality)</text>
+<text x="830.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">unit_id, reviewer_id</text>
+<text x="830.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">verdict, reason_code</text>
+<text x="830.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rubric_unclear</text>
+<text x="830.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">audit_of, canonical</text>
+<rect x="820" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="820" y1="278" x2="1040" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="930.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">earning (payout)</text>
+<text x="830.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">worker_id, unit_id</text>
+<text x="830.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">amount, kind (work|review)</text>
+<text x="830.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">window_id, hold</text>
+<text x="830.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">verdict_event_id</text>
+<rect x="1080" y="100" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="1080" y="100" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="1080" y="120" width="220" height="8" fill="#EFF6FF"/>
+<line x1="1080" y1="128" x2="1300" y2="128" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="1190.0" y="114.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">pay_window (payout)</text>
+<text x="1090.0" y="142.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">sat_fri_ist, status</text>
+<text x="1090.0" y="157.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">approvals (2)</text>
+<text x="1090.0" y="172.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rail_batch_id</text>
+<text x="1090.0" y="187.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">reconciled_at</text>
+<rect x="1080" y="250" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="1080" y="250" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="1080" y="270" width="220" height="8" fill="#EFF6FF"/>
+<line x1="1080" y1="278" x2="1300" y2="278" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="1190.0" y="264.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">vendor_bill (odoo)</text>
+<text x="1090.0" y="292.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">worker_id, window_id</text>
+<text x="1090.0" y="307.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">amount, tds</text>
+<text x="1090.0" y="322.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">state</text>
+<text x="1090.0" y="337.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">payment_ref</text>
+<rect x="560" y="400" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="400" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="560" y="420" width="220" height="8" fill="#EFF6FF"/>
+<line x1="560" y1="428" x2="780" y2="428" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="670.0" y="414.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">delivery (market)</text>
+<text x="570.0" y="442.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">batch_id, manifest</text>
+<text x="570.0" y="457.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">checksums, provenance</text>
+<text x="570.0" y="472.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">invoice_id</text>
+<rect x="820" y="400" width="220" height="110" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="400" width="220" height="28" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<rect x="820" y="420" width="220" height="8" fill="#EFF6FF"/>
+<line x1="820" y1="428" x2="1040" y2="428" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="930.0" y="414.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">artifact (hub, Stage 2)</text>
+<text x="830.0" y="442.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">version, card, lineage</text>
+<text x="830.0" y="457.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">rights, openenv_version</text>
+<text x="830.0" y="472.0" font-family="Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#030213" text-anchor="start" dominant-baseline="middle">entitlement, exclusivity</text>
+<path d="M150.0,210.0 L150.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M150.0,360.0 L150.0,400.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="126.8" y="371.0" width="46.3" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="150.0" y="380.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">events</text>
+<path d="M410.0,210.0 L410.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M520.0,290.0 L520.0,290.0 L520.0,155.0 L560.0,155.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M670.0,210.0 L670.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M670.0,360.0 L670.0,455.0 L260.0,455.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="432.8" y="446.0" width="64.5" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="465.0" y="455.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">worker_id</text>
+<path d="M780.0,155.0 L820.0,155.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M930.0,210.0 L930.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1040.0,305.0 L1040.0,305.0 L1040.0,155.0 L1080.0,155.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M1190.0,210.0 L1190.0,250.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M410.0,360.0 L410.0,455.0 L560.0,455.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M780.0,455.0 L820.0,455.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<rect x="773.8" y="446.0" width="52.4" height="18.0" rx="4" fill="#FFFFFF" opacity="0.95"/>
+<text x="800.0" y="455.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">lineage</text>
+</svg><figcaption>Data model</figcaption></figure>
+<p>Names follow <code>DATAMODEL.md</code>. This plan adds four things to the market and quality stores: <code>rubric_version</code> on every unit and verdict, <code>reason_code</code> on every rejection, <code>unit_price</code> frozen next to <code>unit_pay</code> on the batch, and cost fields on the unit.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Store</th>
+<th>Key tables</th>
+<th>Owner</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>odoo</code></td>
+<td><code>res.partner</code> and <code>ethara_workforce.worker</code> (worker record, agreements, consent, documents, bank account, payout identity bound), <code>worker_skill</code> (skill, evidence level, availability), <code>account.move</code> (vendor bills with TDS, client invoices), <code>ethara.outbox</code></td>
+<td>odoo</td>
+<td>the bench is a view over worker and skill; PII fields finance-only</td>
+</tr>
+<tr>
+<td><code>market_db</code></td>
+<td><code>worker_profile</code> (read model from events: partner ref, cert gates, tier, eligible), <code>client_org</code>, <code>client_project</code> (schema, quality policy, rubric version, rate card), <code>rate_card</code> and <code>rate_tier</code>, <code>work_batch</code> (mode, frozen pay and price, margin floor, approval), <code>work_unit</code> (payload URI, rubric version, status, cost fields), <code>claim</code> (idempotency key unique, expires), <code>submission</code> (version per claim), <code>unit_event</code>, <code>delivery</code> (manifest, checksums, provenance, invoice id)</td>
+<td>market</td>
+<td>the claim path touches only <code>work_unit</code> and <code>claim</code></td>
+</tr>
+<tr>
+<td><code>quality_db</code></td>
+<td><code>review_task</code>, <code>review</code> (verdict, reason code, rubric unclear, audit-of, canonical), calibration and seed tables (Stage 2), <code>dispute</code> (Stage 2)</td>
+<td>quality</td>
+<td>one canonical verdict per unit</td>
+</tr>
+<tr>
+<td><code>payout_db</code></td>
+<td><code>earning</code> (worker, unit, amount, kind, window, hold, verdict event id), <code>pay_window</code> (Saturday to Friday IST, approvals, rail batch, reconciled at), <code>rail_event</code>, <code>cost_ledger</code></td>
+<td>payout</td>
+<td>append-only money tables; numeric(18,6) with currency</td>
+</tr>
+<tr>
+<td><code>assess_db</code></td>
+<td>papers, sittings, scores, certifications</td>
+<td>assess</td>
+<td>inside the Odoo image in Stage 1</td>
+</tr>
+<tr>
+<td><code>notify_db</code></td>
+<td>templates, deliveries, devices</td>
+<td>notify</td>
+<td>credentials only here</td>
+</tr>
+<tr>
+<td><code>hub_db</code> (Stage 2)</td>
+<td><code>artifact</code> (version, card, lineage, rights, OpenEnv version), <code>entitlement</code> (exclusivity class)</td>
+<td>hub</td>
+<td>rights enforced in every query</td>
+</tr>
+</tbody></table></div>
+<p>Invariants:</p>
+<ul>
+<li>One live claim per worker; one claim per unit at a time (unique index); a retried claim returns the first claim.</li>
+<li>One canonical verdict per unit; the reviewer is never the author; audit samples precede canonical status.</li>
+<li>One earning per accepted unit and one per review, each referencing its verdict event id; no earning without a verdict.</li>
+<li><code>unit_pay</code> and <code>unit_price</code> are frozen at publish; a batch below its margin floor cannot publish without a recorded approval.</li>
+<li>Earnings = bills = payouts net + TDS for every closed window, to the paisa.</li>
+<li>Every unit and verdict records the rubric version; every rejection records a reason code.</li>
+</ul>
+<hr>
+<h2 id="7-events">7. Events</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1040" height="600" viewBox="0 0 1040 600" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1040" height="600" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Events: who publishes what, who consumes it</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">CloudEvents on NATS JetStream. Every producer writes to its own outbox in the same transaction; a relay publishes.</text>
+<rect x="40" y="100" width="150" height="60" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="115.0" y="130.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo</text>
+<rect x="40" y="190" width="150" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="115.0" y="220.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">market</text>
+<rect x="40" y="280" width="150" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="115.0" y="310.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality</text>
+<rect x="40" y="370" width="150" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="115.0" y="400.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout</text>
+<rect x="40" y="460" width="150" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="115.0" y="490.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">assess</text>
+<rect x="340" y="100" width="260" height="36" rx="18.0" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="470.0" y="118.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">worker.eligible</text>
+<rect x="340" y="150" width="260" height="36" rx="18.0" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="470.0" y="168.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">worker.skill.verified</text>
+<rect x="340" y="200" width="260" height="36" rx="18.0" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="470.0" y="218.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">work.unit.published</text>
+<rect x="340" y="250" width="260" height="36" rx="18.0" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="470.0" y="268.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">work.unit.submitted</text>
+<rect x="340" y="300" width="260" height="36" rx="18.0" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="470.0" y="318.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality.verdict.accepted</text>
+<rect x="340" y="350" width="260" height="36" rx="18.0" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="470.0" y="368.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality.verdict.rejected</text>
+<rect x="340" y="400" width="260" height="36" rx="18.0" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="470.0" y="418.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout.window.closed</text>
+<rect x="340" y="450" width="260" height="36" rx="18.0" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="470.0" y="468.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout.paid</text>
+<rect x="340" y="500" width="260" height="36" rx="18.0" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="470.0" y="518.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">delivery.shipped</text>
+<rect x="800" y="100" width="200" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="900.0" y="114.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">market</text>
+<text x="900.0" y="132.9" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">worker read model, unit</text>
+<text x="900.0" y="146.7" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">status, delivery</text>
+<rect x="800" y="180" width="200" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="900.0" y="201.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality</text>
+<text x="900.0" y="219.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">review tasks</text>
+<rect x="800" y="260" width="200" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="900.0" y="281.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout</text>
+<text x="900.0" y="299.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">earnings, holds</text>
+<rect x="800" y="340" width="200" height="60" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="900.0" y="361.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo</text>
+<text x="900.0" y="379.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">bills, invoices, bench</text>
+<rect x="800" y="420" width="200" height="60" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="900.0" y="441.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">notify</text>
+<text x="900.0" y="459.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">messages</text>
+<rect x="800" y="500" width="200" height="60" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="900.0" y="521.1" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#717182" text-anchor="middle" dominant-baseline="middle">performance (Stage 2)</text>
+<text x="900.0" y="539.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#717182" text-anchor="middle" dominant-baseline="middle">signals</text>
+<path d="M190.0,118.0 L220.0,118.0 L220.0,118.0 L340.0,118.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M190.0,474.0 L292.0,474.0 L292.0,168.0 L340.0,168.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M190.0,218.0 L238.0,218.0 L238.0,218.0 L340.0,218.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M190.0,236.0 L238.0,236.0 L238.0,268.0 L340.0,268.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M190.0,318.0 L256.0,318.0 L256.0,318.0 L340.0,318.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M190.0,326.0 L256.0,326.0 L256.0,368.0 L340.0,368.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M190.0,416.0 L274.0,416.0 L274.0,418.0 L340.0,418.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M190.0,146.0 L220.0,146.0 L220.0,468.0 L340.0,468.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M190.0,236.0 L238.0,236.0 L238.0,518.0 L340.0,518.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,118.0 L640.0,118.0 L640.0,118.0 L800.0,118.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,168.0 L640.0,168.0 L640.0,146.0 L800.0,146.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,218.0 L712.0,218.0 L712.0,434.0 L800.0,434.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,268.0 L658.0,268.0 L658.0,226.0 L800.0,226.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,318.0 L676.0,318.0 L676.0,306.0 L800.0,306.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,318.0 L640.0,318.0 L640.0,146.0 L800.0,146.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,368.0 L712.0,368.0 L712.0,434.0 L800.0,434.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,418.0 L694.0,418.0 L694.0,386.0 L800.0,386.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,468.0 L712.0,468.0 L712.0,466.0 L800.0,466.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,518.0 L694.0,518.0 L694.0,386.0 L800.0,386.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M600.0,318.0 L730.0,318.0 L730.0,514.0 L800.0,514.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg><figcaption>Events</figcaption></figure>
+<p>CloudEvents on NATS JetStream. Each producer writes the event to its own outbox in the same transaction as the change; a relay publishes; consumers are idempotent on the event id.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Subject</th>
+<th>Producer</th>
+<th>Consumers</th>
+<th>Payload (key fields)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>worker.eligible</code></td>
+<td>odoo</td>
+<td>market (worker read model), notify</td>
+<td>worker id, partner ref, cert gates, timestamp</td>
+</tr>
+<tr>
+<td><code>worker.skill.verified</code></td>
+<td>assess</td>
+<td>odoo (skills), market</td>
+<td>worker id, skill, evidence level, paper id, score</td>
+</tr>
+<tr>
+<td><code>work.unit.published</code></td>
+<td>market</td>
+<td>notify</td>
+<td>batch id, unit count, pay, price, mode</td>
+</tr>
+<tr>
+<td><code>work.unit.submitted</code></td>
+<td>market</td>
+<td>quality (review task)</td>
+<td>unit id, claim id, submission version, rubric version</td>
+</tr>
+<tr>
+<td><code>quality.verdict.accepted</code></td>
+<td>quality</td>
+<td>payout (earning), market (unit status, delivery count), performance (Stage 2)</td>
+<td>unit id, reviewer id, rubric version, canonical, event id</td>
+</tr>
+<tr>
+<td><code>quality.verdict.rejected</code></td>
+<td>quality</td>
+<td>market (unit back to pool or needs edits), notify</td>
+<td>unit id, reason code, billable</td>
+</tr>
+<tr>
+<td><code>payout.window.closed</code></td>
+<td>payout</td>
+<td>odoo (vendor bills with TDS)</td>
+<td>window id, per-worker totals, holds</td>
+</tr>
+<tr>
+<td><code>payout.paid</code></td>
+<td>odoo</td>
+<td>payout (statements), notify</td>
+<td>window id, worker id, amount, rail reference</td>
+</tr>
+<tr>
+<td><code>delivery.shipped</code></td>
+<td>market</td>
+<td>odoo (client invoice), hub (Stage 2 lineage)</td>
+<td>batch id, manifest URI, accepted count</td>
+</tr>
+</tbody></table></div>
+<p>Retention: streams keep 30 days; read models can be rebuilt by replay. A consumer that is down accumulates a backlog and an alert, never lost events.</p>
+<hr>
+<h2 id="8-key-sequences">8. Key sequences</h2>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" width="1240" height="870" viewBox="0 0 1240 870" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4B4B57"/></marker></defs>
+<rect x="0" y="0" width="1240" height="870" rx="12" fill="#FFFFFF" stroke="#E0E0E4"/>
+<text x="40.0" y="28.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#030213" text-anchor="start" dominant-baseline="middle">Sequence: one task from claim to pay, system view</text>
+<text x="40.0" y="50.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#717182" text-anchor="start" dominant-baseline="middle">Solid arrows are synchronous calls through the gateway; dashed arrows are events on NATS.</text>
+<rect x="40" y="100" width="140" height="44" rx="10" fill="#FBDAF7" stroke="#B800B8" stroke-width="1.5"/>
+<text x="110.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">Flutter app</text>
+<rect x="210" y="100" width="140" height="44" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="280.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">gateway</text>
+<rect x="380" y="100" width="140" height="44" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="450.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">market</text>
+<rect x="550" y="100" width="140" height="44" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="620.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">quality</text>
+<rect x="720" y="100" width="140" height="44" rx="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.5"/>
+<text x="790.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">payout</text>
+<rect x="890" y="100" width="140" height="44" rx="10" fill="#F3F3F5" stroke="#717182" stroke-width="1.5"/>
+<text x="960.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">NATS</text>
+<rect x="1060" y="100" width="140" height="44" rx="10" fill="#ECFDF5" stroke="#047857" stroke-width="1.5"/>
+<text x="1130.0" y="122.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#030213" text-anchor="middle" dominant-baseline="middle">odoo</text>
+<path d="M110.0,144.0 L110.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M280.0,144.0 L280.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M450.0,144.0 L450.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M620.0,144.0 L620.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M790.0,144.0 L790.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M960.0,144.0 L960.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M1130.0,144.0 L1130.0,830.0" fill="none" stroke="#C9C9D2" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M110.0,190.0 L280.0,190.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="195.0" y="181.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">POST /claims (Idempotency-Key)</text>
+<path d="M280.0,225.0 L450.0,225.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="365.0" y="216.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">claim: SKIP LOCKED, TTL</text>
+<path d="M450.0,260.0 L280.0,260.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="365.0" y="251.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">unit + presigned payload URL</text>
+<path d="M280.0,295.0 L110.0,295.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="195.0" y="286.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">200, one live claim</text>
+<path d="M110.0,350.0 L280.0,350.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="195.0" y="341.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">POST /submissions</text>
+<path d="M280.0,385.0 L450.0,385.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="365.0" y="376.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">store answer, close claim</text>
+<path d="M450.0,420.0 L960.0,420.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="705.0" y="411.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">work.unit.submitted</text>
+<path d="M960.0,455.0 L620.0,455.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="790.0" y="446.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">review task created</text>
+<path d="M620.0,530.0 L960.0,530.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="790.0" y="521.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">quality.verdict.accepted (canonical)</text>
+<path d="M960.0,565.0 L790.0,565.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="875.0" y="556.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">earning recorded</text>
+<path d="M960.0,600.0 L450.0,600.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="705.0" y="591.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">unit accepted, delivery count</text>
+<path d="M790.0,660.0 L960.0,660.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="875.0" y="651.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payout.window.closed (weekly)</text>
+<path d="M960.0,695.0 L1130.0,695.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="1045.0" y="686.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">vendor bill with TDS; two approvals</text>
+<path d="M1130.0,750.0 L960.0,750.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="1045.0" y="741.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">payout.paid (RazorpayX webhook)</text>
+<path d="M960.0,785.0 L110.0,785.0" fill="none" stroke="#4B4B57" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+<text x="535.0" y="776.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#4B4B57" text-anchor="middle" dominant-baseline="middle">statement updated</text>
+</svg><figcaption>Sequence: claim to pay</figcaption></figure>
+<p>The other sequences are in <a href="03-user-flows.html">User flows</a>: the worker from first contact to first payout, the reviewer, ops and the client from brief to invoice, finance&#39;s weekly pay window, and the Stage 3 factory.</p>
+<hr>
+<h2 id="9-api-surface">9. API surface</h2>
+<p>The gateway owns the public OpenAPI document. Every mutation carries an <code>Idempotency-Key</code>. Every route answers <code>429</code> with <code>Retry-After</code> when limited. Envelope: <code>{&quot;ok&quot;: true, &quot;data&quot;: ...}</code> or <code>{&quot;ok&quot;: false, &quot;error&quot;: {&quot;code&quot;, &quot;message&quot;}}</code>.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Auth</th>
+<th>Idempotent on</th>
+<th>Service</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>POST /v1/apply</code></td>
+<td>public, rate-limited</td>
+<td>email</td>
+<td>odoo via <code>ethara_api</code></td>
+</tr>
+<tr>
+<td><code>/v1/assess/*</code> (papers, sittings)</td>
+<td>candidate token</td>
+<td>per step</td>
+<td>assess</td>
+</tr>
+<tr>
+<td><code>GET /v1/me</code></td>
+<td>worker</td>
+<td>n/a</td>
+<td>odoo</td>
+</tr>
+<tr>
+<td><code>POST /v1/onboarding/{profile, documents/presign, documents/confirm, agreement/accept, bank}</code></td>
+<td>worker</td>
+<td>per step</td>
+<td>odoo</td>
+</tr>
+<tr>
+<td><code>GET /v1/units/available</code></td>
+<td>worker</td>
+<td>n/a</td>
+<td>market (filtered by the worker read model)</td>
+</tr>
+<tr>
+<td><code>POST /v1/units/claim</code></td>
+<td>worker</td>
+<td><code>Idempotency-Key</code></td>
+<td>market</td>
+</tr>
+<tr>
+<td><code>GET /v1/units/{id}</code></td>
+<td>worker, live claim owner</td>
+<td>n/a</td>
+<td>market (presigned GET, five minutes)</td>
+</tr>
+<tr>
+<td><code>POST /v1/units/{id}/{save, submit, skip}</code></td>
+<td>worker, owner</td>
+<td><code>(claim_id, version_no)</code></td>
+<td>market</td>
+</tr>
+<tr>
+<td><code>POST /v1/units/{id}/rubric-unclear</code></td>
+<td>worker or reviewer</td>
+<td>by unit</td>
+<td>quality</td>
+</tr>
+<tr>
+<td><code>GET /v1/history</code>, <code>GET /v1/earnings</code>, <code>GET /v1/earnings/{window}/statement</code></td>
+<td>worker</td>
+<td>n/a</td>
+<td>payout</td>
+</tr>
+<tr>
+<td><code>POST /v1/review/next</code>, <code>POST /v1/review/{id}/{save, submit, release}</code></td>
+<td>reviewer</td>
+<td><code>(submission_id, stage)</code></td>
+<td>quality</td>
+</tr>
+<tr>
+<td><code>POST /v1/disputes</code> (Stage 2)</td>
+<td>worker</td>
+<td>by unit</td>
+<td>quality</td>
+</tr>
+<tr>
+<td><code>POST /webhooks/razorpayx</code></td>
+<td>HMAC and replay window</td>
+<td>rail event id</td>
+<td>payout</td>
+</tr>
+<tr>
+<td><code>POST /v1/devices</code> (Stage 2)</td>
+<td>worker</td>
+<td>device</td>
+<td>notify</td>
+</tr>
+<tr>
+<td>Odoo backend models and views</td>
+<td>internal users by group</td>
+<td>ORM</td>
+<td>ops, finance, HR</td>
+</tr>
+</tbody></table></div>
+<p>Request logs carry <code>request_id</code>, <code>worker_id</code>, <code>unit_id</code>, <code>batch_id</code>, never tokens, payload bytes or bank details. Worker tokens expire within 24 hours.</p>
+<hr>
+<h2 id="10-security-and-privacy">10. Security and privacy</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Design</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Identity and roles</td>
+<td>Keycloak roles for worker, reviewer, ops, finance, admin; workers and reviewers never reach the Odoo backend; record rules <code>user_id = user.id</code> on every worker-visible model, penetration-tested each quarter; reviewers see submissions only through a review claim; TOTP for ops and finance</td>
+</tr>
+<tr>
+<td>Client data</td>
+<td>per-project S3 prefix and IAM policy; presigned GET of five minutes; URIs, not bytes, in services and Odoo; workers see only the claimed unit, never file names or other workers; paste and drag disabled per batch; append-only event trail; retention purge per project; presigned URLs masked in Istio logs</td>
+</tr>
+<tr>
+<td>Worker PII</td>
+<td>PAN and bank details on finance-only fields; documents in per-worker prefixes with SSE-KMS; DPDP consent with version and timestamp; erasure job after statutory retention; identity bound to the payout account; step-up authentication on bank changes; 72-hour hold after account recovery</td>
+</tr>
+<tr>
+<td>Money</td>
+<td>two-person approval on payout batches; one bank account per worker; penny-drop verification; webhook HMAC and replay window; rail idempotency keys; per-window caps; 7-day first hold; nightly reconciliation alert</td>
+</tr>
+<tr>
+<td>Supply chain</td>
+<td>slim, non-root, hash-pinned signed images with SBOM and scans; Kyverno blocks unsigned images; no third-party LLM proxy; egress allow-list (Vertex, S3, RazorpayX, SMTP, client buckets); External Secrets for every credential</td>
+</tr>
+<tr>
+<td>LLM safety</td>
+<td>task content is untrusted input to any model; no PII in prompts; model verdicts are advisory, never canonical alone; quotas and daily caps</td>
+</tr>
+<tr>
+<td>Attestation</td>
+<td>SOC 2 Type 2 window opened in Stage 0; evidence collected from day one</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="11-scalability-and-performance">11. Scalability and performance</h2>
+<p>Year one is sized for 3,000 registered and 500 concurrent workers; the repository&#39;s 200K envelope stays the design ceiling and the Phase 5 load test stays the ceiling check.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>p99 claim over 1 s at the load target</td>
+<td>shard the available set by batch; move the worker read model to Redis</td>
+</tr>
+<tr>
+<td>more than about 3,000 concurrently active workers</td>
+<td>a second <code>market</code> replica set per region; partition <code>work_unit</code> by batch</td>
+</tr>
+<tr>
+<td>review contention with claims</td>
+<td>separate review read models; move audit sampling to a worker process</td>
+</tr>
+<tr>
+<td>a second payout rail or country</td>
+<td>a rail adapter per country in <code>payout</code>; a second legal entity</td>
+</tr>
+<tr>
+<td>data beyond what Odoo reports and the Performance views serve</td>
+<td>CDC into <code>analytics</code></td>
+</tr>
+<tr>
+<td>HA beyond a managed server</td>
+<td>a Postgres operator (Crunchy or Percona)</td>
+</tr>
+</tbody></table></div>
+<p>Hot-path rules: the claim path writes only unit and claim rows; no counters on worker or batch rows; no chatter per claim; task lists show no counts.</p>
+<hr>
+<h2 id="12-reliability-operations-observability">12. Reliability, operations, observability</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Design</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Deploys</td>
+<td>Argo CD; one-shot migration job per service before rollout; a deploy gate on contract versions; readiness checks; no deploy inside an active batch deadline or exam sitting</td>
+</tr>
+<tr>
+<td>Jobs</td>
+<td>every scheduled job under a lease row, tick-limited and idempotent; <code>CRON_LEASE_BLOCKED</code> alerts</td>
+</tr>
+<tr>
+<td>Backups</td>
+<td>daily snapshots and PITR on the dedicated server; a quarterly restore drill</td>
+</tr>
+<tr>
+<td>Runbooks</td>
+<td>stuck claims; stalled pay window; failed webhook; rail outage (fall back to the bank file); NATS backlog; S3 CORS failure; connection headroom before a large batch</td>
+</tr>
+<tr>
+<td>On-call</td>
+<td>a rota from the delivery step; alerts route to the service owner by role</td>
+</tr>
+</tbody></table></div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Alert</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>claim latency p99; claims per second</td>
+<td>p99 over 1 s for 5 minutes</td>
+</tr>
+<tr>
+<td>units with two live claims (must be zero)</td>
+<td>any</td>
+</tr>
+<tr>
+<td>queue depth and age: available, submitted, in review, needs edits</td>
+<td>review backlog age over 48 hours</td>
+</tr>
+<tr>
+<td>pay window reconciliation delta; failed payouts; webhook failures</td>
+<td>any delta; over 1% failed</td>
+</tr>
+<tr>
+<td>NATS consumer lag per stream</td>
+<td>lag over 5 minutes</td>
+</tr>
+<tr>
+<td>Postgres connections per database; PgBouncer waiting clients</td>
+<td>over 85% of slots; waiting over 1 minute</td>
+</tr>
+<tr>
+<td>5xx on <code>/v1/*</code></td>
+<td>over 1% over 2 minutes</td>
+</tr>
+<tr>
+<td>cron lease blocked; job duration</td>
+<td>blocked twice in a row</td>
+</tr>
+<tr>
+<td>login failures per minute; token issuance</td>
+<td>spike</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="13-non-functional-requirements">13. Non-functional requirements</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Requirement</th>
+<th>Target</th>
+<th>Proof</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Performance</td>
+<td>claim latency</td>
+<td>p99 under 500 ms at 500 concurrent simulated workers on a 2,000-unit batch</td>
+<td>market core gate</td>
+</tr>
+<tr>
+<td></td>
+<td>task fetch; review next</td>
+<td>p95 under 800 ms; p99 under 500 ms</td>
+<td>market core gate</td>
+</tr>
+<tr>
+<td></td>
+<td>app first load</td>
+<td>under 3 s on a low-end laptop over 4G</td>
+<td>market core gate</td>
+</tr>
+<tr>
+<td></td>
+<td>pay window close; export</td>
+<td>under 30 minutes for 3,000 workers; 20,000 units in under 10 minutes</td>
+<td>money and delivery gates</td>
+</tr>
+<tr>
+<td>Availability</td>
+<td>worker, reviewer and exam routes</td>
+<td>99.5% monthly; no deploy inside an active batch deadline or sitting</td>
+<td>pilot gate</td>
+</tr>
+<tr>
+<td></td>
+<td>payout job</td>
+<td>idempotent and rerunnable</td>
+<td>money gate</td>
+</tr>
+<tr>
+<td></td>
+<td>recovery</td>
+<td>RPO 15 minutes (PITR), RTO 2 hours</td>
+<td>foundations drill</td>
+</tr>
+<tr>
+<td>Scalability</td>
+<td>year-one envelope and triggers</td>
+<td>3,000 registered, 500 concurrent, 20 claims per second; triggers in section 11</td>
+<td>harness at 1.5x</td>
+</tr>
+<tr>
+<td>Correctness</td>
+<td>double claims; double pay; reconciliation; money types</td>
+<td>0; 0; to the paisa nightly; numeric(18,6) with currency</td>
+<td>market core and money gates</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>identity, secrets, supply chain, network, testing</td>
+<td>least-privilege roles and tested record rules; no secrets in a database or image; signed images with SBOM; egress allow-list; webhook HMAC; quarterly penetration test</td>
+<td>foundations to money</td>
+</tr>
+<tr>
+<td>Privacy (DPDP)</td>
+<td>consent, minimisation, retention, breach, roles</td>
+<td>purpose-specific consent with version; finance-only PII; erasure within 30 days; 72-hour notification path; role per client contract</td>
+<td>identity to pilot</td>
+</tr>
+<tr>
+<td>Compliance</td>
+<td>TDS, GST, records</td>
+<td>CA-validated TDS fixtures; export invoices under LUT; IRN for Indian clients; books retained at least 8 years; append-only money tables</td>
+<td>money and delivery</td>
+</tr>
+<tr>
+<td>Auditability</td>
+<td>trail</td>
+<td>every transition and money movement reconstructable with actor and timestamp</td>
+<td>market core and money</td>
+</tr>
+<tr>
+<td>Maintainability</td>
+<td>boundaries, tests, migrations</td>
+<td>a service imports only <code>packages/*</code>; fresh-database CI per service; changed-line coverage at least 97%; expand and contract migrations; contract-version gate</td>
+<td>CI</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>metrics, logs, traces</td>
+<td>section 12 signals; ids in logs, never secrets; one trace from app to ledger</td>
+<td>foundations to pilot</td>
+</tr>
+<tr>
+<td>Usability</td>
+<td>app</td>
+<td>keyboard-navigable; 1366×768; Hindi and English strings externalised (Stage 2)</td>
+<td>market core</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>infrastructure and LLM</td>
+<td>no new platform before a trigger; small Redis; S3 lifecycle; LLM spend capped per paper and per batch</td>
+<td>pilot</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="14-open-decisions">14. Open decisions</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Options</th>
+<th>Default</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Postgres operator</td>
+<td>Crunchy, Percona</td>
+<td>none in year one; decide when a platform owner exists</td>
+<td>Stage 3</td>
+</tr>
+<tr>
+<td>When <code>assess</code> leaves the Odoo image</td>
+<td>after the first paying pilot; later</td>
+<td>Stage 2, after the pilot</td>
+<td>Stage 2 planning</td>
+</tr>
+<tr>
+<td>Pricing method</td>
+<td>fixed rate per project; quote engine with tiers</td>
+<td>fixed now, tiers in Stage 2</td>
+<td>first paying pilot</td>
+</tr>
+<tr>
+<td>First factory vertical</td>
+<td>ERP replicas; Indian finance and tax; medicine or law; Indic language</td>
+<td>after the Stage 0 interviews</td>
+<td>Stage 0</td>
+</tr>
+<tr>
+<td>Trust score scope</td>
+<td>per domain; global</td>
+<td>per domain</td>
+<td>Stage 2</td>
+</tr>
+<tr>
+<td>Time-tracker client</td>
+<td>build; integrate a vendor</td>
+<td>neither until a client insists on hourly</td>
+<td>on demand</td>
+</tr>
+<tr>
+<td>Code-assessment sandbox</td>
+<td>self-hosted; SaaS</td>
+<td>per <code>ROADMAP.md</code> Phase 4</td>
+<td>Stage 2</td>
+</tr>
+</tbody></table></div>
+
+
+<p class="foot">Yantra, 2 November 2026. Every diagram can be edited in draw.io. Evidence tags: [D] disclosed by the company named, [R] reported by press or analysts, [E] estimate, [L] read from the company's own repositories.</p>
+</article></main></div>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme');
+function cur(){var t=r.getAttribute('data-theme');if(t)return t;return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
+function paint(){b.textContent=cur()==='dark'?'\u263C Light mode':'\u263E Dark mode';}
+try{var s=localStorage.getItem('etp.theme');if(s==='dark'||s==='light')r.setAttribute('data-theme',s);}catch(e){}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('etp.theme',n);}catch(e){}paint();});paint();
+})();
+</script>
+</body></html>

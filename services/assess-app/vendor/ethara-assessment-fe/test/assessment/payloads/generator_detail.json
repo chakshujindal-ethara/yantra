@@ -1,0 +1,84 @@
+{
+ "ok": true,
+ "data": {
+  "id": 42243,
+  "name": "UI CHECK - Structures Demo",
+  "active": true,
+  "state": "draft",
+  "sop_title": "",
+  "sop_gen_state": "idle",
+  "sop_gen_error": "",
+  "tag_extract_state": "idle",
+  "tag_extract_error": "",
+  "tag_extract_last_run": null,
+  "question_count": 0,
+  "approved_count": 0,
+  "resource_count": 2,
+  "similar_count": 0,
+  "tags": [],
+  "plain_tags": "",
+  "create_date": "2026-08-03T13:00:44Z",
+  "similar": [],
+  "sop_summary": "",
+  "source_text": "Keep language plain, avoid legalese.",
+  "question_count_mode": "auto",
+  "sop_question_count": 0,
+  "force_question_type": "",
+  "allowed_types": [],
+  "select_all_types": false,
+  "structure_mode": "",
+  "structure_count": 0,
+  "selected_structure_count": 0,
+  "structure_extract_state": "idle",
+  "last_extract_summary": "",
+  "tabs": {
+   "analysis": {
+    "metadata": {},
+    "mapping": {},
+    "skills": [],
+    "evidence": []
+   },
+   "requirements": {
+    "required_elements": [],
+    "covered_by_all": [],
+    "question_spec": {},
+    "rating_scheme": {}
+   },
+   "quality": {
+    "quality_criteria": [],
+    "failure_modes": [],
+    "gaps": [],
+    "conflicts": [],
+    "injection_flags": []
+   },
+   "resources": [
+    {
+     "id": 2511,
+     "name": "sop.md",
+     "category": "sop",
+     "status": "ready",
+     "char_count": 104,
+     "file_size": 104,
+     "extraction_error": "",
+     "sequence": 10
+    },
+    {
+     "id": 2512,
+     "name": "samples.txt",
+     "category": "sample",
+     "status": "ready",
+     "char_count": 26,
+     "file_size": 26,
+     "extraction_error": "",
+     "sequence": 10
+    }
+   ]
+  },
+  "draft_counts": {
+   "pending": 0,
+   "approved": 0,
+   "denied": 0,
+   "total": 0
+  }
+ }
+}

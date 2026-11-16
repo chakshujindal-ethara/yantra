@@ -1,0 +1,109 @@
+{{- /*
+Migrations run before every install and upgrade, one Job per deployable, as the schema owner role.
+They read their database URL from a hook Secret of their own (the release's Secrets do not exist yet on the
+first install). Weight: the Secret first (-20), work (-10), money (-5).
+*/ -}}
+{{- if .Values.migrate.enabled }}
+{{- $full := include "yantra.fullname" . }}
+{{- $secret := printf "%s-%s" $full .Values.secrets.migrate.key }}
+{{- if .Values.secrets.external }}
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-20"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  refreshInterval: {{ .Values.secrets.refreshInterval }}
+  secretStoreRef:
+    kind: {{ .Values.secrets.storeRef.kind }}
+    name: {{ .Values.secrets.storeRef.name }}
+  target:
+    name: {{ $secret }}
+    creationPolicy: Owner
+  data:
+    - secretKey: value
+      remoteRef:
+        key: {{ printf "%s/%s" .Values.secrets.remotePrefix .Values.secrets.migrate.key }}
+{{- else }}
+{{- $value := index .Values.secrets.values .Values.secrets.migrate.key }}
+{{- if not $value }}
+{{- fail (printf "secrets.values.%s is required (env=local)" .Values.secrets.migrate.key) }}
+{{- end }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "yantra.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-20"
+    helm.sh/hook-delete-policy: before-hook-creation
+type: Opaque
+stringData:
+  value: {{ $value | quote }}
+{{- end }}
+{{- range $i, $train := list "work" "money" }}
+{{- $modules := index $.Values.migrate $train "modules" }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $full }}-migrate-{{ $train }}
+  labels:
+    {{- include "yantra.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: migrate-{{ $train }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: {{ ternary "-10" "-5" (eq $train "work") | quote }}
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ $.Values.migrate.backoffLimit }}
+  activeDeadlineSeconds: {{ $.Values.migrate.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        {{- include "yantra.labels" $ | nindent 8 }}
+        app.kubernetes.io/component: migrate-{{ $train }}
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: migrate
+          image: {{ include "yantra.image" (dict "img" $.Values.image.python) }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ["python", "-m", "yantra_common.migrate", {{ range $j, $m := $modules }}{{ if $j }}, {{ end }}{{ $m | quote }}{{ end }}]
+          env:
+            - name: YANTRA_ENV
+              value: {{ $.Values.env | quote }}
+            - name: YANTRA_SERVICES_ROOT
+              value: /app/services
+            - name: YANTRA_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: value
+          resources:
+            {{- toYaml $.Values.migrate.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml $.Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+{{- end }}
+{{- end }}

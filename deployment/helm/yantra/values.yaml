@@ -1,0 +1,389 @@
+# Yantra chart defaults. Every environment layers one of values-{local,staging,prod}.yaml on top.
+# Conventions:
+#   * An env value that is an empty string is NOT rendered (unset), so pydantic defaults apply. Fill it to set it.
+#   * Secrets never live in values outside `env: local`; staging and prod read them through External Secrets.
+
+# local | staging | prod. Anything but local refuses plain-Secret rendering (see templates/secrets.yaml) and is
+# passed to every process as YANTRA_ENV (the processes refuse known local defaults outside local).
+env: local
+
+# Public hostnames: api.<domain> serves the gateway, app.<domain> serves the web app.
+domain: yantra.local
+
+image:
+  pullPolicy: IfNotPresent
+  # Staging and prod pin by digest (the promotion PR writes it); local uses a tag loaded into kind.
+  python:
+    repository: ghcr.io/etharalabs/yantra/python
+    tag: ""
+    digest: ""
+  # MinIO upstream no longer publishes images to Docker Hub; Bitnami's build of the same server, pinned.
+  minio:
+    repository: docker.io/bitnamilegacy/minio
+    tag: 2025.5.24-debian-12-r5
+    digest: ""
+  app:
+    repository: ghcr.io/etharalabs/yantra/app
+    tag: ""
+    digest: ""
+  odoo:
+    repository: ghcr.io/etharalabs/yantra/odoo
+    tag: ""
+    digest: ""
+  assessApp:
+    repository: ghcr.io/etharalabs/yantra/assess-app
+    tag: ""
+    digest: ""
+
+imagePullSecrets: []
+
+# YANTRA_RELEASE (Sentry release, log field). Empty: the python image digest, else its tag.
+release: ""
+
+# Shared, non-secret settings for every Python process (rendered into the ConfigMap `<release>-config`).
+config:
+  LOG_FORMAT: json
+  YANTRA_NATS_URL: nats://nats:4222
+  YANTRA_SMTP_HOST: ""
+  YANTRA_SMTP_PORT: ""
+  YANTRA_MAIL_FROM: ""
+  OTEL_EXPORTER_OTLP_ENDPOINT: ""
+  OTEL_SERVICE_NAMESPACE: yantra
+  # Trusted proxy CIDRs for uvicorn's X-Forwarded-For handling (the ingress controller's pod CIDR, plus
+  # 127.0.0.6 under an Istio sidecar). Required outside local (the chart refuses to render without it): untrusted,
+  # every client shares the ingress pod's address and so one per-IP rate limit.
+  FORWARDED_ALLOW_IPS: ""
+  # An events process is unready when its oldest unpublished outbox row is older than this and the backlog is not
+  # draining between two probes. Empty = 300.
+  YANTRA_OUTBOX_STUCK_SECONDS: ""
+  # The connection pool of every database process (yantra_common.db). Each pod may hold pool + overflow
+  # connections: keep sum(replicas x 10) + 10 for migrations and ops under 85% of max_connections
+  # (RUNBOOKS.md#connection-headroom; prod at its HPA maximum: (12 + 2 + 1 + 1) x 10 + 10 = 170).
+  # an API pod runs up to 40 sync requests at once (uvicorn's threadpool): fewer connections than that queue them
+  # (the claim-storm gate timed out on 8 + 4 at 64 in flight). Point the URLs at PgBouncer in transaction mode and
+  # budget against its pool (RUNBOOKS "Connection headroom").
+  YANTRA_DB_POOL_SIZE: "20"
+  YANTRA_DB_MAX_OVERFLOW: "20"
+  YANTRA_DB_POOL_TIMEOUT: "10"           # seconds a request waits for a free connection before failing
+  # --- money rail (M2). Empty = the process default (the fake rail locally).
+  YANTRA_RAIL: ""                      # razorpayx | file | fake
+  YANTRA_RAZORPAYX_BASE_URL: ""
+  YANTRA_RAZORPAYX_ACCOUNT_NUMBER: ""
+  YANTRA_RAZORPAYX_PAYOUT_MODE: ""     # NEFT | IMPS
+  YANTRA_RAZORPAYX_RATE_LIMIT_PER_MINUTE: ""
+  YANTRA_PAYOUT_CURRENCIES: ""           # JSON list, e.g. '["INR"]'
+  YANTRA_PAYOUT_MAX_PER_WINDOW: ""
+  YANTRA_PAYOUT_MAX_PER_WORKER: ""
+  YANTRA_PAYOUT_POLL_AFTER_SECONDS: ""
+  YANTRA_PAYOUT_INTEGRITY_HOLD_DAYS: ""
+  # --- object storage (M2)
+  YANTRA_S3_ENDPOINT: ""
+  YANTRA_S3_PUBLIC_ENDPOINT: ""
+  YANTRA_S3_BUCKET: ""
+  YANTRA_S3_REGION: ""
+  YANTRA_S3_PRESIGN_SECONDS: ""
+  YANTRA_S3_SSE_KMS_KEY_ID: ""
+  # --- tracker (M2). Empty = the defaults: 30 days, 40 hours, 15 minutes, 300 seconds.
+  YANTRA_TRACKER_RETENTION_DAYS: ""
+  YANTRA_TRACKER_DEFAULT_CAP_HOURS: ""
+  YANTRA_TRACKER_STALE_MINUTES: ""
+  YANTRA_TRACKER_SKEW_SECONDS: ""
+
+# Secrets: one Kubernetes Secret per key, named `<release>-<key>`, holding the value under `value`.
+# `external: false` renders plain Secrets from `values` (local/kind only; refused for staging and prod).
+# `external: true` renders one ExternalSecret per key, read from `<remotePrefix>/<key>` in the store, so an
+# optional key missing from the store never blocks the others.
+secrets:
+  external: false
+  storeRef:
+    kind: ClusterSecretStore
+    name: ""
+  remotePrefix: yantra
+  refreshInterval: 1h
+  # Only read when external is false.
+  values: {}
+  # The keys the chart may reference. An optional key may be absent from the store/values.
+  keys:
+    - {name: database-url-work, optional: false}
+    - {name: database-url-money, optional: false}
+    - {name: pii-key, optional: false}
+    - {name: audit-key, optional: false}  # quality's audit-sample HMAC (work); refused at first use if missing
+    - {name: bank-key, optional: false}   # money only: work never seals or opens an account number
+    - {name: redis-url, optional: false}
+    - {name: sentry-dsn, optional: true}
+    - {name: s3-access-key, optional: true}
+    - {name: s3-secret-key, optional: true}
+    - {name: razorpayx-key-id, optional: true}
+    - {name: razorpayx-key-secret, optional: true}
+    - {name: razorpayx-webhook-secret, optional: true}
+  # The migrate Jobs run before anything else exists, so their single key lives in its own hook Secret.
+  migrate:
+    key: database-url-migrate
+
+# Shared pod hardening (restricted Pod Security Standard).
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+# Secret env shared by every python process: env var -> secret key.
+commonSecretEnv:
+  YANTRA_PII_KEY: pii-key
+  SENTRY_DSN: sentry-dsn
+
+# One entry per Python process. All run the python image; the command picks the process.
+python:
+  gateway:
+    enabled: true
+    component: gateway
+    command: ["uvicorn", "--factory", "yantra_gateway.app:default_app", "--host", "0.0.0.0", "--port", "8090", "--no-access-log"]
+    port: 8090
+    replicas: 2
+    probes:
+      liveness: /health
+      readiness: /ready
+    metrics: true
+    env:
+      YANTRA_GATEWAY_KEYCLOAK_ISSUER: ""        # https://auth.<domain>/realms/yantra (required)
+      YANTRA_GATEWAY_KEYCLOAK_JWKS_URL: ""      # in-cluster keycloak URL when it differs from the issuer
+      YANTRA_GATEWAY_ALLOWED_ORIGINS: ""        # JSON list, e.g. '["https://app.yantra.example"]'
+      YANTRA_GATEWAY_RATE_LIMIT_PER_MINUTE: "600"
+    # The work/money URLs are computed from the in-cluster services (see templates/python.yaml).
+    secretEnv:
+      YANTRA_GATEWAY_REDIS_URL: redis-url
+    resources:
+      requests: {cpu: 100m, memory: 192Mi}
+      limits: {memory: 512Mi}
+    hpa: {enabled: false, minReplicas: 2, maxReplicas: 6, cpu: 70}
+    pdb: {enabled: false, minAvailable: 1}
+  work-api:
+    enabled: true
+    component: work-api
+    command: ["uvicorn", "--factory", "yantra_work.app:default_app", "--host", "0.0.0.0", "--port", "8081", "--no-access-log"]
+    port: 8081
+    replicas: 2
+    probes:
+      liveness: /health
+      readiness: /ready
+    metrics: true
+    env:
+      YANTRA_RATE_LIMIT_PER_MINUTE: "100000"   # the gateway limits callers; this is the inner guard
+    secretEnv:
+      YANTRA_DATABASE_URL: database-url-work
+      YANTRA_AUDIT_KEY: audit-key
+      YANTRA_S3_ACCESS_KEY: s3-access-key
+      YANTRA_S3_SECRET_KEY: s3-secret-key
+    resources:
+      requests: {cpu: 200m, memory: 256Mi}
+      limits: {memory: 768Mi}
+    hpa: {enabled: false, minReplicas: 2, maxReplicas: 8, cpu: 70}
+    pdb: {enabled: false, minAvailable: 1}
+  work-events:
+    enabled: true
+    component: work-events
+    command: ["python", "-m", "yantra_work.events"]
+    port: 8085                                  # YANTRA_EVENTS_PORT: /health, /ready, /metrics
+    replicas: 1
+    probes:
+      liveness: /health
+      readiness: /ready
+    metrics: true
+    env:
+      YANTRA_EVENTS_PORT: "8085"
+    secretEnv:
+      YANTRA_DATABASE_URL: database-url-work
+      YANTRA_AUDIT_KEY: audit-key
+      YANTRA_S3_ACCESS_KEY: s3-access-key
+      YANTRA_S3_SECRET_KEY: s3-secret-key
+    resources:
+      requests: {cpu: 100m, memory: 256Mi}
+      limits: {memory: 768Mi}
+    hpa: {enabled: false}
+    pdb: {enabled: false, minAvailable: 1}
+  money-api:
+    enabled: true
+    component: money-api
+    command: ["uvicorn", "--factory", "yantra_money.app:default_app", "--host", "0.0.0.0", "--port", "8082", "--no-access-log"]
+    port: 8082
+    replicas: 2
+    probes:
+      liveness: /health
+      readiness: /ready
+    metrics: true
+    env:
+      YANTRA_RATE_LIMIT_PER_MINUTE: "100000"
+      YANTRA_REQUIRES_BANK_KEY: "true"         # a deployed money process refuses to boot on the rig's bank key
+    secretEnv:
+      YANTRA_DATABASE_URL: database-url-money
+      YANTRA_BANK_KEY: bank-key
+      YANTRA_RAZORPAYX_KEY_ID: razorpayx-key-id
+      YANTRA_RAZORPAYX_KEY_SECRET: razorpayx-key-secret
+      YANTRA_RAZORPAYX_WEBHOOK_SECRET: razorpayx-webhook-secret
+    resources:
+      requests: {cpu: 100m, memory: 256Mi}
+      limits: {memory: 512Mi}
+    hpa: {enabled: false}
+    pdb: {enabled: false, minAvailable: 1}
+  money-events:
+    enabled: true
+    component: money-events
+    command: ["python", "-m", "yantra_money.events"]
+    port: 8086
+    replicas: 1
+    probes:
+      liveness: /health
+      readiness: /ready
+    metrics: true
+    env:
+      YANTRA_EVENTS_PORT: "8086"
+      YANTRA_REQUIRES_BANK_KEY: "true"
+    secretEnv:
+      YANTRA_DATABASE_URL: database-url-money
+      YANTRA_BANK_KEY: bank-key
+      YANTRA_RAZORPAYX_KEY_ID: razorpayx-key-id
+      YANTRA_RAZORPAYX_KEY_SECRET: razorpayx-key-secret
+      YANTRA_RAZORPAYX_WEBHOOK_SECRET: razorpayx-webhook-secret
+    resources:
+      requests: {cpu: 100m, memory: 192Mi}
+      limits: {memory: 512Mi}
+    hpa: {enabled: false}
+    pdb: {enabled: false, minAvailable: 1}
+
+# Migrations: one hook Job per deployable (they are the release trains). Runs as the schema owner role.
+migrate:
+  enabled: true
+  backoffLimit: 0
+  activeDeadlineSeconds: 600
+  work:
+    modules: [market, talent, assess, quality, notify, tracker, analytics]
+  money:
+    modules: [payout]
+  resources:
+    requests: {cpu: 100m, memory: 192Mi}
+    limits: {memory: 512Mi}
+
+# The web app (nginx-unprivileged, listening on 8080 as uid 101; GATEWAY_ORIGIN / KEYCLOAK_ORIGIN feed its CSP).
+app:
+  enabled: true
+  port: 8080
+  replicas: 2
+  gatewayOrigin: ""     # default https://api.<domain>
+  keycloakOrigin: ""    # e.g. https://auth.<domain>
+  # The username/password form on the sign-in page. Only a realm that allows the password grant (the local rig's)
+  # can use it; every real environment signs in through the Keycloak redirect.
+  directLogin: false
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    runAsGroup: 101
+    seccompProfile:
+      type: RuntimeDefault
+  resources:
+    requests: {cpu: 20m, memory: 32Mi}
+    limits: {memory: 128Mi}
+  pdb: {enabled: false, minAvailable: 1}
+
+ingress:
+  enabled: true
+  className: nginx
+  clusterIssuer: ""       # cert-manager ClusterIssuer; empty = no annotation
+  tlsSecretName: yantra-tls
+  annotations: {}
+  # nginx's default request body limit is 1 MiB. The API takes bodies up to YANTRA_MAX_BODY_BYTES (8 MiB); the files
+  # host takes presigned uploads (media up to 512 MiB, documents 10 MiB, screenshots 5 MiB) on its own Ingress.
+  apiBodySize: 10m
+  filesBodySize: 600m
+
+networkPolicy:
+  enabled: true
+  # Namespace label that selects the ingress controller's namespace.
+  ingressNamespaceSelector:
+    kubernetes.io/metadata.name: ingress-nginx
+  # Namespace label that selects the monitoring namespace (Prometheus scrapes /metrics).
+  monitoringNamespaceSelector:
+    kubernetes.io/metadata.name: monitoring
+  # Egress stays open unless set: the owner supplies Postgres/Redis/NATS/Keycloak/S3/rail CIDRs.
+  egress:
+    enabled: false
+    cidrs: []
+
+monitoring:
+  # The pods in the monitoring namespace allowed to scrape (NetworkPolicy): Prometheus only, never the whole
+  # namespace. The default matches the Prometheus Operator's pods.
+  prometheusSelector:
+    app.kubernetes.io/name: prometheus
+  serviceMonitor: false
+  interval: 30s
+  labels: {}
+
+serviceAccount:
+  create: true
+  automountToken: false
+
+# Object storage: a single-node MinIO for kind and staging. Production uses the MinIO operator (owner item) with
+# `enabled: false` and YANTRA_S3_ENDPOINT pointing at the tenant. The root credentials are the s3 secret keys.
+minio:
+  enabled: false
+  bucket: yantra
+  storage: 20Gi
+  storageClassName: ""
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {memory: 1Gi}
+
+# The Odoo bridge (staging-grade: one web process; the four-role topology is a later chart).
+odoo:
+  enabled: false
+  port: 8069
+  dbHost: ""
+  dbUser: odoo
+  dbName: odoo
+  # Required secret keys while odoo is enabled (added to secrets.keys by the templates).
+  secretKeys: [odoo-admin-passwd, odoo-db-password, keycloak-odoo-client-secret]
+  gatewayUrl: ""        # default: the in-cluster gateway service
+  keycloakUrl: ""
+  keycloakClientId: yantra-odoo
+  storage: 10Gi
+  storageClassName: ""
+  # Odoo runs threaded (workers=0); Assessment v2 has 13 crons, two threads run them.
+  cronThreads: 2
+  resources:
+    requests: {cpu: 500m, memory: 768Mi}
+    limits: {memory: 2Gi}
+
+# Assessment v2 (vendored into the Odoo image) and its exam app on assess.<domain>, which proxies the API to Odoo
+# on the same origin. Needs odoo.enabled. work-api and work-events get the adapter's YANTRA_ASSESS_* settings.
+assess:
+  enabled: false
+  port: 8080
+  replicas: 2
+  # The issuer in the service client's tokens (https://auth.<domain>/realms/yantra): required when enabled.
+  keycloakIssuer: ""
+  # Keycloak's base URL as the pods reach it (token and JWKS calls). Empty: the issuer's origin.
+  keycloakUrl: ""
+  clientId: yantra-assess
+  syncSeconds: ""                 # the adapter's attempt poll; empty = its default
+  # Assessment media: its own bucket on the same object store. Empty endpoints = config.YANTRA_S3_ENDPOINT /
+  # config.YANTRA_S3_PUBLIC_ENDPOINT (the public one is also what the exam app's CSP allows).
+  s3: {bucket: yantra-assess, region: us-east-1, folder: assess, endpoint: "", publicEndpoint: ""}
+  # Mount the vertex-service-account secret: SOP paper generation and LLM marking need it, a CSV bank does not.
+  vertex: false
+  secretKeys: [assess-client-secret, assess-s3-access-key, assess-s3-secret-key, assess-redis-url]
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    runAsGroup: 101
+    seccompProfile:
+      type: RuntimeDefault
+  resources:
+    requests: {cpu: 20m, memory: 32Mi}
+    limits: {memory: 128Mi}
+

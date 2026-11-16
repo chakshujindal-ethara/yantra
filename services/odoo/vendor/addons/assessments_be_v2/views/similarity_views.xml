@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- SOP similarity is presented INSIDE a generator's "Similar Projects" tab
+         (the ranked leaderboard + the all-pairs grid via the
+         `similarity_source_ids` One2many), per growth's request to fold the
+         matrix into that subtab rather than a separate top-level menu. The
+         `assessments.be.similarity` model stays as the queryable store; no
+         standalone action/menu is registered. A list view is defined here so the
+         embedded One2many has a stable, styled default and the pairs stay
+         sortable + exportable in-context. -->
+    <record id="assessments_be_similarity_list" model="ir.ui.view">
+        <field name="name">assessments.be.similarity.list</field>
+        <field name="model">assessments.be.similarity</field>
+        <field name="arch" type="xml">
+            <list string="SOP Similarity" default_order="overall desc"
+                  create="false" delete="false"
+                  decoration-success="band == 'near-duplicate'"
+                  decoration-warning="band == 'same-family'"
+                  decoration-muted="band == 'new-territory'">
+                <field name="source_id"/>
+                <field name="target_id"/>
+                <field name="overall" string="Match %"/>
+                <field name="lexical" string="Lexical %"/>
+                <field name="semantic" string="Semantic %"/>
+                <field name="band"/>
+                <field name="mode"/>
+                <field name="evidence" optional="show"/>
+                <field name="why" optional="hide"/>
+                <field name="computed_on" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="assessments_be_v2.EtpTemplateQuotas">
+        <div class="o_etp_tpl_quotas d-flex flex-wrap align-items-center gap-2">
+            <span t-foreach="chosen" t-as="tpl" t-key="tpl.key"
+                  class="badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-1 py-1">
+                <i class="fa fa-wpforms" aria-hidden="true"/>
+                <span t-esc="tpl.name"/>
+                <strong>× <t t-esc="countOf(tpl.key)"/></strong>
+                <t t-if="!props.readonly">
+                    <button type="button" class="btn btn-link btn-sm p-0 px-1"
+                            t-attf-aria-label="One fewer {{ tpl.name }}"
+                            title="One fewer"
+                            t-on-click="() => this.setCount(tpl.key, this.countOf(tpl.key) - 1)">
+                        <i class="fa fa-minus" aria-hidden="true"/>
+                    </button>
+                    <button type="button" class="btn btn-link btn-sm p-0 px-1"
+                            t-attf-aria-label="One more {{ tpl.name }}"
+                            title="One more"
+                            t-on-click="() => this.setCount(tpl.key, this.countOf(tpl.key) + 1)">
+                        <i class="fa fa-plus" aria-hidden="true"/>
+                    </button>
+                    <button type="button" class="btn btn-link btn-sm p-0 px-1"
+                            t-attf-aria-label="Remove {{ tpl.name }}"
+                            title="Remove"
+                            t-on-click="() => this.setCount(tpl.key, 0)">
+                        <i class="fa fa-times" aria-hidden="true"/>
+                    </button>
+                </t>
+            </span>
+            <!-- Built-in question-type counts, carried in the same field and
+                 summed into the run's total. Read-only: the type picker above
+                 is what adds and removes them. -->
+            <span t-foreach="typeCounts" t-as="ty" t-key="ty.key"
+                  class="badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-1 py-1"
+                  title="Set from the question types above">
+                <i class="fa fa-list-ul" aria-hidden="true"/>
+                <span t-esc="ty.name"/>
+                <strong>× <t t-esc="ty.count"/></strong>
+            </span>
+            <!-- A count whose template is archived or gone. It still counts
+                 toward the run's total, so it is shown - and it can only be
+                 removed: there is nothing to raise or lower. -->
+            <span t-foreach="missing" t-as="gone" t-key="gone.key"
+                  class="badge rounded-pill text-bg-danger d-inline-flex align-items-center gap-1 py-1">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"/>
+                <span>Missing form (<t t-esc="gone.id"/>)</span>
+                <strong>× <t t-esc="gone.count"/></strong>
+                <button t-if="!props.readonly" type="button"
+                        class="btn btn-link btn-sm p-0 px-1 text-white"
+                        t-attf-aria-label="Remove missing form {{ gone.id }}"
+                        title="Remove"
+                        t-on-click="() => this.setCount(gone.key, 0)">
+                    <i class="fa fa-times" aria-hidden="true"/>
+                </button>
+            </span>
+            <select t-if="!props.readonly and state.loaded and remaining.length"
+                    class="form-select form-select-sm w-auto"
+                    aria-label="Add a question template"
+                    t-on-change="onAdd">
+                <option value="">Add a question template…</option>
+                <option t-foreach="remaining" t-as="tpl" t-key="tpl.id"
+                        t-att-value="'template:' + tpl.id">
+                    <t t-esc="tpl.name"/><t t-if="health(tpl)"> · <t t-esc="health(tpl)"/></t>
+                </option>
+            </select>
+            <span t-if="!state.loaded" class="text-muted small">
+                <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-label="Loading"/>Loading templates…
+            </span>
+            <span t-elif="state.error" class="text-danger small" role="alert">
+                The question templates could not be loaded (<t t-esc="state.error"/>).
+                <button type="button" class="btn btn-link btn-sm p-0" t-on-click="load">Retry</button>
+            </span>
+            <span t-elif="!chosen.length and !missing.length and !remaining.length"
+                  class="text-muted small">
+                No question templates yet - add one on the Skills &amp; Templates tab.
+            </span>
+        </div>
+    </t>
+
+</templates>

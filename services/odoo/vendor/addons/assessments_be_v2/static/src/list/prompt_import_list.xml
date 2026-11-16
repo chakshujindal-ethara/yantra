@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- The Generators list's gear-menu entry - see prompt_import_list.js. -->
+    <t t-name="assessments_be_v2.GeneratorImportItem">
+        <DropdownItem class="'o_etp_generator_import'" onSelected.bind="onImport">
+            <i class="fa fa-fw fa-upload me-1"/>Import
+        </DropdownItem>
+    </t>
+
+    <!--
+        An always-visible "Import" beside "New" for the lists whose controller
+        supplies `onImportCsv` (tags, the question bank, pending approvals).
+        Inherits the base buttons template so "New" is preserved. Drawn only
+        where the list allows creating - the server strips `create` from the
+        arch for a user without create rights, so a read-only role never sees
+        an import it would be refused.
+    -->
+    <t t-name="assessments_be_v2.SimpleImportListButtons"
+       t-inherit="web.ListView.Buttons" t-inherit-mode="primary">
+        <xpath expr="." position="inside">
+            <button t-if="activeActions.create" type="button"
+                    class="btn btn-secondary o_etp_import_btn"
+                    t-on-click="onImportCsv">
+                <i class="fa fa-upload me-1"/>Import
+            </button>
+        </xpath>
+    </t>
+
+</templates>

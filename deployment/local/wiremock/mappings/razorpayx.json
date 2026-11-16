@@ -1,0 +1,485 @@
+{
+  "mappings": [
+    {
+      "name": "create contact",
+      "priority": 5,
+      "request": {
+        "method": "POST",
+        "urlPath": "/v1/contacts",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "cont_{{randomValue length=14 type='ALPHANUMERIC'}}",
+          "entity": "contact",
+          "name": "{{jsonPath request.body '$.name'}}",
+          "type": "vendor",
+          "reference_id": "{{jsonPath request.body '$.reference_id'}}",
+          "active": true
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "create fund account (0000)",
+      "priority": 3,
+      "request": {
+        "method": "POST",
+        "urlPath": "/v1/fund_accounts",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$.bank_account[?(@.account_number =~ /.*0000$/)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "fa_0000_{{randomValue length=10 type='ALPHANUMERIC'}}",
+          "entity": "fund_account",
+          "contact_id": "{{jsonPath request.body '$.contact_id'}}",
+          "account_type": "bank_account",
+          "active": true
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "create fund account (1111)",
+      "priority": 3,
+      "request": {
+        "method": "POST",
+        "urlPath": "/v1/fund_accounts",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$.bank_account[?(@.account_number =~ /.*1111$/)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "fa_1111_{{randomValue length=10 type='ALPHANUMERIC'}}",
+          "entity": "fund_account",
+          "contact_id": "{{jsonPath request.body '$.contact_id'}}",
+          "account_type": "bank_account",
+          "active": true
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "create fund account (ok)",
+      "priority": 5,
+      "request": {
+        "method": "POST",
+        "urlPath": "/v1/fund_accounts",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "fa_ok_{{randomValue length=10 type='ALPHANUMERIC'}}_{{replace (jsonPath request.body '$.bank_account.name') ' ' '_'}}",
+          "entity": "fund_account",
+          "contact_id": "{{jsonPath request.body '$.contact_id'}}",
+          "account_type": "bank_account",
+          "active": true
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "start penny drop",
+      "priority": 5,
+      "request": {
+        "method": "POST",
+        "urlPath": "/v1/fund_accounts/validations",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "fav_{{jsonPath request.body '$.fund_account.id'}}",
+          "entity": "fund_account.validation",
+          "status": "created",
+          "amount": 100,
+          "currency": "INR",
+          "results": {
+            "account_status": null,
+            "registered_name": null
+          }
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "penny drop: no such account",
+      "priority": 3,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v1/fund_accounts/validations/fav_fa_0000_.*",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "{{request.pathSegments.[3]}}",
+          "status": "completed",
+          "results": {
+            "account_status": "invalid",
+            "registered_name": null
+          }
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "penny drop: another name",
+      "priority": 3,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v1/fund_accounts/validations/fav_fa_1111_.*",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "{{request.pathSegments.[3]}}",
+          "status": "completed",
+          "results": {
+            "account_status": "active",
+            "registered_name": "SOMEONE ELSE"
+          }
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "penny drop: active, the bank's registered name",
+      "priority": 4,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v1/fund_accounts/validations/fav_fa_ok_[A-Za-z0-9]{10}_.+",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "{{request.pathSegments.[3]}}",
+          "status": "completed",
+          "results": {
+            "account_status": "active",
+            "registered_name": "{{regexExtract request.path 'fa_ok_[A-Za-z0-9]{10}_(.+)$' 'parts'}}{{upper (replace parts.0 '_' ' ')}}"
+          }
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "penny drop: active",
+      "priority": 5,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v1/fund_accounts/validations/fav_.*",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "{{request.pathSegments.[3]}}",
+          "status": "completed",
+          "results": {
+            "account_status": "active",
+            "registered_name": null
+          }
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "create payout",
+      "priority": 5,
+      "request": {
+        "method": "POST",
+        "urlPath": "/v1/payouts",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        },
+        "headers": {
+          "X-Payout-Idempotency": {
+            "matches": ".+"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "pout_{{jsonPath request.body '$.reference_id'}}_{{jsonPath request.body '$.amount'}}",
+          "entity": "payout",
+          "fund_account_id": "{{jsonPath request.body '$.fund_account_id'}}",
+          "amount": "{{jsonPath request.body '$.amount'}}",
+          "currency": "INR",
+          "mode": "{{jsonPath request.body '$.mode'}}",
+          "reference_id": "{{jsonPath request.body '$.reference_id'}}",
+          "status": "processing",
+          "utr": null
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "payout without an idempotency key",
+      "priority": 6,
+      "request": {
+        "method": "POST",
+        "urlPath": "/v1/payouts",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "error": {
+            "code": "BAD_REQUEST_ERROR",
+            "description": "X-Payout-Idempotency header is required"
+          }
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "payout fails (paise 13)",
+      "priority": 3,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v1/payouts/pout_.*13",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "{{request.pathSegments.[2]}}",
+          "entity": "payout",
+          "amount": "{{regexExtract request.path '[0-9]+$'}}",
+          "currency": "INR",
+          "reference_id": "{{regexExtract request.path '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[0-9]+'}}",
+          "status": "rejected",
+          "utr": null,
+          "status_details": {
+            "reason": "insufficient_funds",
+            "description": "emulated failure"
+          }
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "payout returned (paise 99)",
+      "priority": 3,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v1/payouts/pout_.*99",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "{{request.pathSegments.[2]}}",
+          "entity": "payout",
+          "amount": "{{regexExtract request.path '[0-9]+$'}}",
+          "currency": "INR",
+          "reference_id": "{{regexExtract request.path '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[0-9]+'}}",
+          "status": "reversed",
+          "utr": null,
+          "status_details": {
+            "reason": "beneficiary_account_closed",
+            "description": "emulated return"
+          }
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "payout processed",
+      "priority": 5,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v1/payouts/pout_.*",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "{{request.pathSegments.[2]}}",
+          "entity": "payout",
+          "amount": "{{regexExtract request.path '[0-9]+$'}}",
+          "currency": "INR",
+          "reference_id": "{{regexExtract request.path '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[0-9]+'}}",
+          "status": "processed",
+          "utr": "UTR{{randomValue length=12 type='NUMERIC'}}"
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "find payout by reference (stateless: never seen)",
+      "priority": 5,
+      "request": {
+        "method": "GET",
+        "urlPath": "/v1/payouts",
+        "basicAuthCredentials": {
+          "username": "rzp_test_yantra",
+          "password": "yantra-local-razorpayx-secret"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "entity": "collection",
+          "count": 0,
+          "items": []
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "wrong or missing key",
+      "priority": 10,
+      "request": {
+        "urlPathPattern": "/v1/.*"
+      },
+      "response": {
+        "status": 401,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "error": {
+            "code": "BAD_REQUEST_ERROR",
+            "description": "The api key provided is invalid"
+          }
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    }
+  ]
+}

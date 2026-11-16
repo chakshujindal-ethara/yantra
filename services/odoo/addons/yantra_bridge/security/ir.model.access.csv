@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_yantra_worker_ops,yantra.worker ops,model_yantra_worker,group_yantra_ops,1,1,1,1
+access_yantra_cert_gate_ops,yantra.cert.gate ops,model_yantra_cert_gate,group_yantra_ops,1,1,1,1
+access_yantra_pay_window_ops,yantra.pay.window ops,model_yantra_pay_window,group_yantra_ops,1,1,1,1
+access_yantra_pay_window_line_ops,yantra.pay.window.line ops,model_yantra_pay_window_line,group_yantra_ops,1,1,1,1
+access_yantra_client_project_ops,yantra.client.project ops,model_yantra_client_project,group_yantra_ops,1,1,1,1
+access_yantra_batch_ops,yantra.batch ops,model_yantra_batch,group_yantra_ops,1,1,1,1

@@ -1,0 +1,371 @@
+{
+ "ok": true,
+ "data": [
+  {
+   "id": 1828,
+   "name": "domain:image-annotation",
+   "prefix": "domain",
+   "display": "Image Annotation",
+   "label": "image-annotation",
+   "color": 1,
+   "usage_count": 3
+  },
+  {
+   "id": 1817,
+   "name": "domain:image-evaluation",
+   "prefix": "domain",
+   "display": "Image Evaluation",
+   "label": "image-evaluation",
+   "color": 1,
+   "usage_count": 3
+  },
+  {
+   "id": 1836,
+   "name": "domain:interior-design",
+   "prefix": "domain",
+   "display": "Interior Design",
+   "label": "interior-design",
+   "color": 0,
+   "usage_count": 1
+  },
+  {
+   "id": 1805,
+   "name": "domain:ui-annotation",
+   "prefix": "domain",
+   "display": "UI Annotation",
+   "label": "ui-annotation",
+   "color": 5,
+   "usage_count": 1
+  },
+  {
+   "id": 1811,
+   "name": "domain:video-evaluation",
+   "prefix": "domain",
+   "display": "Video Evaluation",
+   "label": "video-evaluation",
+   "color": 1,
+   "usage_count": 1
+  },
+  {
+   "id": 1837,
+   "name": "domain:video-style-transfer",
+   "prefix": "domain",
+   "display": "Video Style Transfer",
+   "label": "video-style-transfer",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1809,
+   "name": "modality:application-screenshot",
+   "prefix": "modality",
+   "display": "App Screenshot",
+   "label": "application-screenshot",
+   "color": 11,
+   "usage_count": 1
+  },
+  {
+   "id": 1808,
+   "name": "modality:image",
+   "prefix": "modality",
+   "display": "Image",
+   "label": "image",
+   "color": 0,
+   "usage_count": 7
+  },
+  {
+   "id": 1815,
+   "name": "modality:video",
+   "prefix": "modality",
+   "display": "Video",
+   "label": "video",
+   "color": 0,
+   "usage_count": 3
+  },
+  {
+   "id": 1822,
+   "name": "output-format:ab-choice",
+   "prefix": "output-format",
+   "display": "A/B Choice",
+   "label": "ab-choice",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1832,
+   "name": "output-format:bounding-boxes",
+   "prefix": "output-format",
+   "display": "Bounding Boxes",
+   "label": "bounding-boxes",
+   "color": 0,
+   "usage_count": 0
+  },
+  {
+   "id": 1819,
+   "name": "output-format:point-coordinates",
+   "prefix": "output-format",
+   "display": "Point Coordinates",
+   "label": "point-coordinates",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1846,
+   "name": "output-format:point-coordinates-and-text",
+   "prefix": "output-format",
+   "display": "Points and Descriptions",
+   "label": "point-coordinates-and-text",
+   "color": 0,
+   "usage_count": 1
+  },
+  {
+   "id": 1810,
+   "name": "output-format:text-description",
+   "prefix": "output-format",
+   "display": "Text Description",
+   "label": "text-description",
+   "color": 0,
+   "usage_count": 1
+  },
+  {
+   "id": 1834,
+   "name": "output-format:written-prompt",
+   "prefix": "output-format",
+   "display": "Written Prompt",
+   "label": "written-prompt",
+   "color": 0,
+   "usage_count": 4
+  },
+  {
+   "id": 1826,
+   "name": "output-format:yes-no-answers",
+   "prefix": "output-format",
+   "display": "Yes/No Answers",
+   "label": "yes-no-answers",
+   "color": 0,
+   "usage_count": 1
+  },
+  {
+   "id": 1807,
+   "name": "skill:action-based-description",
+   "prefix": "skill",
+   "display": "Describe Actions",
+   "label": "action-based-description",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1824,
+   "name": "skill:artifact-detection",
+   "prefix": "skill",
+   "display": "Spot Artifacts",
+   "label": "artifact-detection",
+   "color": 0,
+   "usage_count": 6
+  },
+  {
+   "id": 1831,
+   "name": "skill:bounding-box-annotation",
+   "prefix": "skill",
+   "display": "Draw Bounding Boxes",
+   "label": "bounding-box-annotation",
+   "color": 0,
+   "usage_count": 0
+  },
+  {
+   "id": 1821,
+   "name": "skill:comparative-judgment",
+   "prefix": "skill",
+   "display": "Compare and Judge",
+   "label": "comparative-judgment",
+   "color": 0,
+   "usage_count": 3
+  },
+  {
+   "id": 1843,
+   "name": "skill:concrete-description-writing",
+   "prefix": "skill",
+   "display": "Write Concrete Descriptions",
+   "label": "concrete-description-writing",
+   "color": 0,
+   "usage_count": 3
+  },
+  {
+   "id": 1830,
+   "name": "skill:entity-recognition",
+   "prefix": "skill",
+   "display": "Recognize Entities",
+   "label": "entity-recognition",
+   "color": 0,
+   "usage_count": 0
+  },
+  {
+   "id": 1829,
+   "name": "skill:exact-match-verification",
+   "prefix": "skill",
+   "display": "Verify Exact Matches",
+   "label": "exact-match-verification",
+   "color": 0,
+   "usage_count": 0
+  },
+  {
+   "id": 1827,
+   "name": "skill:pixel-alignment",
+   "prefix": "skill",
+   "display": "Align Pixels",
+   "label": "pixel-alignment",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1842,
+   "name": "skill:precise-point-placement",
+   "prefix": "skill",
+   "display": "Precise Point Placement",
+   "label": "precise-point-placement",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1833,
+   "name": "skill:prompt-adherence-evaluation",
+   "prefix": "skill",
+   "display": "Evaluate Prompt Adherence",
+   "label": "prompt-adherence-evaluation",
+   "color": 0,
+   "usage_count": 3
+  },
+  {
+   "id": 1838,
+   "name": "skill:prompt-deconstruction",
+   "prefix": "skill",
+   "display": "Prompt Deconstruction",
+   "label": "prompt-deconstruction",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1820,
+   "name": "skill:prompt-engineering",
+   "prefix": "skill",
+   "display": "Write Good Prompts",
+   "label": "prompt-engineering",
+   "color": 0,
+   "usage_count": 5
+  },
+  {
+   "id": 1814,
+   "name": "skill:style-analysis",
+   "prefix": "skill",
+   "display": "Analyze Style",
+   "label": "style-analysis",
+   "color": 0,
+   "usage_count": 3
+  },
+  {
+   "id": 1823,
+   "name": "skill:ui-element-recognition",
+   "prefix": "skill",
+   "display": "Recognize UI Elements",
+   "label": "ui-element-recognition",
+   "color": 0,
+   "usage_count": 1
+  },
+  {
+   "id": 1841,
+   "name": "skill:video-pair-selection",
+   "prefix": "skill",
+   "display": "Select Video Pairs",
+   "label": "video-pair-selection",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1835,
+   "name": "task:bounding-box-annotation",
+   "prefix": "task",
+   "display": "Bounding Box Annotation",
+   "label": "bounding-box-annotation",
+   "color": 0,
+   "usage_count": 0
+  },
+  {
+   "id": 1806,
+   "name": "task:bounding-box-labeling",
+   "prefix": "task",
+   "display": "Draw Bounding Boxes",
+   "label": "bounding-box-labeling",
+   "color": 0,
+   "usage_count": 0
+  },
+  {
+   "id": 1839,
+   "name": "task:image-comparison",
+   "prefix": "task",
+   "display": "Compare Two AI Images (A/B)",
+   "label": "image-comparison",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1825,
+   "name": "task:image-edit-evaluation",
+   "prefix": "task",
+   "display": "Evaluate Image Edits",
+   "label": "image-edit-evaluation",
+   "color": 0,
+   "usage_count": 1
+  },
+  {
+   "id": 1812,
+   "name": "task:pairwise-comparison",
+   "prefix": "task",
+   "display": "Compare Two Options",
+   "label": "pairwise-comparison",
+   "color": 0,
+   "usage_count": 0
+  },
+  {
+   "id": 1818,
+   "name": "task:point-annotation",
+   "prefix": "task",
+   "display": "Annotate Specific Points",
+   "label": "point-annotation",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1845,
+   "name": "task:prompt-and-annotate-defects",
+   "prefix": "task",
+   "display": "Prompt and Annotate AI Defects",
+   "label": "prompt-and-annotate-defects",
+   "color": 0,
+   "usage_count": 1
+  },
+  {
+   "id": 1813,
+   "name": "task:prompt-generation",
+   "prefix": "task",
+   "display": "Write Prompts",
+   "label": "prompt-generation",
+   "color": 0,
+   "usage_count": 2
+  },
+  {
+   "id": 1844,
+   "name": "task:ui-element-description",
+   "prefix": "task",
+   "display": "Describe UI Elements",
+   "label": "ui-element-description",
+   "color": 0,
+   "usage_count": 1
+  }
+ ],
+ "meta": {
+  "total": 42,
+  "limit": 40,
+  "offset": 0,
+  "has_more": true
+ }
+}
