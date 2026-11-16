@@ -3,7 +3,7 @@ name = "yantra-contracts"
 version = "0.1.0"
 description = "Event schemas and API contracts shared by every Yantra service and the app."
 requires-python = ">=3.12,<3.13"
-dependencies = ["pydantic==2.9.2"]
+dependencies = ["pydantic==2.14.3"]
 
 [build-system]
 requires = ["hatchling==1.26.3"]
