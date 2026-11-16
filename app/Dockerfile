@@ -34,7 +34,7 @@ RUN flutter build web --release --no-web-resources-cdn \
 # the container refuses to start without GATEWAY_URL and KEYCLOAK_URL (its content security policy names them).
 # nginx-unprivileged runs as uid 101 on 8080: restricted pod security admits it with a read-only root
 # filesystem (only /tmp is written: the pid, the caches and the rendered config and headers).
-FROM nginxinc/nginx-unprivileged:1.27.5-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/40-yantra-config.sh /docker-entrypoint.d/40-yantra-config.sh
 COPY --from=build /src/build/web /usr/share/nginx/html
